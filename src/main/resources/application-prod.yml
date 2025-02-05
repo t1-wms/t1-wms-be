@@ -1,0 +1,28 @@
+spring:
+  application:
+    name: wms
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://wmsdb.cswkhwlfziph.ap-northeast-2.rds.amazonaws.com:3306/wms
+    username: wms
+    password: ${secret.mysql.password}
+
+  cloud:
+    aws:
+      credentials:
+        accessKey: ${secret.cloud.accessKey}
+        secretKey: ${secret.cloud.secretKey}
+      s3:
+        bucket: wms
+      region:
+        static: ap-northeast-2
+      stack:
+        auto: false
+
+  data:
+    redis:
+      host: 172.31.37.49
+      port: 6379
+      password: ${secret.redis.password}
+

@@ -1,0 +1,80 @@
+management:
+  health:
+    diskspace:
+      enabled: true
+    default:
+      enabled: true
+    db:
+      enabled: true
+  servlet:
+    context-path: /manage
+
+spa:
+  default-file: /dist/index.html5
+
+spring:
+  web:
+    resources:
+      static-locations: classpath:/dist/
+      add-mappings: false
+
+  application:
+    name: wms
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/wms
+    username: root
+    password:
+
+  redis:
+    host: localhost
+    port: 6379
+    password: ""
+
+logging:
+  level:
+    org:
+      hibernate.SQL: DEBUG
+      hibernate.type.descriptor.sql.BasicBinder: TRACE
+      spring.boot: DEBUG
+      spring.security: DEBUG
+      spring.web: DEBUG
+      apache.tiles: INFO
+      spring.mail: DEBUG
+    root: INFO
+
+server:
+  error:
+    include-stacktrace: never
+  servlet:
+    encoding:
+      enabled: true
+      force: true
+      charset: UTF-8
+    context-path: /api
+  address: 0.0.0.0
+  port: 8080
+  compression:
+    enabled: true
+    mime-types: application/json,application/xml,text/html,text/xml,text/plain,application/javascript,text/css
+
+build:
+  date: "@build.date@"
+
+springfox:
+  documentation:
+    swagger:
+      use-model-v3: false
+
+cloud:
+  aws:
+    credentials:
+      accessKey: ${secret.cloud.accessKey}
+      secretKey: ${secret.cloud.secretKey}
+    s3:
+      bucket: wms
+    region:
+      static: ap-northeast-2
+    stack:
+      auto: false
