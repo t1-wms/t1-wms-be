@@ -8,16 +8,16 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class Product {
-    private Long productId;
-    private String productCode;
-    private String productName;
-    private Integer purchasePrice;
-    private Integer salePrice;
-    private Integer lotUnit;
-    private Long supplierId;
-    private Integer stockLotCount;
-    private String category;
-    private String minLotCount;
-    private Integer leadTime;
+    private Long productId; // 제품 고유 ID
+    private String productCode; // 제품 코드
+    private String productName; // 제품 이름
+    private Integer purchasePrice; // 구매 가격
+    private Integer salePrice; // 판매 가격
+    private Integer lotUnit; // 로트당 제품 수량
+    private Long supplierId; // 공급자 ID
+    private Integer stockLotCount; // 재고 로트 수량
+    private String category; // 카테고리
+    private String minLotCount; // 최소 LOT 수량
+    private Integer leadTime; // 이 품목이 납품업체로부터 납품될 때 까지 걸리는 시간
     private String locationBinCode;
 }
