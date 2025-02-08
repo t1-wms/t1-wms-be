@@ -14,13 +14,13 @@ public class OutboundPlanProduct {
 
     private Long outboundPlanId;
 
-    private Long productId;
+    private Long productId; // 제품 ID
 
-    private Integer requiredQuantity;
+    private Integer requiredQuantity; // 필요 수량
 
-    private Integer StockUsedQuantity;
+    private Integer StockUsedQuantity; // 재고에서 사용한 수량
 
-    private Integer OrderQuantity;
+    private Integer OrderQuantity; // 주문된 수량 (재고 부족 시 발주)
 
-    private String status;
+    private String status; // 계획 상태 (예: 대기, 진행 중, 완료)
 }
