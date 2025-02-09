@@ -2,6 +2,7 @@ package com.example.wms.user.application.domain;
 
 import com.example.wms.user.application.domain.enums.UserRole;
 import lombok.*;
+import org.apache.ibatis.type.Alias;
 
 
 @Getter

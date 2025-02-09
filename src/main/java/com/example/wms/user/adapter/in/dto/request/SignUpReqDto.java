@@ -17,6 +17,7 @@ public class SignUpReqDto {
     private String phone;
     private String address;
     private String gender;
+    private Boolean isActive;
     private String birthDate;
     private Long supplierId; //공급업체 여부
 
@@ -27,7 +28,9 @@ public class SignUpReqDto {
                 .password(password)
                 .name(name)
                 .phone(phone)
+                .address(address)
                 .userRole(UserRole.ROLE_USER)
+                .isActive(true)
                 .gender(gender)
                 .birthDate(birthDate)
                 .supplierId(supplierId)

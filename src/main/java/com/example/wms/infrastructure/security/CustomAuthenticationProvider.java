@@ -19,10 +19,10 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-        String email = authentication.getName();
+        String staffNumber  = authentication.getName();
 
         // 사용자 로드 (비밀번호 체크 없이 수행)
-        CustomUserDetails userDetails = (CustomUserDetails) userDetailsService.loadUserByUsername(email);
+        CustomUserDetails userDetails = (CustomUserDetails) userDetailsService.loadUserByUsername(staffNumber );
 
         // 인증 성공 시 Authentication 객체 반환
         return new UsernamePasswordAuthenticationToken(

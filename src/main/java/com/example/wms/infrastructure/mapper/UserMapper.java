@@ -21,7 +21,6 @@ public interface UserMapper {
     boolean existsByStaffNumber(@Param("staffNumber") String staffNumber);
 
     // 직원 번호로 사용자 삭제
-    @Delete("DELETE FROM users WHERE staff_number = #{staffNumber}")
     void deleteByStaffNumber(@Param("staffNumber") String staffNumber);
 
     // 사용자 정보 업데이트

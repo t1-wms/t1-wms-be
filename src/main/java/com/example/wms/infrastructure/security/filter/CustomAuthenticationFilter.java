@@ -59,11 +59,8 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
      * 허용 URL 경로 배열
      */
     private static final String[] PERMIT_URLS = {
-            "/api/user/signup",
-            "/api/user/login",
-            "/api/user/send-email-code",
-            "/api/user/check-email-code",
-            "/api/user/check-login-email",
+            "/api/auth/register",
+            "/api/auth/login",
             "/api/user/reissue-token",
             "/api/upload",
     };
@@ -73,17 +70,34 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
      * 만료된 경우 Redis에 저장된 Refresh Token을 통해 새로운 Access Token을 재발급합니다.
      */
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String token = getJwtFromRequest(request);
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
+                                    FilterChain filterChain) throws ServletException, IOException {
+        String requestUri = request.getRequestURI();
 
-        if (StringUtils.hasText(token) && jwtTokenProvider.validateToken(token)) {
-            String email = jwtTokenProvider.getEmailFromToken(token);
-
-            Authentication authentication = new UsernamePasswordAuthenticationToken(email, null, Collections.emptyList());
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+        // 허용된 URL 경로인지 확인
+        if (isPermitUrl(requestUri)) {
+            filterChain.doFilter(request, response);
+            return;
         }
 
-        filterChain.doFilter(request, response);
+        try {
+            Token token = resolveAccessToken(request);
+            // 로그아웃 상태인지 확인
+            checkLogout(token.getToken());
+
+            // Access Token이 유효한 경우 SecurityContext에 인증 정보를 설정합니다.
+            if (token != null && jwtTokenProvider.validateToken(token.getToken())) {
+                Authentication authentication = jwtTokenProvider.getAuthentication(token.getToken());
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            } else if (token != null && !jwtTokenProvider.validateToken(token.getToken())) {
+                handleExpiredAccessToken(request, response);
+                return;
+            }
+
+            filterChain.doFilter(request, response);
+        } catch (TokenException e) {
+            makeTokenExceptionResponse(response, e);
+        }
     }
 
     private String getJwtFromRequest(HttpServletRequest request) {
