@@ -20,7 +20,7 @@ spring:
 
   application:
     name: wms
-    
+
   sql:
   init:
     mode: always
