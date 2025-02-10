@@ -19,8 +19,8 @@
 
     <!-- 회원가입 -->
     <insert id="save" useGeneratedKeys="true" keyProperty="userId">
-        INSERT INTO Users (staff_number, password, name, phone, gender, birth_date, supplier_id, user_role, address, created_at, updated_at)
-        VALUES (#{user.staffNumber}, #{user.password}, #{user.name}, #{user.phone}, #{user.gender}, #{user.birthDate}, #{user.supplierId}, #{user.userRole}, #{user.address}, NOW(), NOW());
+        INSERT INTO Users (staff_number, password, name, phone, gender, birth_date, supplier_id, user_role, address, is_active, created_at, updated_at)
+        VALUES (#{user.staffNumber}, #{user.password}, #{user.name}, #{user.phone}, #{user.gender}, #{user.birthDate}, #{user.supplierId}, #{user.userRole}, #{user.address}, #{user.isActive}, NOW(), NOW());
     </insert>
 
     <!-- 직원 번호로 사용자 조회 -->
@@ -61,6 +61,15 @@
     <!-- 모든 사용자 조회 -->
     <select id="findAll" resultMap="userResultMap">
         SELECT * FROM Users;
+    </select>
+
+    <!-- 역할에 따른 마지막 사번 조회 -->
+    <select id="findLastStaffNumberByRole" parameterType="String" resultType="String">
+        SELECT staff_number
+        FROM Users
+        WHERE staff_number LIKE CONCAT(#{prefix}, '%')
+        ORDER BY staff_number DESC
+            LIMIT 1
     </select>
 
 </mapper>

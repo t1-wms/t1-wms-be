@@ -3,7 +3,6 @@ package com.example.wms.infrastructure.mapper;
 import com.example.wms.user.application.domain.User;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Delete;
 
 import java.util.List;
 import java.util.Optional;
@@ -34,4 +33,7 @@ public interface UserMapper {
 
     // 모든 사용자 조회
     List<User> findAll();
+
+    // 역할별 마지막 사번 조회
+    String findLastStaffNumberByRole(@Param("prefix") String prefix);
 }

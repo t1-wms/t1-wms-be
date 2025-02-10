@@ -9,7 +9,7 @@ import com.example.wms.user.adapter.in.dto.response.TokenInfo;
 import com.example.wms.user.adapter.in.dto.response.UserInfoResDto;
 import com.example.wms.user.application.domain.LogoutAccessToken;
 import com.example.wms.user.application.domain.User;
-import com.example.wms.user.application.domain.enums.UserExceptionMessage;
+import com.example.wms.user.application.domain.enums.UserRole;
 import com.example.wms.user.application.exception.UserNotFoundException;
 import com.example.wms.user.application.port.in.AuthUseCase;
 import com.example.wms.user.application.port.out.AuthPort;
@@ -20,6 +20,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import static com.example.wms.infrastructure.security.util.SecurityUtils.getLoginUserStaffNumber;
+import static com.example.wms.user.application.domain.enums.UserExceptionMessage.DUPLICATED_STAFF_NUMBER;
 import static com.example.wms.user.application.domain.enums.UserExceptionMessage.USER_NOT_FOUND;
 
 @Service
@@ -33,21 +34,27 @@ public class AuthService implements AuthUseCase {
     private final RefreshTokenService refreshTokenService;
     private final LogoutAccessTokenRedisRepository logoutAccessTokenRedisRepository;
     private final PasswordEncoder passwordEncoder;
-
+    private final UserService userService; // UserService를 주입받음
 
     @Override
     public AuthenticatedResDto signUp(SignUpReqDto signUpReqDto) {
-        if (userQueryPort.existsByStaffNumber(signUpReqDto.getStaffNumber())) {
-            throw new DuplicatedException(UserExceptionMessage.SIGN_UP_NOT_VALID.getMessage());
+        UserRole userRole = UserRole.getUserRole(signUpReqDto.getUserRole());
+
+        // 사번 자동 생성
+        String staffNumber = userService.generateStaffNumber(userRole);
+
+        if (userQueryPort.existsByStaffNumber(staffNumber)) {
+            throw new DuplicatedException(DUPLICATED_STAFF_NUMBER.getMessage());
         }
 
-        // 패스워드 암호화
-        signUpReqDto.setPassword(passwordEncoder.encode(signUpReqDto.getPassword()));
+        signUpReqDto.setPassword(passwordEncoder.encode(signUpReqDto.getBirthDate()));
         log.info("[회원가입] 패스워드 암호화 완료.");
+
+        signUpReqDto.setStaffNumber(staffNumber);
 
         User user = authPort.save(signUpReqDto.dtoToEntity());
 
-        TokenInfo tokenInfo = jwtTokenService.generateAndSaveTokens(user.getStaffNumber(), user.getPassword());
+        TokenInfo tokenInfo = jwtTokenService.generateAndSaveTokens(staffNumber, signUpReqDto.getBirthDate());
 
         log.info("[회원가입 성공] 사번: {}", user.getStaffNumber());
 

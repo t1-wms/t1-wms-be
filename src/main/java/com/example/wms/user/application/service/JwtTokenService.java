@@ -5,8 +5,8 @@ import com.example.wms.user.application.port.in.JwtTokenUseCase;
 import com.example.wms.user.application.port.out.JwtTokenPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
@@ -16,17 +16,21 @@ import org.springframework.stereotype.Service;
 public class JwtTokenService implements JwtTokenUseCase {
 
     private final JwtTokenPort jwtTokenPort;
-    private final AuthenticationManager authenticationManager;
+    private final AuthenticationManagerBuilder authenticationManagerBuilder;
 
     @Override
     public TokenInfo generateAndSaveTokens(String staffNumber, String password) {
-        // 인증 처리
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(staffNumber, password);
-        Authentication authentication = authenticationManager.authenticate(authenticationToken);
 
-        // 토큰 생성 및 반환
-        return jwtTokenPort.generateToken(authentication);
+        try {
+            Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+            log.info("[인증 처리] 인증 성공.  : {}", staffNumber);
+            return jwtTokenPort.generateToken(authentication);
+        } catch (Exception e) {
+            log.error("[인증 실패] staffNumber : {}, error: {}", staffNumber, e.getMessage());
+            throw e;
+        }
     }
 
     @Override

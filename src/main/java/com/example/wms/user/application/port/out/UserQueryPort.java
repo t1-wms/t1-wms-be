@@ -8,6 +8,7 @@ import java.util.Optional;
 public interface UserQueryPort {
     boolean existsByStaffNumber(String staffNumber);
     Optional<User> findByStaffNumber(String staffNumber);
+    String findLastStaffNumberByRole(String prefix);
     Optional<User> findById(Long userId);
     boolean existsById(Long userId);
     List<User> findAllUsers();

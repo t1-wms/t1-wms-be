@@ -11,8 +11,9 @@ import lombok.Data;
 @Builder
 public class SignUpReqDto {
 
-    private String staffNumber; //랜덤생성해줄지 ?
+    private String staffNumber; // role에 따라 생성
     private String password; //기본 비밀번호 설정
+    private String userRole;
     private String name;
     private String phone;
     private String address;
@@ -29,7 +30,7 @@ public class SignUpReqDto {
                 .name(name)
                 .phone(phone)
                 .address(address)
-                .userRole(UserRole.ROLE_USER)
+                .userRole(UserRole.getUserRole(userRole))
                 .isActive(true)
                 .gender(gender)
                 .birthDate(birthDate)
