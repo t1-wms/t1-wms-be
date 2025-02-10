@@ -63,6 +63,7 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
             "/api/auth/login",
             "/api/user/reissue-token",
             "/api/upload",
+            "/api/outbound"
     };
 
     /**
