@@ -11,5 +11,5 @@ public interface UserQueryPort {
     String findLastStaffNumberByRole(String prefix);
     Optional<User> findById(Long userId);
     boolean existsById(Long userId);
-    List<User> findAllUsers();
+
 }

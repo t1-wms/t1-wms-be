@@ -36,11 +36,6 @@ public class UserQueryAdapter implements UserQueryPort {
     }
 
     @Override
-    public List<User> findAllUsers() {
-        return userMapper.findAll();
-    }
-
-    @Override
     public String findLastStaffNumberByRole(String role) {
         return userMapper.findLastStaffNumberByRole(role);
     }

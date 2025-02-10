@@ -59,8 +59,9 @@
     </select>
 
     <!-- 모든 사용자 조회 -->
-    <select id="findAll" resultMap="userResultMap">
-        SELECT * FROM Users;
+    <select id="findAllUsers" resultMap="userResultMap">
+        SELECT * FROM Users
+        LIMIT #{limit} OFFSET #{offset};
     </select>
 
     <!-- 역할에 따른 마지막 사번 조회 -->
