@@ -55,7 +55,7 @@ logging:
       spring.security: DEBUG
       spring.web: DEBUG
       apache.tiles: INFO
-      mybatis: DEBUG
+      spring.mail: DEBUG
     root: INFO
 
 server:
@@ -107,12 +107,6 @@ jwt:
   secret: ${secret-jwt.secret}
 
 mybatis:
-  mapper-locations: classpath:/mybatis/**/*.xml
+  mapper-locations: classpath:mappers/*.xml
   type-aliases-package: com.example.wms.user.application.domain
-  configuration:
-    default-statement-timeout: 30
-    map-underscore-to-camel-case: true
-    jdbc-type-for-null: varchar
-    call-setters-on-nulls: true
-    auto-mapping-unknown-column-behavior: none
 
