@@ -1,14 +1,12 @@
 package com.example.wms.taskAssignment.application.domain;
 
 import com.example.wms.infrastructure.entity.BaseEntity;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
