@@ -1,5 +1,6 @@
 package com.example.wms.outbound.application.domain;
 
+import com.example.wms.infrastructure.entity.BaseEntity;
 import lombok.*;
 
 import java.time.LocalDate;
