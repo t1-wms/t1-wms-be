@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<mapper namespace="com.example.wms.outbound.application.port.out.CalculateOsNumberPort">
+
+    <!-- 가장 큰 outboundScheduleNumber 조회 -->
+    <select id="findMaxOutboundScheduleNumber" resultType="String">
+        SELECT outbound_schedule_number
+        FROM outbound_plan
+        ORDER BY outbound_schedule_number DESC
+        LIMIT 1
+    </select>
+
+</mapper>

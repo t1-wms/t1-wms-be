@@ -17,7 +17,7 @@ public class OutboundPlan {
 
     private String status; // 계획 상태 (예: 대기, 진행 중, 완료)
 
-    private Integer outboundScheduleNumber; // 출고 예정 번호
+    private String outboundScheduleNumber; // 출고 예정 번호
 
     private LocalDate outboundScheduleDate; // 출고 예정이 생긴 날짜
 
