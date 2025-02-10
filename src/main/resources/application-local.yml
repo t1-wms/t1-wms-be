@@ -22,8 +22,8 @@ spring:
     name: wms
 
   sql:
-    init:
-      mode: always
+  init:
+    mode: always
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -31,10 +31,11 @@ spring:
     username: root
     password: 1234
 
-  redis:
-    host: localhost
-    port: 6379
-    password: ""
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: ""
 
 logging:
   level:
@@ -98,10 +99,12 @@ jwt:
 
 mybatis:
   mapper-locations: classpath:mybatis/*.xml
-  type-aliases-package: com.example.wms.user.application.domain, com.example.wms.product.application.domain, com.example.wms.outbound.application.domain
+  type-aliases-package: com.example.wms.domain
   configuration:
     default-statement-timeout: 30
     map-underscore-to-camel-case: true
     jdbc-type-for-null: varchar
     call-setters-on-nulls: true
     auto-mapping-unknown-column-behavior: none
+
+
