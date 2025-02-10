@@ -1,4 +1,4 @@
-package com.example.wms.outbound.adapter.out.mapper;
+package com.example.wms.infrastructure.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;

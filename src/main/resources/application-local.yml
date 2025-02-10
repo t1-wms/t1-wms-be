@@ -20,19 +20,16 @@ spring:
 
   application:
     name: wms
+    
+  sql:
+  init:
+    mode: always
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/wms
     username: root
     password: 1234
-
-  sql:
-    init:
-      mode: always
-      schema: classpath:schema.sql
-      data: classpath:data.sql
-      encoding: UTF-8
 
   data:
     redis:

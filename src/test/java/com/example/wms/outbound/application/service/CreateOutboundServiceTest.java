@@ -14,7 +14,7 @@ import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@DisplayName("출고 관련 테스트")
+@DisplayName("출고 관련 테스트1")
 class CreateOutboundServiceTest {
 
     //의존성 모킹하기
