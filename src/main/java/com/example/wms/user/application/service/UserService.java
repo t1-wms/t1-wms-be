@@ -10,6 +10,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import static com.example.wms.infrastructure.security.util.SecurityUtils.getLoginUserStaffNumber;
 
 @Service
@@ -74,6 +77,21 @@ public class UserService implements UserUseCase {
         String staffNumber = getLoginUserStaffNumber();
 
         return UserInfoResDto.entityToResDto(userPort.findByStaffNumber(staffNumber));
+    }
+
+    @Override
+    public List<UserInfoResDto> findAllUsers(int pageSize, int page) {
+
+        if (page <= 0) {
+            page = 1;
+        }
+
+        int offset = (page - 1) * pageSize;
+
+        List<User> users = userPort.findAllUsers(pageSize, offset);
+        return users.stream()
+                .map(UserInfoResDto::entityToResDto)
+                .collect(Collectors.toList());
     }
 
     /**
