@@ -1,6 +1,6 @@
 package com.example.wms.outbound.adapter.out.adapter;
 
-import com.example.wms.outbound.adapter.out.mapper.OutboundMapper;
+import com.example.wms.infrastructure.mapper.OutboundMapper;
 import com.example.wms.outbound.application.domain.OutboundPlan;
 import com.example.wms.outbound.application.port.out.CreateOutboundPort;
 import lombok.RequiredArgsConstructor;

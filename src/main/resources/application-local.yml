@@ -30,16 +30,6 @@ spring:
     url: jdbc:mysql://localhost:3306/wms
     username: root
     password: 1234
-<<<<<<< HEAD
-=======
-
-  sql:
-    init:
-      mode: always
-      schema: classpath:schema.sql
-      data: classpath:data.sql
-      encoding: UTF-8
->>>>>>> 13ee619c0d24c3744e5803c4579ea65a1c2dba5a
 
   redis:
     host: localhost
