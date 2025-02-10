@@ -2,13 +2,16 @@ package com.example.wms.user.adapter.in.dto.request;
 
 import com.example.wms.user.application.domain.User;
 import com.example.wms.user.application.domain.enums.UserRole;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-
+import lombok.NoArgsConstructor;
 
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class SignUpReqDto {
 
     private String staffNumber; // role에 따라 생성

@@ -1,38 +1,35 @@
 package com.example.wms.infrastructure.security.filter;
 
-import com.example.wms.infrastructure.repository.LogoutAccessTokenRedisRepository;
-import com.example.wms.user.application.domain.RefreshToken;
-import com.example.wms.user.adapter.in.dto.response.TokenInfo;
 import com.example.wms.infrastructure.dto.ResponseDto;
 import com.example.wms.infrastructure.exception.DuplicatedException;
 import com.example.wms.infrastructure.exception.TokenException;
 import com.example.wms.infrastructure.jwt.JwtTokenProvider;
+import com.example.wms.infrastructure.jwt.dto.Token;
 import com.example.wms.infrastructure.jwt.enums.JwtHeaderUtil;
 import com.example.wms.infrastructure.jwt.enums.JwtResponseMessage;
-import com.example.wms.infrastructure.jwt.dto.Token;
 import com.example.wms.infrastructure.jwt.exception.MalformedHeaderException;
 import com.example.wms.infrastructure.jwt.exception.TokenNotFoundException;
+import com.example.wms.infrastructure.repository.LogoutAccessTokenRedisRepository;
+import com.example.wms.user.adapter.in.dto.response.TokenInfo;
+import com.example.wms.user.application.domain.RefreshToken;
 import com.example.wms.user.application.service.RefreshTokenService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-
 import java.io.IOException;
-import java.util.Collections;
 
 import static com.example.wms.infrastructure.enums.ExceptionMessage.ALREADY_LOGGED_OUT;
 import static com.example.wms.infrastructure.jwt.enums.JwtExceptionMessage.MALFORMED_HEADER;
@@ -62,6 +59,8 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
             "/api/auth/register",
             "/api/auth/login",
             "/api/user/reissue-token",
+            "/api/user",
+            "/api/user/list",
             "/api/upload",
             "/api/outbound"
     };
