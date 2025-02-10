@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.wms.infrastructure.mapper.ProductMapper">
+    <!-- ABC 분석 -->
+    <update id="updateABCGrade">
+        WITH sorted_sales AS (
+            SELECT
+                product_id,
+                sale_price * stock_lot_count AS revenue,
+                SUM(sale_price * stock_lot_count) OVER (ORDER BY sale_price * stock_lot_count DESC) AS cumulative_revenue,
+                SUM(sale_price * stock_lot_count) OVER () AS total_revenue
+            FROM product
+        ),
+        abc_analysis AS (
+            SELECT
+                product_id,
+                CASE
+                    WHEN (cumulative_revenue / total_revenue) * 100 &lt;= 70 THEN 'A'
+                    WHEN (cumulative_revenue / total_revenue) * 100 &lt;= 90 THEN 'B'
+                    ELSE 'C'
+                END AS abc_grade
+            FROM sorted_sales
+        )
+        UPDATE product p
+        JOIN abc_analysis a ON p.product_id = a.product_id
+        SET p.abc_grade = a.abc_grade;
+    </update>
+</mapper>
