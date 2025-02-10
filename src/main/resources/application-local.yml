@@ -30,6 +30,16 @@ spring:
     url: jdbc:mysql://localhost:3306/wms
     username: root
     password: 1234
+<<<<<<< HEAD
+=======
+
+  sql:
+    init:
+      mode: always
+      schema: classpath:schema.sql
+      data: classpath:data.sql
+      encoding: UTF-8
+>>>>>>> 13ee619c0d24c3744e5803c4579ea65a1c2dba5a
 
   redis:
     host: localhost
@@ -45,7 +55,7 @@ logging:
       spring.security: DEBUG
       spring.web: DEBUG
       apache.tiles: INFO
-      spring.mail: DEBUG
+      mybatis: DEBUG
     root: INFO
 
 server:
@@ -97,6 +107,12 @@ jwt:
   secret: ${secret-jwt.secret}
 
 mybatis:
-  mapper-locations: classpath:mappers/*.xml
+  mapper-locations: classpath:/mybatis/**/*.xml
   type-aliases-package: com.example.wms.user.application.domain
+  configuration:
+    default-statement-timeout: 30
+    map-underscore-to-camel-case: true
+    jdbc-type-for-null: varchar
+    call-setters-on-nulls: true
+    auto-mapping-unknown-column-behavior: none
 

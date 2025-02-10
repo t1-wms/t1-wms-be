@@ -17,7 +17,7 @@ public class UserQueryAdapter implements UserQueryPort {
 
     @Override
     public boolean existsByStaffNumber(String staffNumber) {
-        return userMapper.findByStaffNumber(staffNumber) != null;
+        return userMapper.findByStaffNumber(staffNumber).isPresent();
     }
 
     @Override
@@ -38,5 +38,10 @@ public class UserQueryAdapter implements UserQueryPort {
     @Override
     public List<User> findAllUsers() {
         return userMapper.findAll();
+    }
+
+    @Override
+    public String findLastStaffNumberByRole(String role) {
+        return userMapper.findLastStaffNumberByRole(role);
     }
 }
