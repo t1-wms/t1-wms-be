@@ -42,14 +42,14 @@
     <update id="updateUser" parameterType="com.example.wms.user.application.domain.User">
         UPDATE Users
         SET
-        password = #{user.password},
-        name = #{user.name},
-        phone = #{user.phone},
-        gender = #{user.gender},
-        birth_date = #{user.birthDate},
-        supplier_id = #{user.supplierId},
-        user_role = #{user.userRole},
-        updated_at = NOW()
+            password = #{user.password},
+            name = #{user.name},
+            phone = #{user.phone},
+            gender = #{user.gender},
+            birth_date = #{user.birthDate},
+            supplier_id = #{user.supplierId},
+            user_role = #{user.userRole},
+            updated_at = NOW()
         WHERE staff_number = #{user.staffNumber};
     </update>
 
@@ -69,7 +69,7 @@
         FROM Users
         WHERE staff_number LIKE CONCAT(#{prefix}, '%')
         ORDER BY staff_number DESC
-        LIMIT 1
+            LIMIT 1
     </select>
 
 </mapper>
