@@ -2,7 +2,7 @@ package com.example.wms.infrastructure.service;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -10,17 +10,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.UUID;
 
+@RequiredArgsConstructor
 @Service
 public class FileUploadService {
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
 
     private final AmazonS3 amazonS3;
-
-    @Autowired
-    public FileUploadService(AmazonS3 amazonS3) {
-        this.amazonS3 = amazonS3;
-    }
 
     // InputStream, 파일 이름, 파일 크기를 받음
     public String upload(InputStream inputStream, String originalFilename, long fileSize) throws IOException {
