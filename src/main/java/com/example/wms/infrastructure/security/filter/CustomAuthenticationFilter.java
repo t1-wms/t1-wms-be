@@ -62,7 +62,9 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
             "/api/user",
             "/api/user/list",
             "/api/upload",
-            "/api/outbound"
+            "/api/outbound",
+            "/api/swagger-ui",
+            "/api/v3/api-docs"
     };
 
     /**

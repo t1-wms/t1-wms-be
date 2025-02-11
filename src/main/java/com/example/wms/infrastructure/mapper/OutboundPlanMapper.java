@@ -6,9 +6,9 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Options;
 
 @Mapper
-public interface OutboundMapper {
+public interface OutboundPlanMapper {
     
-    // outboundPlan저장
+    // outboundPlan 저장
     @Insert("""
         INSERT INTO outbound_plan 
         (plan_date, status, outbound_schedule_number, outbound_schedule_date, production_plan_number) 
