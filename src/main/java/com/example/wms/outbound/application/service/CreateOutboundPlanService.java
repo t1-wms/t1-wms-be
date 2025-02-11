@@ -1,10 +1,10 @@
 package com.example.wms.outbound.application.service;
 
-import com.example.wms.outbound.adapter.in.dto.OutboundRequestDto;
+import com.example.wms.outbound.adapter.in.dto.OutboundPlanRequestDto;
 import com.example.wms.outbound.application.domain.OutboundPlan;
-import com.example.wms.outbound.application.port.in.CreateOutboundUseCase;
+import com.example.wms.outbound.application.port.in.CreateOutboundPlanUseCase;
 import com.example.wms.outbound.application.port.out.CalculateOsNumberPort;
-import com.example.wms.outbound.application.port.out.CreateOutboundPort;
+import com.example.wms.outbound.application.port.out.CreateOutboundPlanPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,13 +13,13 @@ import java.time.LocalDate;
 
 @Service
 @RequiredArgsConstructor
-public class CreateOutboundService implements CreateOutboundUseCase {
-    private final CreateOutboundPort createOutboundPort;
+public class CreateOutboundPlanService implements CreateOutboundPlanUseCase {
+    private final CreateOutboundPlanPort createOutboundPlanPort;
     private final CalculateOsNumberPort calculateOsNumberPort;
 
     @Transactional
     @Override
-    public void createOutbound(OutboundRequestDto outboundRequestDto) {
+    public Long createOutbound(OutboundPlanRequestDto outboundPlanRequestDto) {
 
         String currentDate = LocalDate.now().toString().replace("-", ""); // 예: 2025-02-10 -> 20250210
 
@@ -38,14 +38,15 @@ public class CreateOutboundService implements CreateOutboundUseCase {
 
         // 엔티티로 변환하기
         OutboundPlan outboundPlan = OutboundPlan.builder()
-                .planDate(outboundRequestDto.getPlanDate())
+                .planDate(outboundPlanRequestDto.getPlanDate())
                 .status("진행중")
                 .outboundScheduleNumber(osNumber)
-                .outboundScheduleDate(outboundRequestDto.getOutboundScheduleDate())
-                .productionPlanNumber(outboundRequestDto.getProductionPlanId())
+                .outboundScheduleDate(outboundPlanRequestDto.getOutboundScheduleDate())
+                .productionPlanNumber(outboundPlanRequestDto.getProductionPlanId())
                 .build();
 
         // DB에 저장하기
-        createOutboundPort.save(outboundPlan);
+        createOutboundPlanPort.save(outboundPlan);
+        return outboundPlan.getOutboundPlanId();
     }
 }
