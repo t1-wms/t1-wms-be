@@ -13,6 +13,6 @@ public class DeleteOutboundPlanProductAdapter implements DeleteOutboundPlanProdu
 
     @Override
     public void deleteOutboundPlanProduct(Long outboundPlanId) {
-        outboundPlanMapper.deleteOutboundPlanProductsByPlanId(outboundPlanId);
+        outboundPlanMapper.deleteOutboundPlanAndProducts(outboundPlanId);
     }
 }

@@ -42,7 +42,7 @@ class CreateOutboundPlanServiceTest {
     }
 
     @Test
-    @DisplayName("출고 계획 번호가 없을 때 기본값 0000으로 시작하는지 테스트")
+    @DisplayName("출고 예정 번호가 없을 때 기본값 0000으로 시작하는지 테스트")
     void testCreateOutbound_WhenNoExistingOsNumber() {
         // given
         String currentDate = LocalDate.now().toString().replace("-", "");
@@ -64,7 +64,7 @@ class CreateOutboundPlanServiceTest {
     }
 
     @Test
-    @DisplayName("정상적인 출고 계획 생성 테스트")
+    @DisplayName("정상적인 출고 예정 생성 테스트")
     void testCreateOutbound() {
         // given
         String currentDate = LocalDate.now().toString().replace("-", "");

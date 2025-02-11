@@ -4,7 +4,6 @@ import com.example.wms.outbound.adapter.in.dto.OutboundPlanRequestDto;
 import com.example.wms.outbound.application.port.in.CreateOutboundPlanProductUseCase;
 import com.example.wms.outbound.application.port.in.CreateOutboundPlanUseCase;
 import com.example.wms.outbound.application.port.in.DeleteOutboundPlanProductUseCase;
-import com.example.wms.outbound.application.port.in.DeleteOutboundPlanUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,7 +20,6 @@ public class OutboundPlanController {
 
     private final CreateOutboundPlanUseCase createOutboundPlanUseCase;
     private final CreateOutboundPlanProductUseCase createOutboundPlanProductUseCase;
-    private final DeleteOutboundPlanUseCase deleteOutboundPlanUseCase;
     private final DeleteOutboundPlanProductUseCase deleteOutboundPlanProductUseCase;
 
     @PostMapping
@@ -35,9 +33,7 @@ public class OutboundPlanController {
     @DeleteMapping("/{outboundPlanId}")
     @Operation(summary = "출고 예정 삭제하기", description = "outboundPlan & outboundPlanProduct 삭제됨 204반환")
     public ResponseEntity<Void> deleteOutbound(@PathVariable Long outboundPlanId) {
-//        deleteOutboundPlanProductUseCase.deleteOutboundPlanProduct(outboundPlanId);
-//        deleteOutboundPlanUseCase.deleteOutboundPlan(outboundPlanId);
-        deleteOutboundPlanUseCase.deleteOutboundPlanAndProducts(outboundPlanId);
+        deleteOutboundPlanProductUseCase.deleteOutboundPlanProduct(outboundPlanId);
         return ResponseEntity.noContent().build();
     }
 
