@@ -47,6 +47,7 @@ logging:
       spring.web: DEBUG
       apache.tiles: INFO
       spring.mail: DEBUG
+      mybatis: DEBUG
     root: INFO
 
 server:
