@@ -33,4 +33,13 @@ public class ProductQueryAdapter implements ProductQueryPort {
             e.printStackTrace();
         }
     }
+
+    @Override
+    public void updateBinCode() {
+        try {
+            productMapper.allocateBinSequentially();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }

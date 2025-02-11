@@ -27,15 +27,31 @@ class ProductServiceTest {
         List<Product> beforeUpdate = productQueryPort.getAllProducts();
         assertNotNull(beforeUpdate, "기존 데이터가 있어야 합니다.");
 
-        beforeUpdate.forEach(product ->
-                System.out.println("Before Update - Product: " + product.getLocationBinCode() + ", ABC Grade: " + product.getAbcGrade())
+        beforeUpdate.forEach(p ->
+                System.out.println("Before Update - Product: " + p.getProductId() + ", ABC Grade: " + p.getAbcGrade())
         );
 
         productService.performABCAnalysis();
 
         List<Product> afterUpdate = productQueryPort.getAllProducts();
         assertNotNull(afterUpdate, "변경된 데이터가 있어야 합니다. ");
+        afterUpdate.forEach(p ->
+                System.out.println("ABC Grade:" + p.getAbcGrade()));
     }
 
+    @Test
+    void updateBinCode_ShouldActuallyUpdateDatabases() {
+        List<Product> beforeUpdate = productQueryPort.getAllProducts();
+        for(int i=0; i<10; i++) {
+            System.out.println(beforeUpdate.get(i).getLocationBinCode()+" " + beforeUpdate.get(i).getAbcGrade());
+        }
+
+        productQueryPort.updateBinCode();
+
+        List<Product> afterUpdate = productQueryPort.getAllProducts();
+        for(int i=0;i<10; i++) {
+            System.out.println(afterUpdate.get(i).getLocationBinCode()+" " + afterUpdate.get(i).getAbcGrade());
+        }
+    }
 
 }
