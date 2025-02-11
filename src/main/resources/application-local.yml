@@ -22,8 +22,8 @@ spring:
     name: wms
 
   sql:
-  init:
-    mode: always
+    init:
+      mode: always
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver

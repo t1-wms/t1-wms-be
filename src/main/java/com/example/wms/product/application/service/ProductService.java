@@ -18,13 +18,13 @@ public class ProductService implements ProductUseCase {
     public void performABCAnalysis() {
 
         productQueryPort.updateABCGrades();
-        List<Product> abcProducts = productQueryPort.getAllProducts();
-
-        if (!abcProducts.isEmpty()) {
-            abcProducts.forEach(product ->
-                    System.out.println("Product: " + product.getProductCode() + ", ABC Grade: " + product.getAbcGrade())
-            );
-        }
+//        List<Product> abcProducts = productQueryPort.getAllProducts();
+//
+//        if (!abcProducts.isEmpty()) {
+//            abcProducts.forEach(product ->
+//                    System.out.println("Product: " + product.getProductCode() + ", ABC Grade: " + product.getAbcGrade())
+//            );
+//        }
     }
 
     @Override

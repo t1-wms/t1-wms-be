@@ -4,7 +4,6 @@ import com.example.wms.infrastructure.mapper.ProductMapper;
 import com.example.wms.product.application.domain.Product;
 import com.example.wms.product.application.port.out.ProductQueryPort;
 import lombok.RequiredArgsConstructor;
-import org.apache.ibatis.annotations.Select;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
@@ -12,7 +11,7 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
-public class ProductQueryAdapter implements ProductQueryPort {
+public class ProductAdapter implements ProductQueryPort {
 
     private final ProductMapper productMapper;
 
