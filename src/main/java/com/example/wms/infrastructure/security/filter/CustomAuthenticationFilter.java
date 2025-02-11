@@ -37,7 +37,6 @@ import static com.example.wms.infrastructure.jwt.enums.JwtExceptionMessage.TOKEN
 import static com.example.wms.infrastructure.jwt.enums.TokenType.ACCESS;
 
 @Slf4j
-@Component
 @RequiredArgsConstructor
 public class CustomAuthenticationFilter extends OncePerRequestFilter {
 
@@ -65,7 +64,8 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
             "/api/outbound",
             "/api/bin",
             "/api/swagger-ui",
-            "/api/v3/api-docs"
+            "/api/v3/api-docs",
+            "/api/product"
     };
 
     /**
