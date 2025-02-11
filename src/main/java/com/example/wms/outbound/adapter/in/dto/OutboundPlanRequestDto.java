@@ -10,7 +10,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @Builder
-public class OutboundRequestDto {
+public class OutboundPlanRequestDto {
     private LocalDate outboundScheduleDate;
 
     private LocalDate planDate;
@@ -18,13 +18,4 @@ public class OutboundRequestDto {
     private String productionPlanId;
 
     List<ProductInfoDto> productList;
-
-    @Data
-    @Builder
-    @AllArgsConstructor
-    public static class ProductInfoDto{
-        private Long productId;
-
-        private Integer productCount;
-    }
 }
