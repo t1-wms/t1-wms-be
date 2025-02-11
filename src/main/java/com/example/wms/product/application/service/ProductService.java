@@ -26,4 +26,9 @@ public class ProductService implements ProductUseCase {
             );
         }
     }
+
+    @Override
+    public void assignLocationBinCode() {
+        productQueryPort.updateBinCode();
+    }
 }
