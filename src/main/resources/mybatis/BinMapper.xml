@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.wms.infrastructure.mapper.BinMapper">
+
+    <select id="selectAllBinsWithDetails" resultType="com.example.wms.product.adapter.out.dto.FlatBinDto">
+        SELECT b.bin_id,
+               b.bin_code,
+               b.zone,
+               b.aisle,
+               b.row_num,
+               b.floor,
+               b.amount,
+               l.lot_id,
+               l.lot_number,
+               l.product_id,
+               l.status,
+               l.inbound_id,
+               l.outbound_id,
+               p.product_code,
+               p.product_name
+        FROM bin b
+                 LEFT JOIN lot l ON b.bin_id = l.bin_id
+                 LEFT JOIN product p ON l.product_id = p.product_id;
+    </select>
+
+</mapper>

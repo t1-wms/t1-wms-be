@@ -8,7 +8,7 @@ import java.util.List;
 
 @Mapper
 public interface ProductMapper {
-    @Select("SELECT * FROM product")
     List<Product> getAllProducts();
     void updateABCGrade();
+    void allocateBinSequentially();
 }
