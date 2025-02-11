@@ -1,4 +1,15 @@
-HELP.md
+# .gitignore
+
+# Ignore everything in docker directory
+/docker/*
+
+# But don't ignore the files we need inside docker directory
+!/docker/Dockerfile
+!/docker/docker-compose.blue.yml
+!/docker/docker-compose.green.yml
+!/docker/scripts/deploy.sh
+
+# Ignore all build and IDE related files/folders
 .gradle
 build/
 !gradle/wrapper/gradle-wrapper.jar
@@ -39,3 +50,11 @@ out/
 # Ignore application-secret.yml
 application-secret.yml
 
+# Jenkins-related files (but keep Jenkinsfile)
+**/workspace/
+**/build/
+**/jenkins_logs/
+**/jobs/
+**/.jenkins/
+**/.plugin/
+**/.env
