@@ -1,6 +1,25 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.example.wms.infrastructure.mapper.ProductMapper">
+    <resultMap id="productResultMap" type="com.example.wms.product.application.domain.Product">
+        <id property="productId" column="product_id"/>
+        <result property="productName" column="product_name"/>
+        <result property="abcGrade" column="abc_grade"/>
+        <result property="locationBinCode" column="location_bin_code"/>
+        <result property="productCode" column="product_code"/>
+        <result property="purchasePrice" column="purchase_price"/>
+        <result property="salePrice" column="sale_price"/>
+        <result property="lotUnit" column="lot_unit"/>
+        <result property="supplierId" column="supplier_id"/>
+        <result property="stockLotCount" column="stock_lot_count"/>
+        <result property="minLotCount" column="min_lot_count"/>
+        <result property="leadTime" column="lead_time"/>
+    </resultMap>
+
+    <select id="getAllProducts" resultMap="productResultMap">
+        SELECT * FROM product
+    </select>
+
     <!-- ABC 분석 판매금액 기준 -->
     <update id="updateABCGrade">
         WITH sorted_sales AS (
@@ -24,5 +43,45 @@
         UPDATE product p
         JOIN abc_analysis a ON p.product_id = a.product_id
         SET p.abc_grade = a.abc_grade;
+    </update>
+    <update id="initializeRowNums">
+        SET @rownum_A = 0, @rownum_B = 0, @rownum_C = 0;
+    </update>
+
+    <sql id="zoneMapping">
+        CASE
+            WHEN abc_grade = 'A' THEN
+                CASE
+                    WHEN (@rownum_A DIV 216) % 3 = 0 THEN 'A'
+                    WHEN (@rownum_A DIV 216) % 3 = 1 THEN 'B'
+                    ELSE 'C'
+                END
+            WHEN abc_grade = 'B' THEN
+                CASE
+                    WHEN (@rownum_B DIV 216) % 2 = 0 THEN 'D'
+                    ELSE 'E'
+                END
+            WHEN abc_grade = 'C' THEN 'F'
+            ELSE 'F'
+        END
+    </sql>
+
+    <update id="allocateBinSequentially">
+        UPDATE product p
+        JOIN (
+            SELECT product_id,
+                <include refid="zoneMapping" /> AS zone,
+                LPAD((@rownum_A DIV 36 % 6) + 1, 2, '0') AS aisle,
+                LPAD((@rownum_A DIV 6 % 6) + 1, 2, '0') AS rowValue,
+                LPAD((@rownum_A % 6) + 1, 2, '0') AS floor,
+                @rownum_A := @rownum_A + 1 AS rownum
+            FROM (
+                SELECT product_id, abc_grade, stock_lot_count
+                FROM product
+                ORDER BY abc_grade, stock_lot_count DESC
+            ) sorted_A
+            CROSS JOIN (SELECT @rownum_A := 0, @rownum_B := 0, @rownum_C := 0) r
+        ) t ON p.product_id = t.product_id
+        SET p.location_bin_code = CONCAT(t.zone, '-', t.aisle, '-', t.rowValue, '-', t.floor);
     </update>
 </mapper>

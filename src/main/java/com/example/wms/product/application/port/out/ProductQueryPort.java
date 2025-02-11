@@ -7,4 +7,5 @@ public interface ProductQueryPort {
 
     List<Product> getAllProducts();
     void updateABCGrades();
+    void updateBinCode();
 }
