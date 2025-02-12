@@ -31,7 +31,7 @@ public class OutboundPlanController {
     private final UpdateOutboundPlanUseCase updateOutboundPlanUseCase;
 
     @PostMapping
-    @Operation(summary = "출고 예정 생성하기", description = "outboundPlan & outboundPlanProduct 생성됨 201반환")
+    @Operation(summary = "출고 예정 생성하기", description = "outboundPlan & outboundPlanProduct 생성됨")
     public ResponseEntity<Void> createOutbound(@RequestBody OutboundPlanRequestDto outboundPlanRequestDto) {
         Long outboundPlanId = createOutboundPlanUseCase.createOutbound(outboundPlanRequestDto);
         createOutboundPlanProductUseCase.createOutboundPlanProduct(outboundPlanId,outboundPlanRequestDto.getProductList());
@@ -39,7 +39,7 @@ public class OutboundPlanController {
     }
 
     @DeleteMapping("/{outboundPlanId}")
-    @Operation(summary = "출고 예정 삭제하기", description = "outboundPlan & outboundPlanProduct 삭제됨 204반환")
+    @Operation(summary = "출고 예정 삭제하기", description = "outboundPlan & outboundPlanProduct 삭제됨")
     public ResponseEntity<Void> deleteOutbound(@PathVariable Long outboundPlanId) {
         deleteOutboundPlanProductUseCase.deleteOutboundPlanProduct(outboundPlanId);
         return ResponseEntity.ok().build();
