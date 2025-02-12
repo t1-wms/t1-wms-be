@@ -3,6 +3,7 @@ package com.example.wms.product.application.service;
 import com.example.wms.product.application.domain.Product;
 import com.example.wms.product.application.port.out.ProductPort;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -16,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class ProductABCGradeTest {
+class ProductABCGradeServiceTest {
 
     @Mock
     private ProductPort productPort;
@@ -40,6 +41,7 @@ class ProductABCGradeTest {
     }
 
     @Test
+    @DisplayName("품목 별 ABC 등급 부여 테스트")
     void performABCAnalysis() {
         productService.performABCAnalysis();
 
@@ -47,6 +49,7 @@ class ProductABCGradeTest {
     }
 
     @Test
+    @DisplayName("품목에 bin 코드 부여 테스트")
     void testAssignLocationBinCode() {
         // BIN 배정 실행
         productService.assignLocationBinCode();
