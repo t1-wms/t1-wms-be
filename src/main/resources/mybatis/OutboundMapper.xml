@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.wms.infrastructure.mapper.OutboundPlanMapper">
+    <resultMap id="outboundPlanResultMap" type="com.example.wms.outbound.application.domain.OutboundPlan">
+        <id property="outboundPlanId" column="outbound_plan_id"/>
+        <result property="planDate" column="plan_date"/>
+        <result property="status" column="status"/>
+        <result property="outboundScheduleNumber" column="outbound_schedule_number"/>
+        <result property="outboundScheduleDate" column="outbound_schedule_date"/>
+        <result property="productionPlanNumber" column="production_plan_number"/>
+    </resultMap>
+
+    <select id = "findOutboundPlanWithPageNation" resultMap="outboundPlanResultMap">
+        SELECT * FROM outbound_plan
+        <if test="pageable.sort.sorted">
+            <trim prefix="ORDER BY">
+                <foreach item="order" index="i" collection="pageable.sort" separator=", ">
+                    ${order.property}
+                    <choose>
+                        <when test="order.direction.toString() == 'ASC'">ASC</when>
+                        <otherwise> DESC</otherwise>
+                    </choose>
+                </foreach>
+            </trim>
+        </if>
+        LIMIT #{pageable.pageSize} OFFSET #{pageable.offset}
+    </select>
+
+    <select id="findOutboundPlanFilteringWithPageNation" resultMap="outboundPlanResultMap">
+        SELECT * FROM outbound_plan
+        WHERE
+        outbound_schedule_date BETWEEN #{startDate} AND #{endDate}
+        AND (#{outboundScheduleNumber} IS NULL OR outbound_schedule_number LIKE CONCAT('%', #{outboundScheduleNumber}, '%'))
+
+        <if test="pageable.sort.sorted">
+            <trim prefix="ORDER BY">
+                <foreach item="order" index="i" collection="pageable.sort" separator=", ">
+                    ${order.property}
+                    <choose>
+                        <when test="order.direction.toString() == 'ASC'">ASC</when>
+                        <otherwise>DESC</otherwise>
+                    </choose>
+                </foreach>
+            </trim>
+        </if>
+
+        LIMIT #{pageable.pageSize} OFFSET #{pageable.offset}
+    </select>
+
+
+
+    <select id="countAllOutboundPlan" resultType="Integer">
+        SELECT COUNT(*)
+        FROM outbound_plan
+    </select>
+
+    <select id="countAllOutboundPlanFiltering" resultType="Integer">
+        SELECT COUNT(*) FROM outbound_plan
+        WHERE
+        outbound_schedule_date BETWEEN #{startDate} AND #{endDate}
+        AND (#{outboundScheduleNumber} IS NULL OR outbound_schedule_number LIKE CONCAT('%', #{outboundScheduleNumber}, '%'))
+    </select>
+
+
+</mapper>

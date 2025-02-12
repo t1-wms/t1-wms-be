@@ -37,7 +37,7 @@ class CreateOutboundPlanServiceTest {
         outboundPlanRequestDto = OutboundPlanRequestDto.builder()
                 .planDate(LocalDate.of(2025, 2, 10))
                 .outboundScheduleDate(LocalDate.of(2025, 2, 15))
-                .productionPlanId("PP12345")
+                .productionPlanNumber("PP12345")
                 .build();
     }
 
@@ -85,6 +85,6 @@ class CreateOutboundPlanServiceTest {
         assertEquals("OS"+currentDate+"0001",savedPlan.getOutboundScheduleNumber());
         assertEquals(outboundPlanRequestDto.getPlanDate(), savedPlan.getPlanDate());
         assertEquals(outboundPlanRequestDto.getOutboundScheduleDate(), savedPlan.getOutboundScheduleDate());
-        assertEquals(outboundPlanRequestDto.getProductionPlanId(), savedPlan.getProductionPlanNumber());
+        assertEquals(outboundPlanRequestDto.getProductionPlanNumber(), savedPlan.getProductionPlanNumber());
     }
 }
