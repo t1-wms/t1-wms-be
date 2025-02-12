@@ -33,7 +33,7 @@ class ProductPageableServiceTest {
     void getAllProducts() {
         //given
         Pageable pageable = PageRequest.of(
-                2, // 두번째 페이지 (0-based index)
+                2,
                 3,
                 Sort.by("salePrice").ascending().and(Sort.by("purchasePrice").descending())
         );
@@ -51,7 +51,7 @@ class ProductPageableServiceTest {
                 .minLotCount("5")
                 .leadTime(4)
                 .locationBinCode("I10")
-                .abcGrade('B')
+                .abcGrade("B")
                 .build();
 
         Product product2 = Product.builder()
@@ -67,7 +67,7 @@ class ProductPageableServiceTest {
                 .minLotCount("4")
                 .leadTime(5)
                 .locationBinCode("F07")
-                .abcGrade('C')
+                .abcGrade("C")
                 .build();
 
         Product product3 = Product.builder()
@@ -83,7 +83,7 @@ class ProductPageableServiceTest {
                 .minLotCount("5")
                 .leadTime(6)
                 .locationBinCode("C04")
-                .abcGrade('B')
+                .abcGrade("B")
                 .build();
 
         List<Product> expectedProducts = List.of(product1, product2, product3);

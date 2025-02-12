@@ -68,7 +68,7 @@ class ProductMapperTest {
         Product p1 = products.get(0);
         assertAll("First product assertions",
                 () -> assertThat(p1.getProductId()).isEqualTo(14),
-                () -> assertThat(p1.getProductCode()).isEqualTo("pr1014"),
+                () -> assertThat(p1.getProductCode()).isEqualTo("P1014"),
                 () -> assertThat(p1.getProductName()).isEqualTo("외장 하드"),
                 () -> assertThat(p1.getPurchasePrice()).isEqualTo(100000),
                 () -> assertThat(p1.getSalePrice()).isEqualTo(140000),
@@ -79,14 +79,14 @@ class ProductMapperTest {
                 () -> assertThat(p1.getMinLotCount()).isEqualTo("5"),
                 () -> assertThat(p1.getLeadTime()).isEqualTo(4),
                 () -> assertThat(p1.getLocationBinCode()).isEqualTo("I10"),
-                () -> assertThat(p1.getAbcGrade()).isEqualTo('B')
+                () -> assertThat(p1.getAbcGrade()).isEqualTo("B")
         );
 
         // 두 번째 제품 검증
         Product p2 = products.get(1);
         assertAll("Second product assertions",
                 () -> assertThat(p2.getProductId()).isEqualTo(11),
-                () -> assertThat(p2.getProductCode()).isEqualTo("pr1011"),
+                () -> assertThat(p2.getProductCode()).isEqualTo("P1011"),
                 () -> assertThat(p2.getProductName()).isEqualTo("블루투스 스피커"),
                 () -> assertThat(p2.getPurchasePrice()).isEqualTo(120000),
                 () -> assertThat(p2.getSalePrice()).isEqualTo(180000),
@@ -97,14 +97,14 @@ class ProductMapperTest {
                 () -> assertThat(p2.getMinLotCount()).isEqualTo("4"),
                 () -> assertThat(p2.getLeadTime()).isEqualTo(5),
                 () -> assertThat(p2.getLocationBinCode()).isEqualTo("F07"),
-                () -> assertThat(p2.getAbcGrade()).isEqualTo('C')
+                () -> assertThat(p2.getAbcGrade()).isEqualTo("C")
         );
 
         // 세 번째 제품 검증
         Product p3 = products.get(2);
         assertAll("Third product assertions",
                 () -> assertThat(p3.getProductId()).isEqualTo(8),
-                () -> assertThat(p3.getProductCode()).isEqualTo("pr1008"),
+                () -> assertThat(p3.getProductCode()).isEqualTo("P1008"),
                 () -> assertThat(p3.getProductName()).isEqualTo("헤드폰"),
                 () -> assertThat(p3.getPurchasePrice()).isEqualTo(150000),
                 () -> assertThat(p3.getSalePrice()).isEqualTo(220000),
@@ -115,7 +115,7 @@ class ProductMapperTest {
                 () -> assertThat(p3.getMinLotCount()).isEqualTo("5"),
                 () -> assertThat(p3.getLeadTime()).isEqualTo(6),
                 () -> assertThat(p3.getLocationBinCode()).isEqualTo("C04"),
-                () -> assertThat(p3.getAbcGrade()).isEqualTo('B')
+                () -> assertThat(p3.getAbcGrade()).isEqualTo("B")
         );
     }
 
