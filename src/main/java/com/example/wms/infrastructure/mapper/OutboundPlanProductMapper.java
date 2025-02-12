@@ -1,10 +1,8 @@
 package com.example.wms.infrastructure.mapper;
 
+import com.example.wms.outbound.adapter.in.dto.ProductInfoDto;
 import com.example.wms.outbound.application.domain.OutboundPlanProduct;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Options;
-import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.*;
 
 import java.util.List;
 
@@ -21,4 +19,6 @@ public interface OutboundPlanProductMapper {
         </script>
     """)
     void batchInsert(@Param("products") List<OutboundPlanProduct> outboundPlanProductList);
+
+    List<ProductInfoDto> findProductInfoByOutboundPlanId(Long outboundPlanId);
 }

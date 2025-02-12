@@ -10,12 +10,17 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @Builder
-public class OutboundPlanRequestDto {
-    private LocalDate outboundScheduleDate;
+public class OutboundPlanResponseDto {
+    private String process;
 
-    private LocalDate planDate;
+    private String outboundScheduleNumber;
+
+    private LocalDate outboundScheduleDate;
 
     private String productionPlanNumber;
 
-    List<ProductInfoDto> productList;
+    private LocalDate planDate;
+
+    private List<ProductInfoDto> productList;
+
 }

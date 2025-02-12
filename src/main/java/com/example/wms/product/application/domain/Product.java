@@ -7,6 +7,7 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
+@Setter
 public class Product {
     private Long productId; // 제품 고유 ID
     private String productCode; // 제품 코드
@@ -20,5 +21,5 @@ public class Product {
     private String minLotCount; // 최소 LOT 수량
     private Integer leadTime; // 이 품목이 납품업체로부터 납품될 때 까지 걸리는 시간
     private String locationBinCode;
-    private Character abcGrade;
+    private String abcGrade;
 }

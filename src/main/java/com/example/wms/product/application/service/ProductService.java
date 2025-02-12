@@ -11,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -21,19 +22,107 @@ public class ProductService implements ProductUseCase {
     @Override
     public void performABCAnalysis() {
 
-        productPort.updateABCGrades();
-        List<Product> abcProducts = productPort.getAllProducts();
+        List<Product> products = productPort.getAllProducts();
 
-        if (!abcProducts.isEmpty()) {
-            abcProducts.forEach(product ->
-                    System.out.println("Product: " + product.getProductCode() + ", ABC Grade: " + product.getAbcGrade())
-            );
+        if (products.isEmpty()) {
+            return;
+        }
+
+        List<Product> sortedProducts = products.stream()
+                .sorted((p1,p2)->Double.compare(
+                        p2.getSalePrice() * p2.getStockLotCount(),
+                        p1.getSalePrice() * p1.getStockLotCount()))
+                .collect(Collectors.toList());
+
+        double totalRevenue = sortedProducts.stream()
+                .mapToDouble(p->p.getSalePrice() * p.getStockLotCount())
+                .sum();
+
+        double cumulativeRevenue = 0;
+
+        for (Product product : sortedProducts) {
+            double revenue = product.getSalePrice() * product.getStockLotCount();
+            cumulativeRevenue += revenue;
+
+            double percentage = (cumulativeRevenue / totalRevenue) * 100;
+            if (percentage <= 70) {
+                product.setAbcGrade("A");
+            } else if(percentage<=90) {
+                product.setAbcGrade("B");
+            } else {
+                product.setAbcGrade("C");
+            }
+
+            productPort.updateABCGrades(product.getProductId(), product.getAbcGrade());
         }
     }
 
     @Override
     public void assignLocationBinCode() {
-        productPort.updateBinCode();
+        List<Product> products = productPort.getAllProducts();
+        if (products.isEmpty()) {
+            return;
+        }
+
+        // 재고 로트 수량을 고려하여 내림차순 정렬 (많은 재고부터 배치)
+        products.sort((p1,p2) -> Integer.compare(p2.getStockLotCount(), p1.getStockLotCount()));
+
+        assignBins(products);
+    }
+
+    private void assignBins(List<Product> products) {
+        int indexA = 0, indexB = 0, indexC = 0;
+
+        for (Product product : products) {
+            String abcGrade = product.getAbcGrade();
+            String zone;
+            int index = 0;
+
+            if ("A".equals(abcGrade)) {
+                zone = getZone("A", indexA);
+                index = indexA++;
+            } else if ("B".equals(abcGrade)) {
+                zone = getZone("B",indexB);
+                index = indexB++;
+            } else {
+                zone = "F";
+                index = indexC++;
+            }
+
+            String aisle = String.format("%02d", (index / 36 % 6 ) + 1);
+            String row = String.format("%02d", (index / 6 % 6) + 1);
+            String floor = String.format("%02d", (index % 6) + 1);
+
+            int stockLotCount = product.getStockLotCount();
+
+            String binCode;
+
+            if (stockLotCount <= 6) {
+                binCode = String.format("%s-%s-%s-%s", zone, aisle, row, floor); // A-01-01-01
+            } else if (stockLotCount <= 36) {
+                binCode = String.format("%s-%s-%s", zone, aisle, row); // A-01-01
+            } else if (stockLotCount <= 216) {
+                binCode = String.format("%s-%s", zone, aisle);
+            } else {
+                binCode = zone;
+            }
+            productPort.updateBinCode(product.getProductId(), binCode);
+        }
+    }
+
+    private String getZone(String grade, int index) {
+        switch (grade) {
+            case "A":
+                return switch ((index / 216) % 3) {
+                    case 0 -> "A";
+                    case 1 -> "B";
+                    default -> "C";
+                };
+            case "B":
+                return (index / 216) % 2 == 0 ? "D" : "E";
+            default:
+                return "F";
+        }
     }
 
     @Override

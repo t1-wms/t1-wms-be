@@ -10,5 +10,7 @@ import lombok.Data;
 public class ProductInfoDto {
     private Long productId;
 
+    private String productCode;
+
     private Integer productCount;
 }
