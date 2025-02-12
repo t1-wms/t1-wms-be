@@ -7,7 +7,10 @@ import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
@@ -28,6 +31,7 @@ public class ProductController {
         return ResponseEntity.status(201).build();
     }
 
+    @GetMapping
     public ResponseEntity<Page<Product>> findAllBinsWithDetails(@ParameterObject Pageable pageable) {
         return ResponseEntity.ok(productUseCase.getAllProducts(pageable));
     }
