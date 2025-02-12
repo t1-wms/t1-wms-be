@@ -99,7 +99,7 @@ jwt:
 
 mybatis:
   mapper-locations: classpath:mybatis/*.xml
-  type-aliases-package: com.example.wms.user.application.domain, com.example.wms.product.application.domain, com.example.wms.outbound.application.domain
+  type-aliases-package: com.example.wms.user.application.domain, com.example.wms.product.application.domain, com.example.wms.outbound.application.domain, com.example.wms.inbound.application.domain
   configuration:
     default-statement-timeout: 30
     map-underscore-to-camel-case: true

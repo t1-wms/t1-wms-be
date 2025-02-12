@@ -39,7 +39,7 @@ CREATE TABLE IF NOT EXISTS product (
                                        abc_grade CHAR(1), -- ABC 등급
                                        created_at DATETIME DEFAULT CURRENT_TIMESTAMP, -- 생성 날짜
                                        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, -- 수정 날짜
-                                       FOREIGN KEY (supplier_id) REFERENCES supplier(supplier_id) -- 외래키: supplier 테이블 참조 (supplier 테이블이 있다고 가정)
+                                       FOREIGN KEY (supplier_id) REFERENCES supplier(supplier_id) -- 외래키: supplier 테이블 참조
 );
 
 -- lot 테이블 생성
@@ -61,22 +61,22 @@ CREATE TABLE IF NOT EXISTS lot (
 CREATE TABLE IF NOT EXISTS notification (
                                             notification_id BIGINT PRIMARY KEY AUTO_INCREMENT,
                                             content VARCHAR(255) NOT NULL,
-    event INT NOT NULL,
-    user_role VARCHAR(50) NOT NULL,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+                                            event INT NOT NULL,
+                                            user_role VARCHAR(50) NOT NULL,
+                                            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                                            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- outbound_plan 테이블 생성
 CREATE TABLE IF NOT EXISTS outbound_plan (
                                              outbound_plan_id BIGINT PRIMARY KEY AUTO_INCREMENT,  -- 출고 계획 ID (자동 증가)
-                                             plan_date DATE ,                             -- 창고에서 나가는 날짜
-                                             status VARCHAR(50) ,                         -- 상태 (예: 대기, 진행 중, 완료)
-    outbound_schedule_number VARCHAR(50) ,               -- 출고 예정 번호
-    outbound_schedule_date DATE ,                -- 출고 예정 날짜
-    production_plan_number VARCHAR(50),          -- 생산 계획 번호
-    created_at DATETIME DEFAULT NOW(), -- 현재 날짜 + 시간 자동 입력
-    updated_at DATETIME DEFAULT NOW() ON UPDATE NOW() -- 수정될 때 자동 갱신
+                                             plan_date DATE,                             -- 창고에서 나가는 날짜
+                                             status VARCHAR(50),                         -- 상태 (예: 대기, 진행 중, 완료)
+                                             outbound_schedule_number VARCHAR(50),               -- 출고 예정 번호
+                                             outbound_schedule_date DATE,                -- 출고 예정 날짜
+                                             production_plan_number VARCHAR(50),          -- 생산 계획 번호
+                                             created_at DATETIME DEFAULT NOW(), -- 현재 날짜 + 시간 자동 입력
+                                             updated_at DATETIME DEFAULT NOW() ON UPDATE NOW() -- 수정될 때 자동 갱신
 );
 
 -- outbound_plan_product 테이블 생성
@@ -91,7 +91,7 @@ CREATE TABLE IF NOT EXISTS outbound_plan_product (
                                                      created_at DATETIME DEFAULT CURRENT_TIMESTAMP, -- 생성 날짜
                                                      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, -- 수정 날짜
                                                      FOREIGN KEY (outbound_plan_id) REFERENCES outbound_plan(outbound_plan_id), -- 외래키: outbound_plan 테이블 참조
-                                                     FOREIGN KEY (product_id) REFERENCES product(product_id) -- 외래키: product 테이블 참조 (product 테이블이 있다고 가정)
+                                                     FOREIGN KEY (product_id) REFERENCES product(product_id) -- 외래키: product 테이블 참조
 );
 
 -- users 테이블 생성
@@ -112,25 +112,8 @@ CREATE TABLE IF NOT EXISTS users (
                                      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
--- order 테이블 생성
-CREATE TABLE IF NOT EXISTS order (
-                                    order_id BIGINT PRIMARY KEY AUTO_INCREMENT,
-                                    supplier_id BIGINT NOT NULL,
-                                    order_date DATETIME NOT NULL,
-                                    is_approved BOOLEAN NOT NULL,
-                                    is_delayed BOOLEAN NOT NULL,
-                                    order_number VARCHAR(255) NOT NULL,
-                                    order_quantity INT DEFAULT NULL,
-                                    order_status VARCHAR(50) DEFAULT NULL,
-                                    daily_plan_id BIGINT DEFAULT NULL,
-                                    is_return_order BOOLEAN NOT NULL,
-                                    delivery_deadLine DATETIME DEFAULT NULL,
-                                    CONSTRAINT fk_order_supplier FOREIGN KEY (supplier_id) REFERENCES supplier(supplier_id) ON DELETE CASCADE,
-                                    CONSTRAINT fk_order_outbound_plan FOREIGN KEY (daily_plan_id) REFERENCES outbound_plan(outbound_plan_id) ON DELETE SET NULL
-);
-
 CREATE TABLE IF NOT EXISTS inbound (
-                                      inbound_id BIGINT PRIMARY_KEY AUTO_INCREMENT,
+                                      inbound_id BIGINT AUTO_INCREMENT PRIMARY KEY,
                                       schedule_number VARCHAR(255) NULL,
                                       schedule_date DATE NULL,
                                       check_number VARCHAR(255) NULL,
@@ -140,8 +123,8 @@ CREATE TABLE IF NOT EXISTS inbound (
                                       order_id BIGINT NULL,
                                       supplier_id BIGINT NULL,
                                       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                                      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+                                      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                                       CONSTRAINT fk_inbound_supplier FOREIGN KEY (supplier_id) REFERENCES supplier(supplier_id) ON DELETE CASCADE,
-                                      CONSTRAINT fk_inbound_order FOREIGN KEY (order_id) REFERENCES order(order_id) ON DELETE CASCADE
+                                      CONSTRAINT fk_inbound_order FOREIGN KEY (order_id) REFERENCES `order`(order_id) ON DELETE CASCADE
 );
 
