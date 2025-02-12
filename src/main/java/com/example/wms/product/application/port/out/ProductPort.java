@@ -8,8 +8,8 @@ import java.util.List;
 public interface ProductPort {
 
     List<Product> getAllProducts();
-    void updateABCGrades();
-    void updateBinCode();
+    void updateABCGrades(Long productId, String abcGrade);
+    void updateBinCode(Long productId, String binCode);
     List<Product> findProductWithPagination(Pageable pageable);
     long countAllProducts();
 }

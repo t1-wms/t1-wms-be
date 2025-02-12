@@ -26,18 +26,18 @@ public class ProductAdapter implements ProductPort {
     }
 
     @Override
-    public void updateABCGrades() {
+    public void updateABCGrades(Long productId, String abcGrade) {
         try {
-            productMapper.updateABCGrade();
+            productMapper.updateABCGrade(productId, abcGrade);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     @Override
-    public void updateBinCode() {
+    public void updateBinCode(Long productId, String binCode) {
         try {
-            productMapper.allocateBinSequentially();
+            productMapper.updateBinLocation(productId, binCode);
         } catch (Exception e) {
             e.printStackTrace();
         }

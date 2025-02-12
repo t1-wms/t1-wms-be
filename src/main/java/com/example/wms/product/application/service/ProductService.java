@@ -11,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -21,19 +22,93 @@ public class ProductService implements ProductUseCase {
     @Override
     public void performABCAnalysis() {
 
-        productPort.updateABCGrades();
-        List<Product> abcProducts = productPort.getAllProducts();
+        List<Product> products = productPort.getAllProducts();
 
-        if (!abcProducts.isEmpty()) {
-            abcProducts.forEach(product ->
-                    System.out.println("Product: " + product.getProductCode() + ", ABC Grade: " + product.getAbcGrade())
-            );
+        if (products.isEmpty()) {
+            return;
+        }
+
+        List<Product> sortedProducts = products.stream()
+                .sorted((p1,p2)->Double.compare(
+                        p2.getSalePrice() * p2.getStockLotCount(),
+                        p1.getSalePrice() * p1.getStockLotCount()))
+                .collect(Collectors.toList());
+
+        double totalRevenue = sortedProducts.stream()
+                .mapToDouble(p->p.getSalePrice() * p.getStockLotCount())
+                .sum();
+
+        double cumulativeRevenue = 0;
+
+        for (Product product : sortedProducts) {
+            double revenue = product.getSalePrice() * product.getStockLotCount();
+            cumulativeRevenue += revenue;
+
+            double percentage = (cumulativeRevenue / totalRevenue) * 100;
+            if (percentage <= 70) {
+                product.setAbcGrade("A");
+            } else if(percentage<=90) {
+                product.setAbcGrade("B");
+            } else {
+                product.setAbcGrade("C");
+            }
+
+            productPort.updateABCGrades(product.getProductId(), product.getAbcGrade());
         }
     }
 
     @Override
     public void assignLocationBinCode() {
-        productPort.updateBinCode();
+        List<Product> products = productPort.getAllProducts();
+        if (products.isEmpty()) {
+            return;
+        }
+
+        // 3️⃣ BIN 배정 수행
+        assignBins(products);
+    }
+
+    private void assignBins(List<Product> products) {
+        int rownumA = 0, rownumB = 0, rownumC = 0;
+
+        for (Product product : products) {
+            String abcGrade = product.getAbcGrade();
+            String zone;
+            int rownum = 0;
+
+            if ("A".equals(abcGrade)) {
+                zone = getZone("A", rownumA);
+                rownum = rownumA++;
+            } else if ("B".equals(abcGrade)) {
+                zone = getZone("B",rownumB);
+                rownum = rownumB++;
+            } else {
+                zone = "F";
+                rownum = rownumC++;
+            }
+
+            String aisle = String.format("%02d", (rownum / 36 % 6 ) + 1);
+            String row = String.format("%02d", (rownum / 6 % 6) + 1);
+            String floor = String.format("%02d", (rownum % 6) + 1);
+
+            String binCode = String.format("%s-%s-%s-%s", zone, aisle, row, floor);
+            productPort.updateBinCode(product.getProductId(), binCode);
+        }
+    }
+
+    private String getZone(String grade, int rownum) {
+        switch (grade) {
+            case "A":
+                return switch ((rownum / 216) % 3) {
+                    case 0 -> "A";
+                    case 1 -> "B";
+                    default -> "C";
+                };
+            case "B":
+                return (rownum / 216) % 2 == 0 ? "D" : "E";
+            default:
+                return "F";
+        }
     }
 
     @Override
