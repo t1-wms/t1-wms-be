@@ -46,7 +46,7 @@ public class OutboundPlanController {
     }
 
     @GetMapping
-    @Operation(summary = "출고 예정 조회하기")
+    @Operation(summary = "출고 예정 조회하기" , description = "필터링 값 없으면 전체조회")
     public ResponseEntity<?> getOutboundPlans(
             @RequestParam(value = "outboundScheduleNumber", required = false) String outboundScheduleNumber,
             @RequestParam(value = "startDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
