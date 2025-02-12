@@ -1,15 +1,15 @@
 package com.example.wms.user.application.domain;
 
+import com.example.wms.infrastructure.entity.BaseEntity;
 import com.example.wms.user.application.domain.enums.UserRole;
 import lombok.*;
-import org.apache.ibatis.type.Alias;
 
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-public class User {
+public class User extends BaseEntity {
     private Long userId;        // 사용자 고유 ID
     private String name;        // 사용자 이름
     private String profileImage; // 프로필 이미지 URL

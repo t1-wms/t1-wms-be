@@ -1,5 +1,6 @@
 package com.example.wms.order.application.domain;
 
+import com.example.wms.infrastructure.entity.BaseEntity;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -8,7 +9,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-public class Order {
+public class Order extends BaseEntity {
     private Long orderId;
     private Long supplierId;
     private LocalDateTime orderDate; //주문 날짜
