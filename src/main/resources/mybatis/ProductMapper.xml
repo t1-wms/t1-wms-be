@@ -84,4 +84,25 @@
         ) t ON p.product_id = t.product_id
         SET p.location_bin_code = CONCAT(t.zone, '-', t.aisle, '-', t.rowValue, '-', t.floor);
     </update>
+
+    <select id="findProductWithPagination" resultMap="productResultMap">
+        SELECT * FROM product
+        <if test="pageable.sort.sorted">
+            <trim prefix="ORDER BY">
+                <foreach item="order" index="i" collection="pageable.sort" separator=", ">
+                    ${order.property}
+                    <choose>
+                        <when test="order.direction.toString() == 'ASC'"> ASC</when>
+                        <otherwise> DESC</otherwise>
+                    </choose>
+                </foreach>
+            </trim>
+        </if>
+        LIMIT #{pageable.pageSize} OFFSET #{pageable.offset}
+    </select>
+
+
+    <select id="countAllProducts" resultType="long">
+        SELECT COUNT(*) FROM product
+    </select>
 </mapper>

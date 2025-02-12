@@ -1,7 +1,7 @@
 package com.example.wms.product.application.service;
 
 import com.example.wms.product.application.domain.Product;
-import com.example.wms.product.application.port.out.ProductQueryPort;
+import com.example.wms.product.application.port.out.ProductPort;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -13,10 +13,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @Transactional
-class ProductIntegrationTest {
+class ProductServiceTest {
 
     @Autowired
-    private ProductQueryPort productPort;
+    private ProductPort productPort;
 
     @Autowired
     private ProductService productService;
@@ -36,8 +36,7 @@ class ProductIntegrationTest {
         List<Product> afterUpdate = productPort.getAllProducts();
         assertNotNull(afterUpdate, "변경된 데이터가 있어야 합니다. ");
         afterUpdate.forEach(p ->
-                System.out.println("After Update - Product: " + p.getProductId() + ", ABC Grade: " + p.getAbcGrade())
-        );
+                System.out.println("ABC Grade:" + p.getAbcGrade()));
     }
 
     @Test

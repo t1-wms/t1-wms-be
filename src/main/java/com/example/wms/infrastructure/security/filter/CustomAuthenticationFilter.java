@@ -37,7 +37,6 @@ import static com.example.wms.infrastructure.jwt.enums.JwtExceptionMessage.TOKEN
 import static com.example.wms.infrastructure.jwt.enums.TokenType.ACCESS;
 
 @Slf4j
-@Component
 @RequiredArgsConstructor
 public class CustomAuthenticationFilter extends OncePerRequestFilter {
 
@@ -62,7 +61,11 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
             "/api/user",
             "/api/user/list",
             "/api/upload",
-            "/api/outbound"
+            "/api/outbound",
+            "/api/bin",
+            "/api/swagger-ui",
+            "/api/v3/api-docs",
+            "/api/product"
     };
 
     /**
@@ -74,6 +77,7 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
                                     FilterChain filterChain) throws ServletException, IOException {
         String requestUri = request.getRequestURI();
 
+        log.info("🚀 요청 URI: {}", requestUri);
         // 허용된 URL 경로인지 확인
         if (isPermitUrl(requestUri)) {
             filterChain.doFilter(request, response);
