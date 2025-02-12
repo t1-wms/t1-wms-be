@@ -53,7 +53,7 @@ public class OutboundPlanController {
             @RequestParam(value = "endDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
             @ParameterObject Pageable pageable) {
 
-        if (outboundScheduleNumber != null && startDate != null && endDate != null) {
+        if (outboundScheduleNumber != null || startDate != null || endDate != null) {
             return ResponseEntity.ok(getOutboundPlanUseCase.getFilteredOutboundPlans(outboundScheduleNumber, startDate, endDate, pageable));
         } else {
             // 파라미터가 없을 경우 전체 출고 계획 조회

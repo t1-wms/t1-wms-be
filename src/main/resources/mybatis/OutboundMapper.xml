@@ -57,8 +57,8 @@
     <select id="countAllOutboundPlanFiltering" resultType="Integer">
         SELECT COUNT(*) FROM outbound_plan
         WHERE
-            outbound_schedule_date BETWEEN #{startDate} AND #{endDate}
-          AND (#{outboundScheduleNumber} IS NULL OR outbound_schedule_number LIKE CONCAT('%', #{outboundScheduleNumber}, '%'))
+        outbound_schedule_date BETWEEN #{startDate} AND #{endDate}
+        AND (#{outboundScheduleNumber} IS NULL OR outbound_schedule_number LIKE CONCAT('%', #{outboundScheduleNumber}, '%'))
     </select>
 
 
