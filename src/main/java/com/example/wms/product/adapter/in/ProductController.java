@@ -1,9 +1,7 @@
 package com.example.wms.product.adapter.in;
 
-import com.example.wms.outbound.adapter.in.dto.OutboundPlanRequestDto;
 import com.example.wms.product.application.domain.Product;
 import com.example.wms.product.application.port.in.ProductUseCase;
-import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;

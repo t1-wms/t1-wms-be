@@ -64,48 +64,62 @@ public class ProductService implements ProductUseCase {
             return;
         }
 
-        // 3️⃣ BIN 배정 수행
+        // 재고 로트 수량을 고려하여 내림차순 정렬 (많은 재고부터 배치)
+        products.sort((p1,p2) -> Integer.compare(p2.getStockLotCount(), p1.getStockLotCount()));
+
         assignBins(products);
     }
 
     private void assignBins(List<Product> products) {
-        int rownumA = 0, rownumB = 0, rownumC = 0;
+        int indexA = 0, indexB = 0, indexC = 0;
 
         for (Product product : products) {
             String abcGrade = product.getAbcGrade();
             String zone;
-            int rownum = 0;
+            int index = 0;
 
             if ("A".equals(abcGrade)) {
-                zone = getZone("A", rownumA);
-                rownum = rownumA++;
+                zone = getZone("A", indexA);
+                index = indexA++;
             } else if ("B".equals(abcGrade)) {
-                zone = getZone("B",rownumB);
-                rownum = rownumB++;
+                zone = getZone("B",indexB);
+                index = indexB++;
             } else {
                 zone = "F";
-                rownum = rownumC++;
+                index = indexC++;
             }
 
-            String aisle = String.format("%02d", (rownum / 36 % 6 ) + 1);
-            String row = String.format("%02d", (rownum / 6 % 6) + 1);
-            String floor = String.format("%02d", (rownum % 6) + 1);
+            String aisle = String.format("%02d", (index / 36 % 6 ) + 1);
+            String row = String.format("%02d", (index / 6 % 6) + 1);
+            String floor = String.format("%02d", (index % 6) + 1);
 
-            String binCode = String.format("%s-%s-%s-%s", zone, aisle, row, floor);
+            int stockLotCount = product.getStockLotCount();
+
+            String binCode;
+
+            if (stockLotCount <= 6) {
+                binCode = String.format("%s-%s-%s-%s", zone, aisle, row, floor); // A-01-01-01
+            } else if (stockLotCount <= 36) {
+                binCode = String.format("%s-%s-%s", zone, aisle, row); // A-01-01
+            } else if (stockLotCount <= 216) {
+                binCode = String.format("%s-%s", zone, aisle);
+            } else {
+                binCode = zone;
+            }
             productPort.updateBinCode(product.getProductId(), binCode);
         }
     }
 
-    private String getZone(String grade, int rownum) {
+    private String getZone(String grade, int index) {
         switch (grade) {
             case "A":
-                return switch ((rownum / 216) % 3) {
+                return switch ((index / 216) % 3) {
                     case 0 -> "A";
                     case 1 -> "B";
                     default -> "C";
                 };
             case "B":
-                return (rownum / 216) % 2 == 0 ? "D" : "E";
+                return (index / 216) % 2 == 0 ? "D" : "E";
             default:
                 return "F";
         }

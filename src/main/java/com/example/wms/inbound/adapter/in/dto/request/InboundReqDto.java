@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class InboundReqDto {
-    private LocalDate scheduleDate; // order의 delivery_deadLine 값을 저장하는 것임
+    private LocalDateTime scheduleDate; // order의 delivery_deadLine 값을 저장하는 것임
     private Long orderId; // 주문 id
     private Long supplierId; // 공급처 번호
     private String orderNumber; // 주문 번호

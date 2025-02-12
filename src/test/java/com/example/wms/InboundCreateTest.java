@@ -1,7 +1,6 @@
 package com.example.wms;
 
 import com.example.wms.inbound.adapter.in.dto.request.InboundReqDto;
-import com.example.wms.inbound.application.domain.Inbound;
 import com.example.wms.inbound.application.port.out.AssignInboundNumberPort;
 import com.example.wms.inbound.application.port.out.InboundPort;
 import com.example.wms.inbound.application.service.InboundService;
@@ -14,7 +13,8 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -30,10 +30,10 @@ public class InboundCreateTest {
     private InboundService inboundService;
 
 
-//    @BeforeEach
-//    public void setUp() {
-//        MockitoAnnotations.openMocks(this);
-//    }
+    @BeforeEach
+    public void setUp() {
+        MockitoAnnotations.openMocks(this);
+    }
 
     // 승인된 주문 조회
     // order 정보 중
@@ -48,14 +48,14 @@ public class InboundCreateTest {
     // 재고가 부족해서 wms에서 발주 신청을 하면 납품업체에서
     // 승인하는 경우 납품기한을 보냄  (=승인날짜 + 리드 타임)
     // 그러면 입하 예정이 생성됨 (schedule Date = 납품기한임)
-    // inbound schedule Date <- orderDate 로 저장함
+    // inbound schedule Date <- InboundDate 로 저장함
 
      @Test
      @DisplayName("inbound 저장 테스트")
      void makeScheduleInbound() {
 
         // given
-        LocalDate date = LocalDate.of(2025,2,26);
+        LocalDateTime date = LocalDateTime.of(2025,3,25,3,2);
 
         InboundReqDto inboundReqDto = InboundReqDto.builder()
                 .scheduleDate(date)
