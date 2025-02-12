@@ -111,3 +111,20 @@ CREATE TABLE IF NOT EXISTS users (
                                      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                                      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
+
+CREATE TABLE IF NOT EXISTS inbound (
+                                      inbound_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                                      schedule_number VARCHAR(255) NULL,
+                                      schedule_date DATE NULL,
+                                      check_number VARCHAR(255) NULL,
+                                      check_date DATE NULL,
+                                      put_away_number VARCHAR(255) NULL,
+                                      put_away_date DATETIME NULL,
+                                      order_id BIGINT NULL,
+                                      supplier_id BIGINT NULL,
+                                      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                                      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                                      CONSTRAINT fk_inbound_supplier FOREIGN KEY (supplier_id) REFERENCES supplier(supplier_id) ON DELETE CASCADE,
+                                      CONSTRAINT fk_inbound_order FOREIGN KEY (order_id) REFERENCES `order`(order_id) ON DELETE CASCADE
+);
+
