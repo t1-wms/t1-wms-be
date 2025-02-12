@@ -15,7 +15,7 @@ public class Inbound {
     private Long inboundId;
 
     private String scheduleNumber; // 입하 예정 번호
-    private LocalDate scheduleDate;
+    private LocalDateTime scheduleDate;
 
     private String checkNumber; // 입고 검사 번호
     private LocalDateTime checkDate;
