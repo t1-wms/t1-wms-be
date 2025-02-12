@@ -1,3 +1,21 @@
+-- users 테이블 생성
+CREATE TABLE IF NOT EXISTS users (
+                                    user_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                                    name VARCHAR(100) NOT NULL,
+                                    profile_image VARCHAR(255),
+                                    staff_number VARCHAR(50) UNIQUE NOT NULL,
+                                    password VARCHAR(255) NOT NULL,
+                                    phone VARCHAR(20),
+                                    gender VARCHAR(10),
+                                    is_active BOOLEAN DEFAULT TRUE,
+                                    address VARCHAR(255),
+                                    user_role VARCHAR(20) NOT NULL,
+                                    birth_date DATE,
+                                    supplier_id BIGINT,
+                                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                                    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
 -- supplier 테이블 생성
 CREATE TABLE IF NOT EXISTS supplier (
                                         supplier_id BIGINT PRIMARY KEY AUTO_INCREMENT, -- 공급자 고유 ID (자동 증가)
@@ -13,33 +31,77 @@ CREATE TABLE IF NOT EXISTS supplier (
 
 -- bin 테이블 생성
 CREATE TABLE IF NOT EXISTS bin (
-                                   bin_id BIGINT AUTO_INCREMENT PRIMARY KEY,
-                                   bin_code VARCHAR(20) NOT NULL UNIQUE,
-                                   zone CHAR(1) NOT NULL,
-                                   aisle INT NOT NULL,
-                                   row_num INT NOT NULL,
-                                   floor INT NOT NULL,
-                                   amount INT NOT NULL DEFAULT 0
+                                    bin_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                                    bin_code VARCHAR(20) NOT NULL UNIQUE,
+                                    zone CHAR(1) NOT NULL,
+                                    aisle INT NOT NULL,
+                                    row_num INT NOT NULL,
+                                    floor INT NOT NULL,
+                                    amount INT NOT NULL DEFAULT 0
 );
 
 -- product 테이블 생성
 CREATE TABLE IF NOT EXISTS product (
-                                       product_id BIGINT PRIMARY KEY AUTO_INCREMENT, -- 제품 고유 ID (자동 증가)
-                                       product_code VARCHAR(50) NOT NULL, -- 제품 코드
-                                       product_name VARCHAR(255) NOT NULL, -- 제품 이름
-                                       purchase_price INT NOT NULL, -- 구매 가격
-                                       sale_price INT NOT NULL, -- 판매 가격
-                                       lot_unit INT NOT NULL, -- 로트당 제품 수량
-                                       supplier_id BIGINT NOT NULL, -- 공급자 ID
-                                       stock_lot_count INT NOT NULL, -- 재고 로트 수량
-                                       category VARCHAR(100), -- 카테고리
-                                       min_lot_count VARCHAR(50), -- 최소 LOT 수량
-                                       lead_time INT, -- 이 품목이 납품업체로부터 납품될 때까지 걸리는 시간
-                                       location_bin_code VARCHAR(50), -- 위치 BIN 코드
-                                       abc_grade CHAR(1), -- ABC 등급
-                                       created_at DATETIME DEFAULT CURRENT_TIMESTAMP, -- 생성 날짜
-                                       updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, -- 수정 날짜
-                                       FOREIGN KEY (supplier_id) REFERENCES supplier(supplier_id) -- 외래키: supplier 테이블 참조
+                                        product_id BIGINT PRIMARY KEY AUTO_INCREMENT, -- 제품 고유 ID (자동 증가)
+                                        product_code VARCHAR(50) NOT NULL, -- 제품 코드
+                                        product_name VARCHAR(255) NOT NULL, -- 제품 이름
+                                        purchase_price INT NOT NULL, -- 구매 가격
+                                        sale_price INT NOT NULL, -- 판매 가격
+                                        lot_unit INT NOT NULL, -- 로트당 제품 수량
+                                        supplier_id BIGINT NOT NULL, -- 공급자 ID
+                                        stock_lot_count INT NOT NULL, -- 재고 로트 수량
+                                        category VARCHAR(100), -- 카테고리
+                                        min_lot_count VARCHAR(50), -- 최소 LOT 수량
+                                        lead_time INT, -- 이 품목이 납품업체로부터 납품될 때까지 걸리는 시간
+                                        location_bin_code VARCHAR(50), -- 위치 BIN 코드
+                                        abc_grade CHAR(1), -- ABC 등급
+                                        created_at DATETIME DEFAULT CURRENT_TIMESTAMP, -- 생성 날짜
+                                        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, -- 수정 날짜
+                                        FOREIGN KEY (supplier_id) REFERENCES supplier(supplier_id) -- 외래키: supplier 테이블 참조
+);
+
+-- order 테이블 생성
+CREATE TABLE IF NOT EXISTS `order` (
+                                       order_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                                       supplier_id BIGINT NOT NULL,
+                                       order_date DATETIME NOT NULL,
+                                       order_number VARCHAR(255) NOT NULL,
+                                       inbound_date DATETIME,
+                                       is_approved BOOLEAN,
+                                       is_delayed BOOLEAN,
+                                       is_return_order BOOLEAN,
+                                       order_quantity INT,
+                                       order_status VARCHAR(50),
+                                       daily_plan_id VARCHAR(50),
+                                       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                                       updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                                       CONSTRAINT fk_supplier_order FOREIGN KEY (supplier_id) REFERENCES supplier(supplier_id)
+);
+
+-- order_product 테이블 생성
+CREATE TABLE IF NOT EXISTS order_product (
+                                             order_product_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                                             order_id BIGINT NOT NULL,
+                                             product_id BIGINT NOT NULL,
+                                             is_defective BOOLEAN,
+                                             bin_id BIGINT,
+                                             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                                             updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                                             CONSTRAINT fk_order FOREIGN KEY (order_id) REFERENCES `order`(order_id),
+                                             CONSTRAINT fk_product_order_product FOREIGN KEY (product_id) REFERENCES product(product_id),
+                                             CONSTRAINT fk_bin_order_product FOREIGN KEY (bin_id) REFERENCES bin(bin_id)
+);
+
+-- account_book 테이블 생성
+CREATE TABLE IF NOT EXISTS account_book (
+                                            account_book_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                                            supplier_id BIGINT NOT NULL,
+                                            purchase_price INT,
+                                            sale_price INT,
+                                            trade_date DATETIME,
+                                            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                                            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                                            CONSTRAINT fk_supplier_account_book FOREIGN KEY (supplier_id) REFERENCES supplier(supplier_id)
 );
 
 -- lot 테이블 생성
