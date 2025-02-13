@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -15,7 +16,7 @@ import java.util.List;
 public class InboundResDto {
     private Long inboundId;
     private String inboundStatus;
-    private LocalDateTime createdAt;
+    private LocalDate createdAt;
     private String scheduleNumber;
     private LocalDateTime scheduleDate;
     private Long orderId;
