@@ -80,6 +80,9 @@ dependencies {
 
     // H2
     runtimeOnly 'com.h2database:h2:2.1.212'
+
+    // logging
+    implementation 'org.slf4j:slf4j-api:2.0.0'
 }
 
 tasks.named('jar') {
