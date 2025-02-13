@@ -27,10 +27,6 @@ public class InboundService implements InboundUseCase {
                 .scheduleDate(inboundReqDto.getScheduleDate())
                 .orderId(inboundReqDto.getOrderId())
                 .supplierId(inboundReqDto.getSupplierId())
-                .checkNumber(null)
-                .checkDate(null)
-                .putAwayDate(null)
-                .putAwayNumber(null)
                 .build();
 
         inboundPort.save(inboundPlan);
@@ -38,31 +34,20 @@ public class InboundService implements InboundUseCase {
 
     public String makeNumber(String format) {
         String currentDate = LocalDate.now().toString().replace("-","");
-        String numberFormat = null;
-        String number = null;
+        String number = switch (format) {
+            case "IS" -> assignInboundNumberPort.findMaxISNumber();
+            case "IC" -> assignInboundNumberPort.findMaxICNumber();
+            case "PA" -> assignInboundNumberPort.findMaxPANumber();
+            default -> null;
+        };
 
-        if(format.equals("IS")) {
-            number = assignInboundNumberPort.findMaxISNumber();
-            numberFormat = "IS";
-        }
-        else if (format.equals("IC")) {
-            number = assignInboundNumberPort.findMaxICNumber();
-            numberFormat = "IC";
-        }
-        else if (format.equals("PA")) {
-            number = assignInboundNumberPort.findMaxPANumber();
-            numberFormat = "PA";
-        }
         String nextNumber = "0000";
 
         if (number != null) {
-            String lastNumberStr = number.substring(number.length()-4);
-            int lastNumber = Integer.parseInt(lastNumberStr);
-            nextNumber = String.format("%04d",lastNumber+1);
+            int lastNumber = Integer.parseInt(number.substring(number.length()-4));
+            nextNumber = String.format("%04d", lastNumber+1);
         }
 
-        StringBuilder sb = new StringBuilder();
-        sb.append(numberFormat).append(currentDate).append(nextNumber);
-        return sb.toString();
+        return format + currentDate + nextNumber;
     }
 }
