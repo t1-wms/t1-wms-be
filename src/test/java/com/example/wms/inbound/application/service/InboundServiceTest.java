@@ -39,7 +39,7 @@ class InboundServiceTest {
                 new InboundProductDto(2L, "P1002", "유모차", 300, 50),
                 new InboundProductDto(3L, "P1003", "침대", 200, 30)
         );
-        
+
         List<InboundResDto> inboundResDtoList = List.of(
                 new InboundResDto(1L, "입고중", LocalDateTime.now(), "IS202502060000",LocalDateTime.now(),1L,"OD202502060001",LocalDateTime.of(2025,2,6,0,0,20,3),1L,"seat company",productDtoList)
         );
