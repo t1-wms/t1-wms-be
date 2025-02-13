@@ -123,7 +123,7 @@ CREATE TABLE IF NOT EXISTS lot (
 CREATE TABLE IF NOT EXISTS notification (
                                             notification_id BIGINT PRIMARY KEY AUTO_INCREMENT,
                                             content VARCHAR(255) NOT NULL,
-                                            event INT NOT NULL,
+                                            event VARCHAR(50) NOT NULL,
                                             user_role VARCHAR(50) NOT NULL,
                                             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                                             updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
