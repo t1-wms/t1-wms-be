@@ -3,7 +3,6 @@ package com.example.wms.infrastructure.mapper;
 import com.example.wms.product.application.domain.Product;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;

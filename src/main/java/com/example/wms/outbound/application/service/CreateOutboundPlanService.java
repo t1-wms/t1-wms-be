@@ -42,7 +42,7 @@ public class CreateOutboundPlanService implements CreateOutboundPlanUseCase {
                 .status("진행중")
                 .outboundScheduleNumber(osNumber)
                 .outboundScheduleDate(outboundPlanRequestDto.getOutboundScheduleDate())
-                .productionPlanNumber(outboundPlanRequestDto.getProductionPlanId())
+                .productionPlanNumber(outboundPlanRequestDto.getProductionPlanNumber())
                 .build();
 
         // DB에 저장하기
