@@ -1,38 +1,34 @@
 package com.example.wms.infrastructure.security.filter;
 
-import com.example.wms.infrastructure.repository.LogoutAccessTokenRedisRepository;
-import com.example.wms.user.application.domain.RefreshToken;
-import com.example.wms.user.adapter.in.dto.response.TokenInfo;
 import com.example.wms.infrastructure.dto.ResponseDto;
 import com.example.wms.infrastructure.exception.DuplicatedException;
 import com.example.wms.infrastructure.exception.TokenException;
 import com.example.wms.infrastructure.jwt.JwtTokenProvider;
+import com.example.wms.infrastructure.jwt.dto.Token;
 import com.example.wms.infrastructure.jwt.enums.JwtHeaderUtil;
 import com.example.wms.infrastructure.jwt.enums.JwtResponseMessage;
-import com.example.wms.infrastructure.jwt.dto.Token;
 import com.example.wms.infrastructure.jwt.exception.MalformedHeaderException;
 import com.example.wms.infrastructure.jwt.exception.TokenNotFoundException;
+import com.example.wms.infrastructure.repository.LogoutAccessTokenRedisRepository;
+import com.example.wms.user.adapter.in.dto.response.TokenInfo;
+import com.example.wms.user.application.domain.RefreshToken;
 import com.example.wms.user.application.service.RefreshTokenService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-
 import java.io.IOException;
-import java.util.Collections;
 
 import static com.example.wms.infrastructure.enums.ExceptionMessage.ALREADY_LOGGED_OUT;
 import static com.example.wms.infrastructure.jwt.enums.JwtExceptionMessage.MALFORMED_HEADER;
@@ -40,7 +36,6 @@ import static com.example.wms.infrastructure.jwt.enums.JwtExceptionMessage.TOKEN
 import static com.example.wms.infrastructure.jwt.enums.TokenType.ACCESS;
 
 @Slf4j
-@Component
 @RequiredArgsConstructor
 public class CustomAuthenticationFilter extends OncePerRequestFilter {
 
@@ -59,13 +54,19 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
      * 허용 URL 경로 배열
      */
     private static final String[] PERMIT_URLS = {
-            "/api/user/signup",
-            "/api/user/login",
-            "/api/user/send-email-code",
-            "/api/user/check-email-code",
-            "/api/user/check-login-email",
+            "/api/auth/register",
+            "/api/auth/login",
             "/api/user/reissue-token",
+            "/api/user",
+            "/api/user/list",
             "/api/upload",
+            "/api/outbound",
+            "/api/bin",
+            "/api/swagger-ui",
+            "/api/v3/api-docs",
+            "/api/product",
+            "/api/sse",
+            "/api/supplier"
     };
 
     /**
@@ -73,17 +74,35 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
      * 만료된 경우 Redis에 저장된 Refresh Token을 통해 새로운 Access Token을 재발급합니다.
      */
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String token = getJwtFromRequest(request);
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
+                                    FilterChain filterChain) throws ServletException, IOException {
+        String requestUri = request.getRequestURI();
 
-        if (StringUtils.hasText(token) && jwtTokenProvider.validateToken(token)) {
-            String email = jwtTokenProvider.getEmailFromToken(token);
-
-            Authentication authentication = new UsernamePasswordAuthenticationToken(email, null, Collections.emptyList());
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+        log.info("🚀 요청 URI: {}", requestUri);
+        // 허용된 URL 경로인지 확인
+        if (isPermitUrl(requestUri)) {
+            filterChain.doFilter(request, response);
+            return;
         }
 
-        filterChain.doFilter(request, response);
+        try {
+            Token token = resolveAccessToken(request);
+            // 로그아웃 상태인지 확인
+            checkLogout(token.getToken());
+
+            // Access Token이 유효한 경우 SecurityContext에 인증 정보를 설정합니다.
+            if (token != null && jwtTokenProvider.validateToken(token.getToken())) {
+                Authentication authentication = jwtTokenProvider.getAuthentication(token.getToken());
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            } else if (token != null && !jwtTokenProvider.validateToken(token.getToken())) {
+                handleExpiredAccessToken(request, response);
+                return;
+            }
+
+            filterChain.doFilter(request, response);
+        } catch (TokenException e) {
+            makeTokenExceptionResponse(response, e);
+        }
     }
 
     private String getJwtFromRequest(HttpServletRequest request) {
