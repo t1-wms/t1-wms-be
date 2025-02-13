@@ -44,8 +44,8 @@ class InboundServiceTest {
     @BeforeEach
     void setUp() {
         mockInboundPlanProductList = Arrays.asList(
-                new InboundPlanProductDto(1L,"입고중",LocalDateTime.now(),"Schedule1", LocalDate.now(), 1L, "Order1",LocalDate.now(),1L,"Supplier1",1L,"P001","Product1",10,5),
-                new InboundPlanProductDto(2L,"입고완료",LocalDateTime.now(),"Schedule2", LocalDate.now(), 2L, "Order2",LocalDate.now(),2L,"Supplier2",2L,"P002","Product2",20,10)
+                new InboundPlanProductDto(1L,"입고중",LocalDate.now(),"Schedule1", LocalDateTime.now(), 1L, "Order1",LocalDateTime.now(),1L,"Supplier1",1L,"P001","Product1",10,5),
+                new InboundPlanProductDto(2L,"입고완료",LocalDate.now(),"Schedule2", LocalDateTime.now(), 2L, "Order2",LocalDateTime.now(),2L,"Supplier2",2L,"P002","Product2",20,10)
         );
     }
 
@@ -56,7 +56,7 @@ class InboundServiceTest {
                 .thenReturn(mockInboundPlanProductList);
         when(inboundRetrievalPort.countAllInboundPlan()).thenReturn(mockInboundPlanProductList.size());
 
-        Page<InboundPlanProductDto> result = inboundService.getInboundPlans(pageable);
+        Page<InboundResDto> result = inboundService.getInboundPlans(pageable);
 
         assertThat(result).isNotNull();
         assertThat(result.getContent()).hasSize(mockInboundPlanProductList.size());
@@ -68,17 +68,21 @@ class InboundServiceTest {
 
     @Test
     void testGetFilteredInboundPlans() {
-        String inboundScheduleNumber = "IS202502060001";
-        LocalDate startDate = LocalDate.of(2025,2,10);
-        LocalDate endDate = LocalDate.of(2025,2,13);
+        // given
+        String inboundScheduleNumber = "Schedule1";
+        LocalDate startDate = LocalDate.of(2025, 2, 1);
+        LocalDate endDate = LocalDate.of(2025, 2, 10);
+        Pageable pageable = PageRequest.of(0, 10);
 
-        when(inboundRetrievalPort.findInboundFilteringWithPagination(eq(inboundScheduleNumber), eq(startDate),eq(endDate),any(Pageable.class)))
+        when(inboundRetrievalPort.findInboundFilteringWithPagination(eq(inboundScheduleNumber), eq(startDate), eq(endDate), any(Pageable.class)))
                 .thenReturn(mockInboundPlanProductList);
-        when(inboundRetrievalPort.countFilteredInboundPlan(eq(inboundScheduleNumber), eq(startDate),eq(endDate))
-        ).thenReturn(mockInboundPlanProductList.size());
+        when(inboundRetrievalPort.countFilteredInboundPlan(eq(inboundScheduleNumber), eq(startDate), eq(endDate)))
+                .thenReturn(mockInboundPlanProductList.size());
 
-        Page<InboundPlanProductDto> result = inboundService.getFilteredInboundPlans(inboundScheduleNumber, startDate, endDate);
+        // when
+        Page<InboundResDto> result = inboundService.getFilteredInboundPlans(inboundScheduleNumber, startDate, endDate, pageable);
 
+        // then
         assertThat(result).isNotNull();
         assertThat(result.getContent()).hasSize(mockInboundPlanProductList.size());
         assertThat(result.getTotalElements()).isEqualTo(mockInboundPlanProductList.size());
@@ -86,6 +90,7 @@ class InboundServiceTest {
         verify(inboundRetrievalPort, times(1)).findInboundFilteringWithPagination(eq(inboundScheduleNumber), eq(startDate), eq(endDate), any(Pageable.class));
         verify(inboundRetrievalPort, times(1)).countFilteredInboundPlan(eq(inboundScheduleNumber), eq(startDate), eq(endDate));
     }
+
 
     @Test
     void getInboundProductListTest() {
@@ -98,7 +103,7 @@ class InboundServiceTest {
         );
 
         List<InboundResDto> inboundResDtoList = List.of(
-                new InboundResDto(1L, "입고중", LocalDateTime.now(), "IS202502060000",LocalDateTime.now(),1L,"OD202502060001",LocalDateTime.of(2025,2,6,0,0,20,3),1L,"seat company",productDtoList)
+                new InboundResDto(1L, "입고중", LocalDate.now(), "IS202502060000",LocalDateTime.now(),1L,"OD202502060001",LocalDateTime.of(2025,2,6,0,0,20,3),1L,"seat company",productDtoList)
         );
 
         OrderProduct orderProduct = OrderProduct.builder()
