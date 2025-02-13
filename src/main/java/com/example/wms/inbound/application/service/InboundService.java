@@ -1,15 +1,19 @@
 package com.example.wms.inbound.application.service;
 
 import com.example.wms.inbound.adapter.in.dto.request.InboundReqDto;
+import com.example.wms.inbound.adapter.in.dto.response.InboundResDto;
 import com.example.wms.inbound.application.domain.Inbound;
 import com.example.wms.inbound.application.port.in.InboundUseCase;
 import com.example.wms.inbound.application.port.out.AssignInboundNumberPort;
 import com.example.wms.inbound.application.port.out.InboundPort;
+import com.example.wms.inbound.application.port.out.InboundRetrievalPort;
+import com.example.wms.order.application.domain.OrderProduct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -17,6 +21,7 @@ public class InboundService implements InboundUseCase {
 
     private final AssignInboundNumberPort assignInboundNumberPort;
     private final InboundPort inboundPort;
+    private final InboundRetrievalPort inboundRetrievalPort;
 
     @Transactional
     @Override
@@ -49,5 +54,9 @@ public class InboundService implements InboundUseCase {
         }
 
         return format + currentDate + nextNumber;
+    }
+
+    public List<InboundResDto> getAllInboundProductList(OrderProduct orderProduct) {
+        return inboundRetrievalPort.findInboundProductListByOrderId(orderProduct.getOrderId());
     }
 }

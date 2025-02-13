@@ -16,4 +16,5 @@ public class InboundAdapter implements InboundPort {
     public void save(Inbound inbound) {
         inboundMapper.insert(inbound);
     }
+
 }

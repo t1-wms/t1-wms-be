@@ -176,6 +176,7 @@ CREATE TABLE IF NOT EXISTS users (
 
 CREATE TABLE IF NOT EXISTS inbound (
                                       inbound_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                                      inbound_status VARCHAR(255) NULL,
                                       schedule_number VARCHAR(255) NULL,
                                       schedule_date DATE NULL,
                                       check_number VARCHAR(255) NULL,
