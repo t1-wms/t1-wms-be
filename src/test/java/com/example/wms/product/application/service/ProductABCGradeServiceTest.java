@@ -30,9 +30,9 @@ class ProductABCGradeServiceTest {
     @BeforeEach
     void setUp() {
         mockProducts = Arrays.asList(
-                new Product(1L, "a123", "handle", 5000, 10000, 10, 1L, 50, "Electronics", "5", 7, null, null),
-                new Product(1L, "a124", "handle2", 6000, 20000, 20, 1L, 50, "Electronics", "5", 7, null, null),
-                new Product(1L, "a125", "handle3", 5000, 10000, 10, 1L, 50, "Electronics", "5", 7, null, null)
+                new Product(1L, "a123", "handle", 5000, 10000, 10, 1L, 50, "Electronics", 5, 7, null, null),
+                new Product(1L, "a124", "handle2", 6000, 20000, 20, 1L, 50, "Electronics", 5, 7, null, null),
+                new Product(1L, "a125", "handle3", 5000, 10000, 10, 1L, 50, "Electronics", 5, 7, null, null)
         );
 
         when(productPort.getAllProducts()).thenReturn(mockProducts);
