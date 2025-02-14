@@ -19,7 +19,7 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-//테스트
+// test
 @Tag(name = "auth", description = "auth domain apis")
 @Slf4j
 @RestController
