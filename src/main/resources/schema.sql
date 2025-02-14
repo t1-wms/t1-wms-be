@@ -176,6 +176,7 @@ CREATE TABLE IF NOT EXISTS users (
 
 CREATE TABLE IF NOT EXISTS inbound (
                                       inbound_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                                      inbound_status VARCHAR(255) NULL,
                                       schedule_number VARCHAR(255) NULL,
                                       schedule_date DATE NULL,
                                       check_number VARCHAR(255) NULL,
@@ -188,5 +189,20 @@ CREATE TABLE IF NOT EXISTS inbound (
                                       updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                                       CONSTRAINT fk_inbound_supplier FOREIGN KEY (supplier_id) REFERENCES supplier(supplier_id) ON DELETE CASCADE,
                                       CONSTRAINT fk_inbound_order FOREIGN KEY (order_id) REFERENCES `order`(order_id) ON DELETE CASCADE
+);
+
+-- outbound 테이블 생성
+CREATE TABLE IF NOT EXISTS outbound (
+                                        outbound_id BIGINT AUTO_INCREMENT PRIMARY KEY NOT NULL , -- 출고 고유 ID (자동 증가)
+                                        outbound_plan_id BIGINT NOT NULL, -- 출고 계획 ID
+                                        outbound_assign_number VARCHAR(50) , -- 출고 배정 번호
+                                        outbound_assign_date DATE, -- 출고 배정 일시
+                                        outbound_picking_number VARCHAR(50), -- 출고 피킹 번호
+                                        outbound_picking_date DATE, -- 출고 피킹 일시
+                                        outbound_packing_number VARCHAR(50), -- 출고 패킹 번호
+                                        outbound_packing_date DATE, -- 출고 패킹 일시
+                                        outbound_loading_number VARCHAR(50), -- 출고 상차 번호
+                                        outbound_loading_date DATE, -- 출고 상차 일시
+                                        CONSTRAINT fk_outbound_plan FOREIGN KEY (outbound_plan_id) REFERENCES outbound_plan(outbound_plan_id) -- 외래키: outbound_plan 테이블 참조
 );
 

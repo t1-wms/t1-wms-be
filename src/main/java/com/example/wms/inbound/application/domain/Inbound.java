@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @Builder
 public class Inbound {
     private Long inboundId;
-
+    private String inboundStatus; // 입고 상태
     private String scheduleNumber; // 입하 예정 번호
     private LocalDateTime scheduleDate;
 
