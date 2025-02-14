@@ -26,7 +26,7 @@ public class GetOutboundPlanService implements GetOutboundPlanUseCase {
     public Page<OutboundPlanResponseDto> getOutboundPlans(Pageable pageable) {
         Pageable safePageable = PageableUtils.convertToSafePageableStrict(pageable, OutboundPlan.class);
 
-        List<OutboundPlan> outboundPlanList = getOutboundPlanPort.findOutboundPlanWithPagenation(safePageable);
+        List<OutboundPlan> outboundPlanList = getOutboundPlanPort.findOutboundPlanWithPageNation(safePageable);
         Integer count = getOutboundPlanPort.countAllOutboundPlan();
 
         List<OutboundPlanResponseDto> dtoList = outboundPlanList.stream()
@@ -57,6 +57,7 @@ public class GetOutboundPlanService implements GetOutboundPlanUseCase {
                 .map(p -> ProductInfoDto.builder()
                         .productId(p.getProductId())
                         .productCode(p.getProductCode())
+                        .productName(p.getProductName())
                         .productCount(p.getProductCount())
                         .build())
                 .collect(Collectors.toList());

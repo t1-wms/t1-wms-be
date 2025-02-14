@@ -41,7 +41,7 @@ public interface OutboundPlanMapper {
         deleteById(outboundPlanId);
     }
 
-    //outboundPlan 조회하기
+    // outboundPlan 조회하기
     List<OutboundPlan> findOutboundPlanWithPageNation(@Param("pageable") Pageable pageable);
     Integer countAllOutboundPlan();
 

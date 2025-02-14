@@ -20,7 +20,7 @@ public class GetOutboundPlanAdapter implements GetOutboundPlanPort {
     private final OutboundPlanProductMapper outboundPlanProductMapper;
 
     @Override
-    public List<OutboundPlan> findOutboundPlanWithPagenation(Pageable pageable) {
+    public List<OutboundPlan> findOutboundPlanWithPageNation(Pageable pageable) {
         return outboundPlanMapper.findOutboundPlanWithPageNation(pageable);
     }
 

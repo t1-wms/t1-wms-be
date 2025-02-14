@@ -12,5 +12,7 @@ public class ProductInfoDto {
 
     private String productCode;
 
+    private String productName;
+
     private Integer productCount;
 }

@@ -4,6 +4,7 @@ import com.example.wms.outbound.adapter.in.dto.OutboundPlanRequestDto;
 import com.example.wms.outbound.application.domain.Outbound;
 import io.swagger.v3.oas.annotations.Operation;
 import org.apache.ibatis.annotations.*;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -61,6 +62,7 @@ public interface OutboundMapper {
     @Update("UPDATE outbound SET outbound_assign_date = #{outboundAssignDate} WHERE outbound_id = #{outboundId}")
     void updateOutboundAssign(@Param("outboundId") Long outboundId, @Param("outboundAssignDate") LocalDate outboundAssignDate);
 
+    // outboundPlanId 로 outbound하나 찾기
     @Select("""
         SELECT * 
         FROM outbound
