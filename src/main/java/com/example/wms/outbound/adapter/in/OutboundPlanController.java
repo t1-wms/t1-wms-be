@@ -60,9 +60,10 @@ public class OutboundPlanController {
             @ParameterObject Pageable pageable) {
 
         if (outboundScheduleNumber != null || startDate != null || endDate != null) {
+            // 필터링 조회
             return ResponseEntity.ok(getOutboundPlanUseCase.getFilteredOutboundPlans(outboundScheduleNumber, startDate, endDate, pageable));
         } else {
-            // 파라미터가 없을 경우 전체 출고 계획 조회
+            // 전체 조회
             return ResponseEntity.ok(getOutboundPlanUseCase.getOutboundPlans(pageable));
         }
     }

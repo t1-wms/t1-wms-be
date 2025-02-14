@@ -36,7 +36,7 @@ public class CreateOutboundPlanProductService implements CreateOutboundPlanProdu
         createOutboundPlanProductPort.saveAll(outboundPlanProductList);
         // 알림 저장하기 & 보내기
         Notification notification = Notification.builder()
-                .content("출고 예정이 생성되었습니다.")
+                .content("출고 예정이 등록되었습니다.")
                 .event("출고 예정")
                 .userRole(UserRole.ROLE_ADMIN)
                 .build();
