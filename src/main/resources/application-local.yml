@@ -29,11 +29,17 @@ spring:
       encoding: UTF-8
 
 
+#  datasource:
+#    driver-class-name: com.mysql.cj.jdbc.Driver
+#    url: jdbc:mysql://localhost:3306/wms
+#    username: root
+#    password: 1234
+
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/wms
-    username: root
-    password: 1234
+    url: jdbc:mysql://wms-database.cbgii0wwoaik.ap-northeast-2.rds.amazonaws.com:3306/wms
+    username: admin
+    password: ${secret.mysql.password}
 
   data:
     redis:
