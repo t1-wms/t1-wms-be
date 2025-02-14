@@ -31,7 +31,7 @@ public class OutboundAssignController {
     private final UpdateOutboundAssignUseCase updateOutboundAssignUseCase;
     private final GetOutboundAssignUseCase getOutboundAssignUseCase;
 
-    @PostMapping("/{outboundPlanId}")
+    @PostMapping("register/{outboundPlanId}")
     @Operation(summary = "출고 지시 등록", description = "outbound 테이블 생성됨")
     public ResponseEntity<Void> createOutboundAssign(@PathVariable Long outboundPlanId){
         Notification notification = createOutboundAssignUseCase.createOutboundAssign(outboundPlanId);
