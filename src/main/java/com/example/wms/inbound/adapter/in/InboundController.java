@@ -36,14 +36,8 @@ public class InboundController {
             @RequestParam(value = "startDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam(value = "endDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
             @ParameterObject Pageable pageable) {
-        Page<InboundResDto> result;
 
-        if (inboundScheduleNumber != null || startDate != null || endDate != null) {
-            result = inboundUseCase.getFilteredInboundPlans(inboundScheduleNumber, startDate, endDate, pageable);
-        } else {
-            result = inboundUseCase.getInboundPlans(pageable);
-        }
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok(inboundUseCase.getFilteredInboundPlans(inboundScheduleNumber, startDate, endDate, pageable));
     }
 
     @DeleteMapping("/{inboundId}")
