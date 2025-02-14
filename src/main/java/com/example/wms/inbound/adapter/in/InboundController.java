@@ -22,6 +22,8 @@ public class InboundController {
 
     private final InboundUseCase inboundUseCase;
 
+    @PostMapping
+    @Operation(summary = "입고 예정 생성하기", description = "입고 예정을 생성합니다.")
     public ResponseEntity<Void> createInbound(@RequestBody InboundReqDto inboundReqDto) {
         Long inboundId = inboundUseCase.createInboundPlan(inboundReqDto); // 수동 생성
         return ResponseEntity.status(201).build();
