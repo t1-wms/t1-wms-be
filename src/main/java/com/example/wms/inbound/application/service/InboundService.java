@@ -10,6 +10,7 @@ import com.example.wms.inbound.application.port.out.AssignInboundNumberPort;
 import com.example.wms.inbound.application.port.out.InboundPort;
 import com.example.wms.inbound.application.port.out.InboundRetrievalPort;
 import com.example.wms.infrastructure.pagination.util.PageableUtils;
+import com.example.wms.order.application.domain.Order;
 import com.example.wms.order.application.domain.OrderProduct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -34,7 +35,7 @@ public class InboundService implements InboundUseCase {
 
     @Transactional
     @Override
-    public void createInboundPlan(InboundReqDto inboundReqDto) {
+    public Long createInboundPlan(InboundReqDto inboundReqDto) {
 
         Inbound inboundPlan = Inbound.builder()
                 .scheduleNumber(makeNumber("IS"))
@@ -44,6 +45,7 @@ public class InboundService implements InboundUseCase {
                 .build();
 
         inboundPort.save(inboundPlan);
+        return inboundPlan.getInboundId();
     }
 
     private String makeNumber(String format) {
@@ -130,6 +132,21 @@ public class InboundService implements InboundUseCase {
 
         return new ArrayList<>(inboundMap.values());
 
+    }
+
+
+    @Transactional
+    @Override
+    public void createInboundSchedule(Order order) {
+        Inbound inboundPlan = Inbound.builder()
+                .inboundStatus("입하예정")
+                .scheduleNumber(makeNumber("IS"))
+                .scheduleDate(order.getInboundDate().toLocalDate())
+                .orderId(order.getOrderId())
+                .supplierId(order.getSupplierId())
+                .build();
+
+        inboundPort.save(inboundPlan);
     }
 }
 

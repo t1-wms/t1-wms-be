@@ -23,7 +23,7 @@ public class InboundController {
     private final InboundUseCase inboundUseCase;
 
     public ResponseEntity<Void> createInbound(@RequestBody InboundReqDto inboundReqDto) {
-        inboundUseCase.createInboundPlan(inboundReqDto); // 수동 생성
+        Long inboundId = inboundUseCase.createInboundPlan(inboundReqDto); // 수동 생성
         return ResponseEntity.status(201).build();
     }
 

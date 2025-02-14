@@ -18,7 +18,7 @@ public class InboundResDto {
     private String inboundStatus;
     private LocalDate createdAt;
     private String scheduleNumber;
-    private LocalDateTime scheduleDate;
+    private LocalDate scheduleDate;
     private Long orderId;
     private String orderNumber;
     private LocalDateTime orderDate;
