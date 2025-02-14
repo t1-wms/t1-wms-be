@@ -182,7 +182,7 @@ CREATE TABLE IF NOT EXISTS inbound (
                                       check_number VARCHAR(255) NULL,
                                       check_date DATE NULL,
                                       put_away_number VARCHAR(255) NULL,
-                                      put_away_date DATETIME NULL,
+                                      put_away_date DATE NULL,
                                       order_id BIGINT NULL,
                                       supplier_id BIGINT NULL,
                                       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
