@@ -11,6 +11,8 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class OutboundPlanResponseDto {
+    private Long outboundPlanId;
+
     private String process;
 
     private String outboundScheduleNumber;

@@ -62,6 +62,7 @@ public class GetOutboundPlanService implements GetOutboundPlanUseCase {
                 .collect(Collectors.toList());
 
         return OutboundPlanResponseDto.builder()
+                .outboundPlanId(outboundPlan.getOutboundPlanId())
                 .process(outboundPlan.getStatus())  // outbound테이블에서 assign있으면, picking있으면, packing있으면 이걸로 다시 나누기
                 .outboundScheduleNumber(outboundPlan.getOutboundScheduleNumber())
                 .outboundScheduleDate(outboundPlan.getOutboundScheduleDate())
