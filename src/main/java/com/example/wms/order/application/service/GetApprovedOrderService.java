@@ -1,6 +1,6 @@
 package com.example.wms.order.application.service;
 
-import com.example.wms.inbound.application.service.InboundService;
+import com.example.wms.inbound.application.port.in.InboundUseCase;
 import com.example.wms.order.application.domain.Order;
 import com.example.wms.order.application.port.in.GetApprovedOrderUseCase;
 import lombok.RequiredArgsConstructor;
@@ -11,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class GetApprovedOrderService implements GetApprovedOrderUseCase {
 
-    private final InboundService inboundService;
+    private final InboundUseCase inboundService;
 
 
     // 발주 등록 시 호출
