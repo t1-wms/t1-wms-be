@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Supplier;
 
 @Component
 @RequiredArgsConstructor
@@ -18,29 +19,17 @@ public class ProductAdapter implements ProductPort {
 
     @Override
     public List<Product> getAllProducts() {
-        try {
-            return productMapper.getAllProducts();
-        } catch (Exception e) {
-            return Collections.emptyList();
-        }
+        return executeWithFallback(productMapper::getAllProducts, Collections.emptyList());
     }
 
     @Override
     public void updateABCGrades(Long productId, String abcGrade) {
-        try {
-            productMapper.updateABCGrade(productId, abcGrade);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        executeWithFallback(()-> productMapper.updateABCGrade(productId, abcGrade));
     }
 
     @Override
     public void updateBinCode(Long productId, String binCode) {
-        try {
-            productMapper.updateBinLocation(productId, binCode);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        executeWithFallback(()-> productMapper.updateBinLocation(productId, binCode));
     }
 
     @Override
@@ -51,5 +40,21 @@ public class ProductAdapter implements ProductPort {
     @Override
     public long countAllProducts() {
         return productMapper.countAllProducts();
+    }
+
+    private <T> T executeWithFallback(Supplier<T> action, T fallback) {
+        try {
+            return action.get();
+        } catch (Exception e) {
+            return fallback;
+        }
+    }
+
+    private void executeWithFallback(Runnable action) {
+        try {
+            action.run();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
