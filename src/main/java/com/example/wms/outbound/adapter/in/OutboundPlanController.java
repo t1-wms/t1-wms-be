@@ -58,14 +58,7 @@ public class OutboundPlanController {
             @RequestParam(value = "startDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam(value = "endDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
             @ParameterObject Pageable pageable) {
-
-        if (outboundScheduleNumber != null || startDate != null || endDate != null) {
-            // 필터링 조회
-            return ResponseEntity.ok(getOutboundPlanUseCase.getFilteredOutboundPlans(outboundScheduleNumber, startDate, endDate, pageable));
-        } else {
-            // 전체 조회
-            return ResponseEntity.ok(getOutboundPlanUseCase.getOutboundPlans(pageable));
-        }
+        return ResponseEntity.ok(getOutboundPlanUseCase.getFilteredOutboundPlans(outboundScheduleNumber, startDate, endDate, pageable));
     }
 
     @PutMapping("/{outboundPlanId}")

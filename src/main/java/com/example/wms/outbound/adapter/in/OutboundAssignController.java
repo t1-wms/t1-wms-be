@@ -4,11 +4,15 @@ import com.example.wms.notification.application.domain.Notification;
 import com.example.wms.notification.application.port.in.NotificationUseCase;
 import com.example.wms.outbound.application.port.in.CreateOutboundAssignUseCase;
 import com.example.wms.outbound.application.port.in.DeleteOutboundAssignUseCase;
+import com.example.wms.outbound.application.port.in.GetOutboundAssignUseCase;
 import com.example.wms.outbound.application.port.in.UpdateOutboundAssignUseCase;
 import com.example.wms.user.application.domain.enums.UserRole;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Pageable;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,6 +29,7 @@ public class OutboundAssignController {
     private final NotificationUseCase notificationUseCase;
     private final DeleteOutboundAssignUseCase deleteOutboundAssignUseCase;
     private final UpdateOutboundAssignUseCase updateOutboundAssignUseCase;
+    private final GetOutboundAssignUseCase getOutboundAssignUseCase;
 
     @PostMapping("/{outboundPlanId}")
     @Operation(summary = "출고 지시 등록", description = "outbound 테이블 생성됨")
@@ -48,6 +53,13 @@ public class OutboundAssignController {
         return ResponseEntity.ok().build();
     }
 
-
-
+    @GetMapping
+    @Operation(summary = "출고 지시 조회하기", description = "필터링 값 없으면 전체조회")
+    public ResponseEntity<?> getOutboundAssign(
+            @RequestParam(value = "number", required = false) String outboundAssignNumber,
+            @RequestParam(value = "startDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(value = "endDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @ParameterObject Pageable pageable){
+        return ResponseEntity.ok(getOutboundAssignUseCase.getFilteredOutboundAssings(outboundAssignNumber, startDate, endDate, pageable));
+    }
 }

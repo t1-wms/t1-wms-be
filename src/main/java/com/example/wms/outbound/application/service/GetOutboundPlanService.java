@@ -23,20 +23,6 @@ public class GetOutboundPlanService implements GetOutboundPlanUseCase {
     private final GetOutboundPlanPort getOutboundPlanPort;
 
     @Override
-    public Page<OutboundPlanResponseDto> getOutboundPlans(Pageable pageable) {
-        Pageable safePageable = PageableUtils.convertToSafePageableStrict(pageable, OutboundPlan.class);
-
-        List<OutboundPlan> outboundPlanList = getOutboundPlanPort.findOutboundPlanWithPagenation(safePageable);
-        Integer count = getOutboundPlanPort.countAllOutboundPlan();
-
-        List<OutboundPlanResponseDto> dtoList = outboundPlanList.stream()
-                .map(this::convertToDto)
-                .collect(Collectors.toList());
-
-        return new PageImpl<>(dtoList, pageable, count);
-    }
-
-    @Override
     public Page<OutboundPlanResponseDto> getFilteredOutboundPlans(String outboundScheduleNumber, LocalDate startDate, LocalDate endDate, Pageable pageable) {
         Pageable safePageable = PageableUtils.convertToSafePageableStrict(pageable, OutboundPlan.class);
         List<OutboundPlan> outboundPlanList = getOutboundPlanPort.findOutboundPlanFilteringWithPageNation(outboundScheduleNumber, startDate, endDate, safePageable);
@@ -57,6 +43,7 @@ public class GetOutboundPlanService implements GetOutboundPlanUseCase {
                 .map(p -> ProductInfoDto.builder()
                         .productId(p.getProductId())
                         .productCode(p.getProductCode())
+                        .productName(p.getProductName())
                         .productCount(p.getProductCount())
                         .build())
                 .collect(Collectors.toList());

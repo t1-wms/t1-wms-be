@@ -20,18 +20,8 @@ public class GetOutboundPlanAdapter implements GetOutboundPlanPort {
     private final OutboundPlanProductMapper outboundPlanProductMapper;
 
     @Override
-    public List<OutboundPlan> findOutboundPlanWithPagenation(Pageable pageable) {
-        return outboundPlanMapper.findOutboundPlanWithPageNation(pageable);
-    }
-
-    @Override
     public List<OutboundPlan> findOutboundPlanFilteringWithPageNation(String outboundScheduleNumber, LocalDate startDate, LocalDate endDate, Pageable pageable) {
         return outboundPlanMapper.findOutboundPlanFilteringWithPageNation(outboundScheduleNumber, startDate, endDate, pageable);
-    }
-
-    @Override
-    public Integer countAllOutboundPlan() {
-        return outboundPlanMapper.countAllOutboundPlan();
     }
 
     @Override

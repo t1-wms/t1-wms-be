@@ -14,6 +14,7 @@
         SELECT
         p.product_id AS product_id,
         p.product_code AS product_code,
+        p.product_name AS product_name,
         opp.required_quantity AS required_quantity
         FROM outbound_plan_product opp
         JOIN product p ON opp.product_id = p.product_id
