@@ -1,10 +1,12 @@
 package com.example.wms.outbound.application.service;
 
+import com.example.wms.notification.application.domain.Notification;
+import com.example.wms.notification.application.port.out.NotificationPort;
 import com.example.wms.outbound.adapter.in.dto.ProductInfoDto;
 import com.example.wms.outbound.application.domain.OutboundPlanProduct;
 import com.example.wms.outbound.application.port.in.CreateOutboundPlanProductUseCase;
-import com.example.wms.outbound.application.port.out.CreateOutboundPlanPort;
 import com.example.wms.outbound.application.port.out.CreateOutboundPlanProductPort;
+import com.example.wms.user.application.domain.enums.UserRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -15,9 +17,10 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class CreateOutboundPlanProductService implements CreateOutboundPlanProductUseCase {
     private final CreateOutboundPlanProductPort createOutboundPlanProductPort;
+    private final NotificationPort notificationPort;
 
     @Override
-    public void createOutboundPlanProduct(Long outboundPlanId, List<ProductInfoDto> productInfoDtoList) {
+    public Notification createOutboundPlanProduct(Long outboundPlanId, List<ProductInfoDto> productInfoDtoList) {
 
         List<OutboundPlanProduct> outboundPlanProductList = productInfoDtoList.stream()
                 .map(dto -> OutboundPlanProduct.builder()
@@ -31,5 +34,14 @@ public class CreateOutboundPlanProductService implements CreateOutboundPlanProdu
                 .collect(Collectors.toList());
 
         createOutboundPlanProductPort.saveAll(outboundPlanProductList);
+        // 알림 저장하기 & 보내기
+        Notification notification = Notification.builder()
+                .content("출고 예정이 생성되었습니다.")
+                .event("출고 예정")
+                .userRole(UserRole.ROLE_ADMIN)
+                .build();
+
+        notificationPort.save(notification);
+        return notification;
     }
 }

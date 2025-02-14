@@ -10,7 +10,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
-import org.springframework.test.context.jdbc.Sql;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.containers.MySQLContainer;
@@ -76,7 +75,7 @@ class ProductMapperTest {
                 () -> assertThat(p1.getSupplierId()).isEqualTo(14),
                 () -> assertThat(p1.getStockLotCount()).isEqualTo(50),
                 () -> assertThat(p1.getCategory()).isEqualTo("컴퓨터 주변기기"),
-                () -> assertThat(p1.getMinLotCount()).isEqualTo("5"),
+                () -> assertThat(p1.getThreshold()).isEqualTo(5),
                 () -> assertThat(p1.getLeadTime()).isEqualTo(4),
                 () -> assertThat(p1.getLocationBinCode()).isEqualTo("I10"),
                 () -> assertThat(p1.getAbcGrade()).isEqualTo("B")
@@ -94,7 +93,7 @@ class ProductMapperTest {
                 () -> assertThat(p2.getSupplierId()).isEqualTo(11),
                 () -> assertThat(p2.getStockLotCount()).isEqualTo(20),
                 () -> assertThat(p2.getCategory()).isEqualTo("액세서리"),
-                () -> assertThat(p2.getMinLotCount()).isEqualTo("4"),
+                () -> assertThat(p2.getThreshold()).isEqualTo(4),
                 () -> assertThat(p2.getLeadTime()).isEqualTo(5),
                 () -> assertThat(p2.getLocationBinCode()).isEqualTo("F07"),
                 () -> assertThat(p2.getAbcGrade()).isEqualTo("C")
@@ -112,7 +111,7 @@ class ProductMapperTest {
                 () -> assertThat(p3.getSupplierId()).isEqualTo(8),
                 () -> assertThat(p3.getStockLotCount()).isEqualTo(35),
                 () -> assertThat(p3.getCategory()).isEqualTo("액세서리"),
-                () -> assertThat(p3.getMinLotCount()).isEqualTo("5"),
+                () -> assertThat(p3.getThreshold()).isEqualTo(5),
                 () -> assertThat(p3.getLeadTime()).isEqualTo(6),
                 () -> assertThat(p3.getLocationBinCode()).isEqualTo("C04"),
                 () -> assertThat(p3.getAbcGrade()).isEqualTo("B")

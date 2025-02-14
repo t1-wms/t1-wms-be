@@ -29,7 +29,7 @@ VALUES
 
 INSERT INTO product (
     product_code, product_name, purchase_price, sale_price,
-    lot_unit, supplier_id, stock_lot_count, category, min_lot_count,
+    lot_unit, supplier_id, stock_lot_count, category, threshold,
     lead_time, location_bin_code, abc_grade
 ) VALUES
       ('P1001', '스마트폰', 500000, 700000, 10, 1, 50, '전자기기', 5, 7, 'A01', 'A'),

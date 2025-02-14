@@ -51,7 +51,7 @@ CREATE TABLE IF NOT EXISTS product (
                                         supplier_id BIGINT NOT NULL, -- 공급자 ID
                                         stock_lot_count INT NOT NULL, -- 재고 로트 수량
                                         category VARCHAR(100), -- 카테고리
-                                        min_lot_count VARCHAR(50), -- 최소 LOT 수량
+                                        threshold INT, -- 최소 LOT 수량
                                         lead_time INT, -- 이 품목이 납품업체로부터 납품될 때까지 걸리는 시간
                                         location_bin_code VARCHAR(50), -- 위치 BIN 코드
                                         abc_grade CHAR(1), -- ABC 등급
@@ -123,7 +123,7 @@ CREATE TABLE IF NOT EXISTS lot (
 CREATE TABLE IF NOT EXISTS notification (
                                             notification_id BIGINT PRIMARY KEY AUTO_INCREMENT,
                                             content VARCHAR(255) NOT NULL,
-                                            event INT NOT NULL,
+                                            event VARCHAR(50) NOT NULL,
                                             user_role VARCHAR(50) NOT NULL,
                                             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                                             updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
