@@ -12,7 +12,7 @@
         <result property="lotUnit" column="lot_unit"/>
         <result property="supplierId" column="supplier_id"/>
         <result property="stockLotCount" column="stock_lot_count"/>
-        <result property="minLotCount" column="min_lot_count"/>
+        <result property="threshold" column="threshold"/>
         <result property="leadTime" column="lead_time"/>
     </resultMap>
 

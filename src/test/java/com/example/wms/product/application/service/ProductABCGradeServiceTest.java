@@ -30,9 +30,9 @@ class ProductABCGradeServiceTest {
     @BeforeEach
     void setUp() {
         mockProducts = Arrays.asList(
-                new Product(1L, "a123", "handle", 5000, 10000, 10, 1L, 50, "Electronics", "5", 7, null, null),
-                new Product(1L, "a124", "handle2", 6000, 20000, 20, 1L, 50, "Electronics", "5", 7, null, null),
-                new Product(1L, "a125", "handle3", 5000, 10000, 10, 1L, 50, "Electronics", "5", 7, null, null)
+                new Product(1L, "a123", "handle", 5000, 10000, 10, 1L, 50, "Electronics", 5, 7, null, null),
+                new Product(1L, "a124", "handle2", 6000, 20000, 20, 1L, 50, "Electronics", 5, 7, null, null),
+                new Product(1L, "a125", "handle3", 5000, 10000, 10, 1L, 50, "Electronics", 5, 7, null, null)
         );
 
         when(productPort.getAllProducts()).thenReturn(mockProducts);
@@ -46,20 +46,7 @@ class ProductABCGradeServiceTest {
         productService.performABCAnalysis();
 
         verify(productPort, times(mockProducts.size())).updateABCGrades(anyLong(), anyString());
-        System.out.println(mockProducts.get(0).getAbcGrade());
     }
-
-//    @Test
-//    @DisplayName("품목에 bin 코드 부여 테스트")
-//    void testAssignLocationBinCode() {
-//        // BIN 배정 실행
-//        productService.assignLocationBinCode();
-//
-//        // productPort.updateBinCode()가 제품 수만큼 호출되었는지 검증
-//        verify(productPort, times(mockProducts.size())).updateBinCode(anyLong(), anyString());
-//        System.out.println(mockProducts.get(0).getLocationBinCode());
-//    }
-//}
 
     @Test
     @DisplayName("품목에 bin 코드 부여 테스트")
@@ -79,6 +66,5 @@ class ProductABCGradeServiceTest {
 
         verify(productPort, times(mockProducts.size())).updateBinCode(anyLong(),anyString());
         assertNotNull(mockProducts.get(0).getLocationBinCode(), "bin 코드가 설정되지 않음");
-        System.out.println(mockProducts.get(0).getLocationBinCode());
     }
 }

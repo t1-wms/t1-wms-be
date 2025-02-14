@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.wms.infrastructure.mapper.InboundRetrievalMapper">
+
+    <!-- orderId로 입하 예정 데이터 조회 -->
+    <select id="findInboundProductListByOrderId" resultMap="InboundRetrievalResultMap">
+        SELECT
+            i.inbound_id,
+            i.inbound_status,
+            i.created_at,
+            i.schedule_number,
+            i.schedule_date,
+            i.order_id,
+            o.order_number,
+            o.order_date,
+            o.supplier_id,
+            s.supplier_name,
+            p.product_id,
+            p.product_code,
+            p.product_name,
+            (p.stock_lot_count * p.lot_unit) AS product_count,
+            p.lot_count
+        FROM inbound i
+        JOIN `order` o ON i.order_id = o.order_id
+        JOIN supplier s ON o.supplier_id = s.supplier_id
+        JOIN order_product op ON o.order_id = op.order_id
+        JOIN product p ON op.product_id = p.product_id
+        WHERE i.order_id = #{orderId}
+    </select>
+
+    <select id ="findInboundProductListWithPagination" resultMap="InboundRetrievalResultMap">
+        SELECT * FROM (
+            SELECT
+                i.inbound_id,
+                i.inbound_status,
+                i.created_at,
+                i.schedule_number,
+                i.schedule_date,
+                i.order_id,
+                o.order_number,
+                o.order_date,
+                o.supplier_id,
+                s.supplier_name,
+                p.product_id,
+                p.product_code,
+                p.product_name,
+                (p.stock_lot_count * p.lot_unit) AS product_count,
+                p.lot_count
+            FROM inbound i
+            JOIN `order` o ON i.order_id = o.order_id
+            JOIN supplier s ON o.supplier_id = s.supplier_id
+            JOIN order_product op ON o.order_id = op.order_id
+            JOIN product p ON op.product_id = p.product_id
+        ) inbound_data
+        <if test="pageable.sort.sorted">
+            <trim prefix="ORDER BY">
+                <foreach item="order" index="i" collection="pageable.sort" separator=", ">
+                    ${order.property}
+                    <choose>
+                        <when test="order.direction.toString() == 'ASC'">ASC</when>
+                        <otherwise> DESC</otherwise>
+                    </choose>
+                </foreach>
+            </trim>
+        </if>
+        LIMIT #{pageable.pageSize} OFFSET #{pageable.offset}
+    </select>
+
+    <select id="findInboundFilteringWithPagination" resultMap="InboundRetrievalResultMap">
+        SELECT * FROM (
+            SELECT
+                i.inbound_id,
+                i.inbound_status,
+                i.created_at,
+                i.schedule_number,
+                i.schedule_date,
+                i.order_id,
+                o.order_number,
+                o.order_date,
+                o.supplier_id,
+                s.supplier_name,
+                p.product_id,
+                p.product_code,
+                p.product_name,
+                (p.stock_lot_count * p.lot_unit) AS product_count,
+                p.lot_count
+            FROM inbound i
+            JOIN `order` o ON i.order_id = o.order_id
+            JOIN supplier s ON o.supplier_id = s.supplier_id
+            JOIN order_product op ON o.order_id = op.order_id
+            JOIN product p ON op.product_id = p.product_id
+        ) inbound_data
+        WHERE
+            schedule_date BETWEEN #{startDate} AND #{endDate}
+            AND (#{scheduleNumber} IS NULL OR schedule_number LIKE CONCAT('%', #{scheduleNumber}, '%'))
+
+        <if test="pageable.sort.sorted">
+            <trim prefix="ORDER BY">
+                <foreach item="order" index="i" collection="pageable.sort" separator=", ">
+                    ${order.property}
+                    <choose>
+                        <when test="order.direction.toString() == 'ASC'">ASC</when>
+                        <otherwise>DESC</otherwise>
+                    </choose>
+                </foreach>
+            </trim>
+        </if>
+
+        LIMIT #{pageable.pageSize} OFFSET #{pageable.offset}
+    </select>
+
+    <resultMap id="InboundRetrievalResultMap" type="com.example.wms.inbound.adapter.in.dto.response.InboundResDto">
+        <id property="inboundId" column="inbound_id"/>
+        <result property="inboundStatus" column="inbound_status"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="scheduleNumber" column="schedule_number"/>
+        <result property="scheduleDate" column="schedule_date"/>
+        <result property="orderId" column="order_id"/>
+        <result property="orderNumber" column="order_number"/>
+        <result property="orderDate" column="order_date"/>
+        <result property="supplierId" column="supplier_id"/>
+        <result property="supplierName" column="supplier_name"/>
+
+        <collection property="productList" ofType="com.example.wms.inbound.adapter.in.dto.response.InboundProductDto">
+            <id property="productId" column="product_id"/>
+            <result property="productCode" column="product_code"/>
+            <result property="productName" column="product_name"/>
+            <result property="productCount" column="product_count"/>
+            <result property="lotCount" column="lot_count"/>
+        </collection>
+    </resultMap>
+
+    <select id="countAllInboundPlan" resultType="int">
+        SELECT COUNT(*) FROM inbound;
+    </select>
+
+</mapper>
