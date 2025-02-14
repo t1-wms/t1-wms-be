@@ -11,8 +11,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.LocalDateTime;
-
+import java.time.LocalDate;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -53,7 +52,7 @@ public class InboundCreateTest {
      void makeScheduleInbound() {
 
         // given
-        LocalDateTime date = LocalDateTime.of(2025,3,25,3,2);
+        LocalDate date = LocalDate.of(2025,3,25);
 
         InboundReqDto inboundReqDto = InboundReqDto.builder()
                 .scheduleDate(date)
