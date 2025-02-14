@@ -9,3 +9,4 @@ COPY ${JAR_FILE} spring-prod.jar
 
 # Docker 컨테이너가 시작될 때 실행할 명령을 지정
 ENTRYPOINT ["java", "-jar", "/spring-prod.jar"]
+
