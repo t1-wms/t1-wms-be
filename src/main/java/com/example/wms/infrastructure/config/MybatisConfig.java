@@ -30,9 +30,15 @@ public class MybatisConfig {
     @Bean(name = "sqlSessionFactory")
     public SqlSessionFactory sqlSessionFactory(DataSource dataSource, ApplicationContext applicationContext) throws Exception {
         SqlSessionFactoryBean factoryBean = new SqlSessionFactoryBean();
+
         factoryBean.setDataSource(dataSource);
         factoryBean.setMapperLocations(applicationContext.getResources(mapperPath));
         factoryBean.setTypeAliasesPackage(typeAliasesPackage);
+
+        org.apache.ibatis.session.Configuration configuration = new org.apache.ibatis.session.Configuration();
+        configuration.setMapUnderscoreToCamelCase(true);
+        factoryBean.setConfiguration(configuration);
+
         return factoryBean.getObject();
     }
 
