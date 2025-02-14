@@ -5,5 +5,6 @@ import com.example.wms.outbound.application.domain.Outbound;
 public interface CreateOutboundAssignPort {
     void save(Outbound outbound);
     String findMaxOutboundAssignNumber();
-    int findOutboundAssign(Long outboundPlanId);
+    Outbound findOutboundByPlanId(Long outboundPlanId);
+    void update(Outbound outbound);
 }

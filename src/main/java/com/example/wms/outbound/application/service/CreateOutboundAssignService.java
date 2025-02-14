@@ -8,56 +8,65 @@ import com.example.wms.outbound.application.port.in.CreateOutboundAssignUseCase;
 import com.example.wms.outbound.application.port.out.CreateOutboundAssignPort;
 import com.example.wms.user.application.domain.enums.UserRole;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class CreateOutboundAssignService implements CreateOutboundAssignUseCase {
 
     private final CreateOutboundAssignPort createOutboundAssignPort;
     private final NotificationPort notificationPort;
 
     @Override
+    @Transactional
     public Notification createOutboundAssign(Long outboundPlanId) {
+        // 1. 기존 출고 정보 확인
+        Outbound existingOutbound = createOutboundAssignPort.findOutboundByPlanId(outboundPlanId);
 
-        // outboundPlanId 중복 확인하기
-        int count = createOutboundAssignPort.findOutboundAssign(outboundPlanId);
-
-        if (count > 0) {
-            // 이미 존재하면 예외 던짐
-            throw new DuplicatedException("해당 outboundPlanID가 이미 존재합니다.");
+        if (existingOutbound != null && existingOutbound.getOutboundAssignNumber() != null) {
+            // 이미 출고 지시가 있음
+            throw new DuplicatedException("이미 출고 지시가 등록된 상태입니다.");
         }
 
-        String currentDate = LocalDate.now().toString().replace("-", ""); // 예: 2025-02-10 -> 20250210
-
-        // DB에서 가장 큰 outboundAssignNumber 조회
+        String currentDate = LocalDate.now().toString().replace("-", "");
         String maxOutboundAssignNumber = createOutboundAssignPort.findMaxOutboundAssignNumber();
         String nextNumber = "0000";
 
         if (maxOutboundAssignNumber != null) {
-            // 마지막 4자리 숫자 추출해서 + 1
             String lastNumberStr = maxOutboundAssignNumber.substring(maxOutboundAssignNumber.length() - 4);
             int lastNumber = Integer.parseInt(lastNumberStr);
             nextNumber = String.format("%04d", lastNumber + 1);
         }
 
-        String osNumber = "OA" + currentDate + nextNumber;
+        String oaNumber = "OA" + currentDate + nextNumber;
 
-        Outbound outbound = Outbound.builder()
-                .outboundPlanId(outboundPlanId)
-                .outboundAssignNumber(osNumber)
-                .outboundAssignDate(LocalDate.now())
-                .outboundPickingNumber(null)
-                .outboundPickingDate(null)
-                .outboundPackingNumber(null)
-                .outboundPackingDate(null)
-                .outboundLoadingNumber(null)
-                .outboundLoadingDate(null)
-                .build();
+        if (existingOutbound != null) {
+            // null값들 업데이트하기
+            existingOutbound.setOutboundAssignNumber(oaNumber);
+            existingOutbound.setOutboundAssignDate(LocalDate.now());
 
-        createOutboundAssignPort.save(outbound);
+            createOutboundAssignPort.update(existingOutbound);
+        } else {
+            // 새로운 출고 정보 저장
+            Outbound outbound = Outbound.builder()
+                    .outboundPlanId(outboundPlanId)
+                    .outboundAssignNumber(oaNumber)
+                    .outboundAssignDate(LocalDate.now())
+                    .outboundPickingNumber(null)
+                    .outboundPickingDate(null)
+                    .outboundPackingNumber(null)
+                    .outboundPackingDate(null)
+                    .outboundLoadingNumber(null)
+                    .outboundLoadingDate(null)
+                    .build();
+
+            createOutboundAssignPort.save(outbound);
+        }
 
         Notification notification = Notification.builder()
                 .content("출고 지시가 등록되었습니다.")
