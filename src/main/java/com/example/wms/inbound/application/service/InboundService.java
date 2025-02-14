@@ -20,10 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -92,13 +89,19 @@ public class InboundService implements InboundUseCase {
     }
 
     @Override
-    public List<InboundResDto> getAllInboundProductList(OrderProduct orderProduct) {
+    public List<InboundProductDto> getAllInboundProductList(OrderProduct orderProduct) {
 
         return inboundRetrievalPort.findInboundProductListByOrderId(orderProduct.getOrderId());
     }
 
+
+
     private List<InboundResDto> convertToInboundResDto(List<InboundPlanProductDto> planProductList) {
-        Map<Long, InboundResDto> inboundMap = new HashMap<>();
+        if (planProductList.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        Map<Long, InboundResDto> inboundMap = new LinkedHashMap<>();
 
         for (InboundPlanProductDto dto : planProductList) {
             inboundMap.putIfAbsent(dto.getInboundId(),
@@ -113,27 +116,13 @@ public class InboundService implements InboundUseCase {
                             .orderDate(dto.getOrderDate())
                             .supplierId(dto.getSupplierId())
                             .supplierName(dto.getSupplierName())
-                            .productList(new ArrayList<>())
+                            .productList(getAllInboundProductList(OrderProduct.builder().orderId(dto.getOrderId()).build()))
                             .build()
             );
-            InboundResDto inboundResDto = inboundMap.get(dto.getInboundId());
-
-
-            InboundProductDto productDto = InboundProductDto.builder()
-                    .productId(dto.getProductId())
-                    .productCode(dto.getProductCode())
-                    .productName(dto.getProductName())
-                    .productCount(dto.getProductCount())
-                    .lotCount(dto.getLotCount())
-                    .build();
-
-            inboundResDto.getProductList().add(productDto);
         }
 
         return new ArrayList<>(inboundMap.values());
-
     }
-
 
     @Transactional
     @Override
