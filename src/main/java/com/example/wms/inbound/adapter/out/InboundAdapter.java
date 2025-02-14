@@ -17,4 +17,9 @@ public class InboundAdapter implements InboundPort {
         inboundMapper.insert(inbound);
     }
 
+    @Override
+    public void delete(Long inboundId) {
+        inboundMapper.delete(inboundId);
+    }
+
 }

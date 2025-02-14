@@ -10,5 +10,5 @@ import java.util.List;
 public interface InboundMapper {
     void insert(Inbound inbound);
     List<InboundResDto> findInboundProductListByOrderId(Long orderId);
-
+    void delete(Long inboundId);
 }

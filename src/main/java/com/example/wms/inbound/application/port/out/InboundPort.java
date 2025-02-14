@@ -4,4 +4,5 @@ import com.example.wms.inbound.application.domain.Inbound;
 
 public interface InboundPort {
     void save(Inbound inbound);
+    void delete(Long inboundId);
 }

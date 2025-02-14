@@ -44,6 +44,11 @@ public class InboundController {
         return ResponseEntity.ok(result);
     }
 
-
+    @DeleteMapping("/{inboundId}")
+    @Operation(summary = "입고 예정 삭제하기", description = "입고 예정을 삭제합니다.")
+    public ResponseEntity<Void> deleteInbound(@PathVariable Long inboundId) {
+        inboundUseCase.deleteInboundPlan(inboundId);
+        return ResponseEntity.noContent().build();
+    }
 
 }
