@@ -148,5 +148,11 @@ public class InboundService implements InboundUseCase {
 
         inboundPort.save(inboundPlan);
     }
+
+    @Transactional
+    @Override
+    public void deleteInboundPlan(Long inboundId) {
+        inboundPort.delete(inboundId);
+    }
 }
 

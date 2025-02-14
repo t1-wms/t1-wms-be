@@ -19,4 +19,8 @@
         VALUES
         (#{scheduleNumber}, #{scheduleDate}, #{checkNumber}, #{checkDate}, #{putAwayNumber}, #{putAwayDate}, #{orderId}, #{supplierId})
     </insert>
+
+    <delete id="delete" parameterType="java.lang.Long">
+        DELETE FROM inbound WHERE inbound_id = #{inboundId}
+    </delete>
 </mapper>

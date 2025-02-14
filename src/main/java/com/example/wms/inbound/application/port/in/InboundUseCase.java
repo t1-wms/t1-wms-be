@@ -17,4 +17,5 @@ public interface InboundUseCase {
     Page<InboundResDto> getFilteredInboundPlans(String inboundScheduleNumber, LocalDate startDate, LocalDate endDate, Pageable pageable);
     List<InboundResDto> getAllInboundProductList(OrderProduct orderProduct);
     void createInboundSchedule(Order order);
+    void deleteInboundPlan(Long inboundId);
 }
