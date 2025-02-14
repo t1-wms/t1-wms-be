@@ -1,5 +1,6 @@
 package com.example.wms.product.adapter.in;
 
+import com.example.wms.product.adapter.in.dto.ProductOverviewDto;
 import com.example.wms.product.application.domain.Product;
 import com.example.wms.product.application.port.in.ProductUseCase;
 import io.swagger.v3.oas.annotations.Operation;
@@ -13,6 +14,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -41,5 +44,15 @@ public class ProductController {
     )
     public ResponseEntity<Page<Product>> findAllBinsWithDetails(@ParameterObject Pageable pageable) {
         return ResponseEntity.ok(productUseCase.getAllProducts(pageable));
+    }
+
+    @GetMapping("/overview")
+    @Operation(
+            summary = "품목 요약 조회",
+            description = "전체 품목 목록의 일부 컬럼(productId, productCode, productName)만 조회합니다."
+    )
+    public ResponseEntity<List<ProductOverviewDto>> findProductOverview() {
+        List<ProductOverviewDto> overviewList = productUseCase.getProductOverview();
+        return ResponseEntity.ok(overviewList);
     }
 }
