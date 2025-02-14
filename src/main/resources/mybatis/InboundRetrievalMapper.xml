@@ -3,18 +3,8 @@
 <mapper namespace="com.example.wms.infrastructure.mapper.InboundRetrievalMapper">
 
     <!-- orderId로 입하 예정 데이터 조회 -->
-    <select id="findInboundProductListByOrderId" resultMap="InboundRetrievalResultMap">
+    <select id="findInboundProductListByOrderId" resultMap="InboundProductResultMap">
         SELECT
-            i.inbound_id,
-            i.inbound_status,
-            i.created_at,
-            i.schedule_number,
-            i.schedule_date,
-            i.order_id,
-            o.order_number,
-            o.order_date,
-            o.supplier_id,
-            s.supplier_name,
             p.product_id,
             p.product_code,
             p.product_name,
@@ -22,7 +12,6 @@
             p.lot_count
         FROM inbound i
         JOIN `order` o ON i.order_id = o.order_id
-        JOIN supplier s ON o.supplier_id = s.supplier_id
         JOIN order_product op ON o.order_id = op.order_id
         JOIN product p ON op.product_id = p.product_id
         WHERE i.order_id = #{orderId}
@@ -90,9 +79,25 @@
             JOIN order_product op ON o.order_id = op.order_id
             JOIN product p ON op.product_id = p.product_id
         ) inbound_data
-        WHERE
-            schedule_date BETWEEN #{startDate} AND #{endDate}
-            AND (#{scheduleNumber} IS NULL OR schedule_number LIKE CONCAT('%', #{scheduleNumber}, '%'))
+        <where>
+            <if test="startDate != null">
+                schedule_date <![CDATA[>=]]> #{startDate}
+            </if>
+
+            <if test="endDate != null">
+                <if test="startDate != null">
+                    AND
+                </if>
+                schedule_date <![CDATA[<=]]> #{endDate}
+            </if>
+
+            <if test="scheduleNumber != null and scheduleNumber != ''">
+                <if test="startDate != null or endDate != null">
+                    AND
+                </if>
+                schedule_number LIKE CONCAT('%', #{scheduleNumber}, '%')
+            </if>
+        </where>
 
         <if test="pageable.sort.sorted">
             <trim prefix="ORDER BY">
@@ -105,7 +110,7 @@
                 </foreach>
             </trim>
         </if>
-
+        
         LIMIT #{pageable.pageSize} OFFSET #{pageable.offset}
     </select>
 
@@ -128,6 +133,14 @@
             <result property="productCount" column="product_count"/>
             <result property="lotCount" column="lot_count"/>
         </collection>
+    </resultMap>
+    
+    <resultMap id="InboundProductResultMap" type="com.example.wms.inbound.adapter.in.dto.response.InboundProductDto">
+        <result property="productId" column="product_id"/>
+        <result property="productCode" column="product_code"/>
+        <result property="productName" column="product_name"/>
+        <result property="productCount" column="product_count"/>
+        <result property="lotCount" column="lot_count"/>
     </resultMap>
 
     <select id="countAllInboundPlan" resultType="int">
