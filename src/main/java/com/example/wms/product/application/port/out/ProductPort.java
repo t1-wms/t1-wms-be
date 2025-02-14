@@ -1,5 +1,6 @@
 package com.example.wms.product.application.port.out;
 
+import com.example.wms.product.adapter.in.dto.ProductOverviewDto;
 import com.example.wms.product.application.domain.Product;
 import org.springframework.data.domain.Pageable;
 
@@ -12,4 +13,5 @@ public interface ProductPort {
     void updateBinCode(Long productId, String binCode);
     List<Product> findProductWithPagination(Pageable pageable);
     long countAllProducts();
+    List<ProductOverviewDto> findProductOverview();
 }

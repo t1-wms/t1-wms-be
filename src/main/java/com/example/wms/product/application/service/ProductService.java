@@ -1,6 +1,7 @@
 package com.example.wms.product.application.service;
 
 import com.example.wms.infrastructure.pagination.util.PageableUtils;
+import com.example.wms.product.adapter.in.dto.ProductOverviewDto;
 import com.example.wms.product.application.domain.Product;
 import com.example.wms.product.application.port.in.ProductUseCase;
 import com.example.wms.product.application.port.out.ProductPort;
@@ -137,5 +138,10 @@ public class ProductService implements ProductUseCase {
 
         // PageImpl을 사용하여 Page 객체로 감싸서 반환하는 예시
         return new PageImpl<>(productList, safePageable, count);
+    }
+
+    @Override
+    public List<ProductOverviewDto> getProductOverview() {
+        return productPort.findProductOverview();
     }
 }

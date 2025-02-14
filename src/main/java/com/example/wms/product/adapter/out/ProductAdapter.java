@@ -1,6 +1,7 @@
 package com.example.wms.product.adapter.out;
 
 import com.example.wms.infrastructure.mapper.ProductMapper;
+import com.example.wms.product.adapter.in.dto.ProductOverviewDto;
 import com.example.wms.product.application.domain.Product;
 import com.example.wms.product.application.port.out.ProductPort;
 import lombok.RequiredArgsConstructor;
@@ -40,6 +41,11 @@ public class ProductAdapter implements ProductPort {
     @Override
     public long countAllProducts() {
         return productMapper.countAllProducts();
+    }
+
+    @Override
+    public List<ProductOverviewDto> findProductOverview() {
+        return productMapper.selectProductOverview();
     }
 
     private <T> T executeWithFallback(Supplier<T> action, T fallback) {
