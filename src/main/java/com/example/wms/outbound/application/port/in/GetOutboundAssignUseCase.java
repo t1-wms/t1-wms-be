@@ -7,6 +7,5 @@ import org.springframework.data.domain.Pageable;
 import java.time.LocalDate;
 
 public interface GetOutboundAssignUseCase {
-    Page<OutboundAssignResponseDto> getOutboundAssings(Pageable pageable);
     Page<OutboundAssignResponseDto> getFilteredOutboundAssings(String outboundAssignNumber, LocalDate startDate, LocalDate endDate, Pageable pageable);
 }

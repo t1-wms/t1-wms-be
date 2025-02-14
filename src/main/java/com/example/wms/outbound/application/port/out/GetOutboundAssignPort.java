@@ -9,8 +9,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface GetOutboundAssignPort {
-    List<Outbound> findOutboundAssignWithPageNation(Pageable pageable);
-    List<Outbound> findOutboundAssignFilteringWithPageNation(Pageable pageable);
+    List<Outbound> findOutboundAssignFilteringWithPageNation(String outboundAssignNumber, LocalDate startDate, LocalDate endDate,Pageable pageable);
     List<ProductInfoDto> findProductInfoByOutboundPlanId(Long outboundPlanId);
     OutboundPlan findOutboundPlanByOutboundPlanId(Long outboundPlanId);
 }

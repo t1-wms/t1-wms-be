@@ -15,6 +15,8 @@ public class OutboundAssignResponseDto {
 
     private Long outboundPlanId;
 
+    private String process;
+
     private String outboundScheduleNumber;
 
     private String outboundAssignNumber;

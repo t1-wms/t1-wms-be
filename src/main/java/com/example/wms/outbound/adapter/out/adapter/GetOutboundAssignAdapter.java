@@ -22,13 +22,8 @@ public class GetOutboundAssignAdapter implements GetOutboundAssignPort {
     private final OutboundPlanProductMapper outboundPlanProductMapper;
 
     @Override
-    public List<Outbound> findOutboundAssignWithPageNation(Pageable pageable) {
-        return outboundAssignMapper.findOutboundAssignWithPageNation(pageable);
-    }
-
-    @Override
-    public List<Outbound> findOutboundAssignFilteringWithPageNation(Pageable pageable) {
-        return List.of();
+    public List<Outbound> findOutboundAssignFilteringWithPageNation(String outboundAssignNumber, LocalDate startDate, LocalDate endDate, Pageable pageable) {
+        return outboundAssignMapper.findOutboundAssignFilteringWithPageNation(outboundAssignNumber, startDate, endDate, pageable);
     }
 
     @Override

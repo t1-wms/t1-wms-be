@@ -8,9 +8,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface GetOutboundPlanPort {
-    List<OutboundPlan> findOutboundPlanWithPageNation(Pageable pageable);
     List<OutboundPlan> findOutboundPlanFilteringWithPageNation(String outboundScheduleNumber, LocalDate startDate, LocalDate endDate, Pageable pageable);
-    Integer countAllOutboundPlan();
     Integer countFilteredOutboundPlan(String outboundScheduleNumber, LocalDate startDate, LocalDate endDate);
     List<ProductInfoDto> findProductInfoByOutboundPlanId(Long outboundPlanId);
 }

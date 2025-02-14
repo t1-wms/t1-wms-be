@@ -2,6 +2,7 @@ package com.example.wms.outbound.application.service;
 
 import com.example.wms.infrastructure.pagination.util.PageableUtils;
 import com.example.wms.outbound.adapter.in.dto.OutboundAssignResponseDto;
+import com.example.wms.outbound.adapter.in.dto.OutboundPlanResponseDto;
 import com.example.wms.outbound.adapter.in.dto.ProductInfoDto;
 import com.example.wms.outbound.application.domain.Outbound;
 import com.example.wms.outbound.application.domain.OutboundPlan;
@@ -24,21 +25,16 @@ public class GetOutboundAssignService implements GetOutboundAssignUseCase {
     private final GetOutboundAssignPort getOutboundAssignPort;
 
     @Override
-    public Page<OutboundAssignResponseDto> getOutboundAssings(Pageable pageable) {
+    public Page<OutboundAssignResponseDto> getFilteredOutboundAssings(String outboundAssignNumber, LocalDate startDate, LocalDate endDate, Pageable pageable) {
         Pageable safePageable = PageableUtils.convertToSafePageableStrict(pageable, Outbound.class);
-
-        List<Outbound> outboundAssignList = getOutboundAssignPort.findOutboundAssignWithPageNation(safePageable);
-
-        List<OutboundAssignResponseDto> dtoList = outboundAssignList.stream()
-                .map(this::convertToDto)
-                .collect(Collectors.toList());
-
-        return new PageImpl<>(dtoList, pageable, outboundAssignList.size());
+        List<Outbound> outboundList = getOutboundAssignPort.findOutboundAssignFilteringWithPageNation(outboundAssignNumber, startDate, endDate, safePageable);
+        return new PageImpl<>(covertToDtoList(outboundList), pageable, outboundList.size());
     }
 
-    @Override
-    public Page<OutboundAssignResponseDto> getFilteredOutboundAssings(String outboundAssignNumber, LocalDate startDate, LocalDate endDate, Pageable pageable) {
-        return null;
+    private List<OutboundAssignResponseDto> covertToDtoList(List<Outbound> outboundList) {
+        return outboundList.stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
     }
 
     private OutboundAssignResponseDto convertToDto(Outbound outbound) {
@@ -58,6 +54,7 @@ public class GetOutboundAssignService implements GetOutboundAssignUseCase {
         return OutboundAssignResponseDto.builder()
                 .outboundId(outbound.getOutboundId())
                 .outboundPlanId(outbound.getOutboundPlanId())
+                .process("여기수정해야됨") //outbound테이블 보고 수정하기
                 .outboundScheduleNumber(outboundPlan.getOutboundScheduleNumber())
                 .outboundAssignNumber(outbound.getOutboundAssignNumber())
                 .outboundAssignDate(outbound.getOutboundAssignDate())

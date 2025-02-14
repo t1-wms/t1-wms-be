@@ -60,10 +60,6 @@ public class OutboundAssignController {
             @RequestParam(value = "startDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam(value = "endDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
             @ParameterObject Pageable pageable){
-        if(outboundAssignNumber != null || startDate != null || endDate != null){
-            return ResponseEntity.ok(getOutboundAssignUseCase.getFilteredOutboundAssings(outboundAssignNumber, startDate, endDate, pageable));
-        } else{
-            return ResponseEntity.ok(getOutboundAssignUseCase.getOutboundAssings(pageable));
-        }
+        return ResponseEntity.ok(getOutboundAssignUseCase.getFilteredOutboundAssings(outboundAssignNumber, startDate, endDate, pageable));
     }
 }
