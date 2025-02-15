@@ -89,7 +89,7 @@ pipeline {
                         cp ./scripts/deploy.sh /home/ec2-user/backend
                         cp ./build/libs/*.jar /home/ec2-user/backend
                         chmod +x /home/ec2-user/backend/deploy.sh
-                        /home/ec2-user/backend/deploy.sh
+                        /home/ec2-user/backend/deploy.sh ${params.DEPLOY_ENV}
                     """
                 }
             }
