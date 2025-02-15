@@ -53,8 +53,9 @@ pipeline {
         stage('Deploy to Backend Server') {
             steps {
                 script {
-                    // DEPLOY_ENV에 따라 COMPOSE_FILE을 설정
-                    def composeFile = "docker-compose.${params.DEPLOY_ENV}.yml"
+                  // DEPLOY_ENV에 따라 COMPOSE_FILE을 설정, 기본값 blue 설정
+                    def deployEnv = params.DEPLOY_ENV ?: 'blue'
+                    def composeFile = "docker-compose.${deployEnv}.yml"
 
                     // Backend 서버로 파일 전송 및 배포
                     def sshServerName = 'BackendServer'
