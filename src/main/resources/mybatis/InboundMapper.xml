@@ -39,4 +39,11 @@
             put_away_date = #{putAwayDate}
         WHERE inbound_id = #{inboundId}
     </update>
+
+    <insert id="insertOrUpdate" parameterType="InboundCheck">
+        INSERT INTO inbound_check (inbound_check_id, inbound_id, product_id, defective_lot_count)
+        VALUES (#{inboundCheckId}, #{inboundId}, #{productId}, #{defectiveLotCount})
+        ON DUPLICATE KEY UPDATE
+            defective_lot_count = VALUES(defective_lot_count);
+    </insert>
 </mapper>
