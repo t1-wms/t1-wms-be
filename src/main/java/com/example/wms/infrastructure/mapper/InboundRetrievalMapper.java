@@ -19,4 +19,5 @@ public interface InboundRetrievalMapper {
 
     Integer countAllInboundPlanFiltering(String inboundScheduleNumber, LocalDate startDate, LocalDate endDate);
 
+    Integer countAllInboundCheckFiltering(String inboundCheckNumber, LocalDate startDate, LocalDate endDate);
 }
