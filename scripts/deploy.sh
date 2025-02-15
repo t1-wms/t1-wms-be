@@ -14,10 +14,12 @@ EXIST_BLUE=$(docker-compose -p "${DOCKER_APP_NAME}-blue" -f docker-compose.blue.
 echo "배포 시작일자 : $(date +%Y)-$(date +%m)-$(date +%d) $(date +%H):$(date +%M):$(date +%S)" >> $LOG_FILE
 
 # 선택된 환경에 따라 배포 작업 수행
-if [ "$DEPLOY_ENV" == "blue" ]; then
+if [ -z "$EXIST_BLUE" ]; then
   # blue 배포 시작
   echo "blue 배포 시작 : $(date +%Y)-$(date +%m)-$(date +%d) $(date +%H):$(date +%M):$(date +%S)" >> $LOG_FILE
   docker-compose -p ${DOCKER_APP_NAME}-blue -f docker-compose.blue.yml up -d --build
+
+  sleep 30
 
   # green 중단
   echo "green 중단 시작 : $(date +%Y)-$(date +%m)-$(date +%d) $(date +%H):$(date +%M):$(date +%S)" >> $LOG_FILE
@@ -28,11 +30,12 @@ if [ "$DEPLOY_ENV" == "blue" ]; then
 
   echo "green 중단 완료 : $(date +%Y)-$(date +%m)-$(date +%d) $(date +%H):$(date +%M):$(date +%S)" >> $LOG_FILE
 
-elif [ "$DEPLOY_ENV" == "green" ]; then
+else
   # green 배포 시작
   echo "green 배포 시작 : $(date +%Y)-$(date +%m)-$(date +%d) $(date +%H):$(date +%M):$(date +%S)" >> $LOG_FILE
   docker-compose -p ${DOCKER_APP_NAME}-green -f docker-compose.green.yml up -d --build
 
+  sleep 30
   # blue 중단
   echo "blue 중단 시작 : $(date +%Y)-$(date +%m)-$(date +%d) $(date +%H):$(date +%M):$(date +%S)" >> $LOG_FILE
   docker-compose -p ${DOCKER_APP_NAME}-blue -f docker-compose.blue.yml down
@@ -41,9 +44,7 @@ elif [ "$DEPLOY_ENV" == "green" ]; then
   docker image prune -af
 
   echo "blue 중단 완료 : $(date +%Y)-$(date +%m)-$(date +%d) $(date +%H):$(date +%M):$(date +%S)" >> $LOG_FILE
-else
-  echo "올바르지 않은 환경입니다. blue 또는 green을 선택하세요."
-  exit 1
+
 fi
 
 # 배포 종료 기록

@@ -53,7 +53,7 @@ pipeline {
         stage('Deploy to Backend Server') {
             steps {
                 script {
-                  // DEPLOY_ENV에 따라 COMPOSE_FILE을 설정, 기본값 blue 설정
+                    // DEPLOY_ENV에 따라 COMPOSE_FILE을 설정, 기본값 blue 설정
                     def deployEnv = params.DEPLOY_ENV ?: 'blue'
                     def composeFile = "docker-compose.${deployEnv}.yml"
 
@@ -77,21 +77,6 @@ pipeline {
                             ]
                         )
                     ])
-                }
-            }
-        }
-        stage('Run Docker Container on Backend Server') {
-            steps {
-                script {
-                    // 환경에 맞는 docker-compose 파일을 백엔드 서버에 전달하고 실행
-                    sh """
-                        cp ./docker/${composeFile} /home/ec2-user/backend
-                        cp ./docker/Dockerfile /home/ec2-user/backend
-                        cp ./scripts/deploy.sh /home/ec2-user/backend
-                        cp ./build/libs/*.jar /home/ec2-user/backend
-                        chmod +x /home/ec2-user/backend/deploy.sh
-                        /home/ec2-user/backend/deploy.sh ${params.DEPLOY_ENV}
-                    """
                 }
             }
         }
