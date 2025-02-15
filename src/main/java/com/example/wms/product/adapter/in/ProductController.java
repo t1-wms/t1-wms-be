@@ -37,7 +37,9 @@ public class ProductController {
     @GetMapping
     @Operation(
             summary = "전체 품목 조회",
-            description = "전체 품목 목록을 페이지별로 조회할 수 있습니다."
+            description = "전체 품목 목록을 페이지별로 조회할 수 있습니다.\n" +
+            "- **품목 코드 필터링:** 요청 파라미터로 `productCode` 값을 전달하면 해당 문자열이 포함된 품목만 조회합니다.\n" +
+            "- **전체 조회:** `productCode`가 null 또는 빈 문자열일 경우 전체 품목을 조회합니다.\n"
     )
     public ResponseEntity<Page<Product>> findAllBinsWithDetails(@RequestParam(required = false) String productCode, @ParameterObject Pageable pageable) {
         return ResponseEntity.ok(productUseCase.getAllProducts(productCode, pageable));
