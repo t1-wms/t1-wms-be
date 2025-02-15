@@ -1,5 +1,6 @@
 package com.example.wms.inbound.application.port.in;
 
+import com.example.wms.inbound.adapter.in.dto.request.InboundCheckReqDto;
 import com.example.wms.inbound.adapter.in.dto.request.InboundReqDto;
 import com.example.wms.inbound.adapter.in.dto.response.InboundProductDto;
 import com.example.wms.inbound.adapter.in.dto.response.InboundResDto;
@@ -18,4 +19,5 @@ public interface InboundUseCase {
     List<InboundProductDto> getAllInboundProductList(OrderProduct orderProduct);
     void createInboundSchedule(Order order);
     void deleteInboundPlan(Long inboundId);
+    void createInboundCheck(InboundCheckReqDto inboundCheckReqDto);
 }

@@ -20,4 +20,6 @@ public interface ProductMapper {
 
     @Select("SELECT product_id, product_name, product_code FROM product")
     List<ProductOverviewDto> selectProductOverview();
+
+    Product findById(@Param("productId") Long productId);
 }

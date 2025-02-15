@@ -6,6 +6,8 @@ import com.example.wms.infrastructure.mapper.InboundMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
+
 @Component
 @RequiredArgsConstructor
 public class InboundAdapter implements InboundPort {
@@ -20,6 +22,16 @@ public class InboundAdapter implements InboundPort {
     @Override
     public void delete(Long inboundId) {
         inboundMapper.delete(inboundId);
+    }
+
+    @Override
+    public Inbound findById(Long inboundId) {
+        return inboundMapper.findById(inboundId);
+    }
+
+    @Override
+    public void updateIC(Long inboundId, LocalDate checkDate, String checkNumber) {
+        inboundMapper.updateIC(inboundId, checkDate, checkNumber);
     }
 
 }

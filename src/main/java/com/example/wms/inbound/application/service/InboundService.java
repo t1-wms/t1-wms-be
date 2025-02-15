@@ -1,17 +1,26 @@
 package com.example.wms.inbound.application.service;
 
+import com.example.wms.inbound.adapter.in.dto.request.InboundCheckReqDto;
+import com.example.wms.inbound.adapter.in.dto.request.InboundCheckedProductReqDto;
 import com.example.wms.inbound.adapter.in.dto.request.InboundReqDto;
 import com.example.wms.inbound.adapter.in.dto.response.InboundPlanProductDto;
 import com.example.wms.inbound.adapter.in.dto.response.InboundProductDto;
 import com.example.wms.inbound.adapter.in.dto.response.InboundResDto;
 import com.example.wms.inbound.application.domain.Inbound;
+import com.example.wms.inbound.application.domain.InboundCheck;
 import com.example.wms.inbound.application.port.in.InboundUseCase;
 import com.example.wms.inbound.application.port.out.AssignInboundNumberPort;
+import com.example.wms.inbound.application.port.out.InboundCheckPort;
 import com.example.wms.inbound.application.port.out.InboundPort;
 import com.example.wms.inbound.application.port.out.InboundRetrievalPort;
+import com.example.wms.infrastructure.exception.NotFoundException;
 import com.example.wms.infrastructure.pagination.util.PageableUtils;
 import com.example.wms.order.application.domain.Order;
 import com.example.wms.order.application.domain.OrderProduct;
+import com.example.wms.order.application.port.out.OrderPort;
+import com.example.wms.product.application.domain.Product;
+import com.example.wms.product.application.port.out.LotPort;
+import com.example.wms.product.application.port.out.ProductPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -28,7 +37,11 @@ public class InboundService implements InboundUseCase {
 
     private final AssignInboundNumberPort assignInboundNumberPort;
     private final InboundPort inboundPort;
+    private final ProductPort productPort;
+    private final InboundCheckPort inboundCheckPort;
     private final InboundRetrievalPort inboundRetrievalPort;
+    private final LotPort lotPort;
+    private final OrderPort orderPort;
 
     @Transactional
     @Override
@@ -142,6 +155,51 @@ public class InboundService implements InboundUseCase {
     @Override
     public void deleteInboundPlan(Long inboundId) {
         inboundPort.delete(inboundId);
+    }
+
+    @Transactional
+    @Override
+    public void createInboundCheck(InboundCheckReqDto inboundCheckReqDto) {
+
+        Inbound inbound = inboundPort.findById(inboundCheckReqDto.getInboundId());
+        if (inbound == null) {
+            throw new NotFoundException("inbound not found with id " + inboundCheckReqDto.getInboundId());
+        }
+
+        inbound.setInboundStatus("입하검사완료"); // 수정 필요
+        inbound.setCheckDate(inboundCheckReqDto.getCheckDate());
+        inbound.setCheckNumber(makeNumber("IC"));
+
+        List<InboundCheck> inboundCheckList = new ArrayList<>();
+
+        for (InboundCheckedProductReqDto checkedProduct : inboundCheckReqDto.getCheckedProductList()) {
+            Long productId = checkedProduct.getProductId();
+            Long defectiveLotCount = checkedProduct.getDefectiveLotCount();
+
+            Product product = productPort.findById(productId);
+
+            if (product == null) {
+                throw new NotFoundException("product not found with id :" + productId);
+            }
+
+            InboundCheck inboundCheck = InboundCheck.builder()
+                    .inboundId(inbound.getInboundId())
+                    .productId(productId)
+                    .defectiveLotCount(defectiveLotCount)
+                    .build();
+
+            inboundCheckList.add(inboundCheck);
+            inboundCheckPort.save(inboundCheck);
+
+            lotPort.updateStatus(productId);
+
+            if (defectiveLotCount > 0) {
+                orderPort.createOrder(product.getSupplierId(), defectiveLotCount);
+            }
+        }
+
+        inboundPort.updateIC(inbound.getInboundId(), inbound.getCheckDate(), inbound.getScheduleNumber());
+
     }
 }
 

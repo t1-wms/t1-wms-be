@@ -14,4 +14,5 @@ public interface ProductPort {
     List<Product> findProductWithPagination(Pageable pageable);
     long countAllProducts();
     List<ProductOverviewDto> findProductOverview();
+    Product findById(Long productId);
 }

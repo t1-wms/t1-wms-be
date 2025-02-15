@@ -59,4 +59,9 @@
     <select id="countAllProducts" resultType="long">
         SELECT COUNT(*) FROM product
     </select>
+
+    <select id="findById" resultMap="productResultMap">
+        SELECT * FROM product
+        WHERE product_id = #{productId}
+    </select>
 </mapper>

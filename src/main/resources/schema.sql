@@ -206,3 +206,14 @@ CREATE TABLE IF NOT EXISTS outbound (
                                         CONSTRAINT fk_outbound_plan FOREIGN KEY (outbound_plan_id) REFERENCES outbound_plan(outbound_plan_id) -- 외래키: outbound_plan 테이블 참조
 );
 
+-- inbound_check 테이블 생성
+CREATE TABLE IF NOT EXISTS inbound_check (
+                                             inbound_check_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                                             inbound_id BIGINT NOT NULL,
+                                             product_id BIGINT NOT NULL,
+                                             defective_lot_count BIGINT NOT NULL,
+                                             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                                             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                                             CONSTRAINT fk_inbound_check_inbound FOREIGN KEY (inbound_id) REFERENCES inbound(inbound_id),
+                                             CONSTRAINT fk_inbound_check_product FOREIGN KEY (product_id) REFERENCES product(product_id)
+);

@@ -48,6 +48,11 @@ public class ProductAdapter implements ProductPort {
         return productMapper.selectProductOverview();
     }
 
+    @Override
+    public Product findById(Long productId) {
+        return productMapper.findById(productId);
+    }
+
     private <T> T executeWithFallback(Supplier<T> action, T fallback) {
         try {
             return action.get();
