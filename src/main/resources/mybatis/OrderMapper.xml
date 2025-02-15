@@ -27,4 +27,23 @@
         SELECT * FROM order WHERE is_approved = true AND is_delayed = false
     </select>
 
+    <insert id="saveOrder" parameterType="com.example.wms.order.application.domain.Order">
+        INSERT INTO order (order_id, order_date, is_approved, is_delayed, product_id, quantity, customer_id)
+        VALUES (#{orderId}, #{orderDate}, #{isApproved}, #{isDelayed}, #{productId}, #{quantity}, #{customerId})
+    </insert>
+
+    <select id="getLastOrderNumber" resultType="String">
+        SELECT order_number FROM `order`
+        WHERE order_number LIKE CONCAT('OR', DATE_FORMAT(NOW(), '%Y%m%d'), '%')
+        ORDER BY order_number DESC
+        LIMIT 1
+    </select>
+
+    <insert id="createOrder" useGeneratedKeys="true" keyProperty="orderId">
+        INSERT INTO `order` (supplier_id, order_number, order_date, order_quantity, is_approved, is_return_order,
+        order_status, inbound_date)
+        VALUES (#{supplierId}, #{orderNumber}, #{orderDate}, #{orderQuantity}, #{isApproved}, #{isReturnOrder},
+        #{orderStatus}, #{inboundDate})
+    </insert>
+
 </mapper>

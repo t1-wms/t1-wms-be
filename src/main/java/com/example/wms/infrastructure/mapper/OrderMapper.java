@@ -19,4 +19,8 @@ public interface OrderMapper {
 
     // 승인된(isApproved = true) & 지연되지 않은(isDelayed = false) 주문 조회
     List<Order> findApprovedAndNotDelayed();
+
+    String getLastOrderNumber();
+
+    void createOrder(Order order);
 }

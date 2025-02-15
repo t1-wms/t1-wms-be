@@ -4,6 +4,7 @@ import com.example.wms.inbound.adapter.in.dto.response.InboundResDto;
 import com.example.wms.inbound.application.domain.Inbound;
 import org.apache.ibatis.annotations.Mapper;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Mapper
@@ -11,4 +12,7 @@ public interface InboundMapper {
     void insert(Inbound inbound);
     List<InboundResDto> findInboundProductListByOrderId(Long orderId);
     void delete(Long inboundId);
+    Inbound findById(Long inboundId);
+    void updateIC(Long inboundId, LocalDate checkDate, String checkNumber);
+    void updatePA(Long inboundId);
 }

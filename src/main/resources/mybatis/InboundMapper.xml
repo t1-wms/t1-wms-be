@@ -23,4 +23,20 @@
     <delete id="delete" parameterType="java.lang.Long">
         DELETE FROM inbound WHERE inbound_id = #{inboundId}
     </delete>
+
+    <!-- 입하 검사 단계: check_number와 check_date 업데이트 -->
+    <update id="updateIC">
+        UPDATE inbound
+        SET check_number = #{checkNumber},
+            check_date = #{checkDate}
+        WHERE inbound_id = #{inboundId}
+    </update>
+
+    <!-- 입고 적치 단계 : put_away_number와 put_away_date 업데이트 -->
+    <update id="updatePA">
+        UPDATE inbound
+        SET put_away_number = #{putAwayNumber},
+            put_away_date = #{putAwayDate}
+        WHERE inbound_id = #{inboundId}
+    </update>
 </mapper>
