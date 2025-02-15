@@ -14,7 +14,7 @@ RUN apt-get update && apt-get install -y \
     && apt-get update \
     && apt-get install -y docker-ce-cli docker-compose-plugin containerd.io \
     && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*  # 캐시 제거로 이미지 최적화
+    && rm -rf /var/lib/apt/lists/*
 
 # Docker 소켓 마운트 설정 (DooD)
 VOLUME /var/run/docker.sock:/var/run/docker.sock
