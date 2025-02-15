@@ -41,4 +41,10 @@ public class InboundRetrievalAdapter implements InboundRetrievalPort {
     public Integer countFilteredInboundPlan(String inboundScheduleNumber, LocalDate startDate, LocalDate endDate) {
         return inboundRetrievalMapper.countAllInboundPlanFiltering(inboundScheduleNumber, startDate, endDate);
     }
+
+    @Override
+    public Integer countFilteredInboundCheck(String inboundCheckNumber, LocalDate startDate, LocalDate endDate) {
+        return inboundRetrievalMapper.countAllInboundCheckFiltering(inboundCheckNumber, startDate, endDate);
+    }
+
 }

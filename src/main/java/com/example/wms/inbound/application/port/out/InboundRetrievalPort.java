@@ -13,4 +13,6 @@ public interface InboundRetrievalPort {
     List<InboundAllProductDto> findInboundFilteringWithPagination(String inboundScheduleNumber, LocalDate startDate, LocalDate endDate, Pageable pageable);
     Integer countAllInboundPlan();
     Integer countFilteredInboundPlan(String inboundScheduleNumber, LocalDate startDate, LocalDate endDate);
+    Integer countFilteredInboundCheck(String inboundCheckNumber, LocalDate startDate, LocalDate endDate);
+
 }

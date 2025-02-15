@@ -20,4 +20,5 @@ public interface InboundUseCase {
     void createInboundSchedule(Order order);
     void deleteInboundPlan(Long inboundId);
     void createInboundCheck(InboundCheckReqDto inboundCheckReqDto);
+    Page<InboundResDto> getFilteredInboundCheck(String inboundCheckNumber, LocalDate startDate, LocalDate endDate, Pageable pageable);
 }
