@@ -3,7 +3,7 @@ services:
   backend:
     build: .
     ports:
-      - "8111:80"
+      - "8011:80"
     container_name: spring-wms-blue
     environment:
       - TZ=Asia/Seoul
