@@ -27,9 +27,9 @@ pipeline {
         }
         stage('Replace Prod Properties') {
             steps {
-                withCredentials([file(credentialsId: 'wms-secret', variable: 'wms-secret')]) {
+                withCredentials([file(credentialsId: 'wms-secret', variable: 'wms_secret_file')]) {
                     script {
-                        sh 'cp wms-secret ./src/main/resources/application-secret.yml'
+                        sh "cp ${wms_secret_file} ./src/main/resources/application-secret.yml"
                     }
                 }
             }
@@ -43,7 +43,7 @@ pipeline {
             steps {
                 script {
                     // Docker 이미지 빌드
-                    sh 'docker build -t ${DOCKER_IMAGE} .'
+                    sh "docker build -t ${DOCKER_IMAGE} ."
                     // Docker 이미지에 빌드 번호 태그 추가
                     sh "docker tag ${DOCKER_IMAGE} ${DOCKER_TAG}"
                 }
