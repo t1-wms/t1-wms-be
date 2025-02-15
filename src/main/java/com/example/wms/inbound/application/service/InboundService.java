@@ -263,6 +263,21 @@ public class InboundService implements InboundUseCase {
         inboundCheckPort.saveAll(updatedChecks);
     }
 
+    @Override
+    public void deleteInboundCheck(Long inboundId) {
+        Inbound inbound = inboundPort.findById(inboundId);
+
+        if (inbound == null) {
+            throw new NotFoundException("not found with id " + inboundId);
+        }
+
+        inbound.setCheckNumber(null);
+        inbound.setCheckDate(null);
+        inbound.setInboundStatus("입하예정");
+
+        inboundPort.updateIC(inboundId, null, null);
+    }
+
 
 }
 
