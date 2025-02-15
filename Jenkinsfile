@@ -60,7 +60,7 @@ pipeline {
                     def composeFile = "docker-compose.${params.DEPLOY_ENV}.yml"
 
                     // Backend 서버로 파일 전송 및 배포
-                    def sshServerName = 'BackendServer'  // 'BackendServer' 설정
+                    def sshServerName = 'BackendServer'
                     sshPublisher(publishers: [
                         sshPublisherDesc(
                             configName: sshServerName,  // 'BackendServer' 설정
