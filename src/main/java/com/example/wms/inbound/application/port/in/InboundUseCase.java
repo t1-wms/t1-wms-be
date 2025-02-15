@@ -1,6 +1,7 @@
 package com.example.wms.inbound.application.port.in;
 
 import com.example.wms.inbound.adapter.in.dto.request.InboundCheckReqDto;
+import com.example.wms.inbound.adapter.in.dto.request.InboundCheckUpdateReqDto;
 import com.example.wms.inbound.adapter.in.dto.request.InboundReqDto;
 import com.example.wms.inbound.adapter.in.dto.response.InboundProductDto;
 import com.example.wms.inbound.adapter.in.dto.response.InboundResDto;
@@ -21,4 +22,6 @@ public interface InboundUseCase {
     void deleteInboundPlan(Long inboundId);
     void createInboundCheck(InboundCheckReqDto inboundCheckReqDto);
     Page<InboundResDto> getFilteredInboundCheck(String inboundCheckNumber, LocalDate startDate, LocalDate endDate, Pageable pageable);
+    void updateInboundCheck(Long inboundId, InboundCheckUpdateReqDto updateReqDto);
+
 }
