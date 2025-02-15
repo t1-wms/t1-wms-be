@@ -4,6 +4,7 @@ import com.example.wms.notification.application.domain.Notification;
 import com.example.wms.notification.application.port.in.NotificationUseCase;
 import com.example.wms.outbound.application.port.in.CreateOutboundPackingUseCase;
 import com.example.wms.outbound.application.port.in.DeleteOutboundPackingUseCase;
+import com.example.wms.outbound.application.port.in.GetOutboundPackingUseCase;
 import com.example.wms.outbound.application.port.in.UpdateOutboundPackingUseCase;
 import com.example.wms.user.application.domain.enums.UserRole;
 import io.swagger.v3.oas.annotations.Operation;
@@ -27,9 +28,9 @@ public class OutboundPackingController {
     private final NotificationUseCase notificationUseCase;
     private final DeleteOutboundPackingUseCase deleteOutboundPackingUseCase;
     private final UpdateOutboundPackingUseCase updateOutboundPackingUseCase;
+    private final GetOutboundPackingUseCase getOutboundPackingUseCase;
 
-
-    @PutMapping("register/{outboundPlanId}")
+    @PutMapping("/register/{outboundPlanId}")
     @Operation(summary = "출고 패킹 등록")
     public ResponseEntity<Void> createOutboundPacking(@PathVariable("outboundPlanId") Long outboundPlanId) {
         Notification notification = createOutboundPackingUseCase.createOutboundPacking(outboundPlanId);
@@ -50,6 +51,15 @@ public class OutboundPackingController {
         return ResponseEntity.ok().build();
     }
 
-
+    @GetMapping
+    @Operation(summary = "출고 패킹 조회")
+    public ResponseEntity<?> getOutboundPacking(
+            @RequestParam(value = "number", required = false) String outboundPackingNumber,
+            @RequestParam(value = "startDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(value = "endDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @ParameterObject Pageable pageable
+    ){
+        return ResponseEntity.ok(getOutboundPackingUseCase.getFilteredOutboundPackings(outboundPackingNumber, startDate, endDate, pageable));
+    }
 
 }

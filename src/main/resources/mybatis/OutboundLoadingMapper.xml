@@ -1,27 +1,27 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.example.wms.infrastructure.mapper.OutboundPickingMapper">
-    <select id="findOutboundPickingFilteringWithPageNation">
+<mapper namespace="com.example.wms.infrastructure.mapper.OutboundLoadingMapper">
+    <select id="findOutboundLoadingFilteringWithPageNation">
         SELECT *
         FROM outbound
         <where>
-            outbound_assign_number IS NOT NULL AND outbound_picking_number IS NOT NULL
+            outbound_assign_number IS NOT NULL AND outbound_picking_number IS NOT NULL AND outbound_packing_number IS NOT NULL AND outbound_loading_number IS NOT NULL
             <!-- 시작일 조건 (startDate) -->
             <if test="startDate != null">
                 AND
-                outbound_picking_date <![CDATA[>=]]> #{startDate}
+                outbound_loading_date <![CDATA[>=]]> #{startDate}
             </if>
 
             <!-- 종료일 조건 (endDate) -->
             <if test="endDate != null">
                 AND
-                outbound_picking_date <![CDATA[<=]]> #{endDate}
+                outbound_loading_date <![CDATA[<=]]> #{endDate}
             </if>
 
-            <!-- 번호 조건 (outboundPickingNumber) -->
-            <if test="outboundPickingNumber != null and outboundPickingNumber != ''">
+            <!-- 번호 조건 (outboundLoadingNumber) -->
+            <if test="outboundLoadingNumber != null and outboundLoadingNumber != ''">
                 AND
-                outbound_picking_number LIKE CONCAT('%', #{outboundPickingNumber}, '%')
+                outbound_loading_number LIKE CONCAT('%', #{outboundLoadingNumber}, '%')
             </if>
         </where>
 

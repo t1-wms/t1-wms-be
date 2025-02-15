@@ -34,7 +34,7 @@ public class OutboundPlanController {
     private final UpdateOutboundPlanUseCase updateOutboundPlanUseCase;
     private final NotificationUseCase notificationUseCase;
 
-    @PostMapping
+    @PostMapping("/register")
     @Operation(summary = "출고 예정 생성하기", description = "outboundPlan & outboundPlanProduct 생성됨")
     public ResponseEntity<Void> createOutbound(@RequestBody OutboundPlanRequestDto outboundPlanRequestDto) {
         Long outboundPlanId = createOutboundPlanUseCase.createOutbound(outboundPlanRequestDto);
