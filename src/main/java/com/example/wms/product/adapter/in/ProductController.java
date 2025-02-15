@@ -10,10 +10,7 @@ import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -42,8 +39,8 @@ public class ProductController {
             summary = "전체 품목 조회",
             description = "전체 품목 목록을 페이지별로 조회할 수 있습니다."
     )
-    public ResponseEntity<Page<Product>> findAllBinsWithDetails(@ParameterObject Pageable pageable) {
-        return ResponseEntity.ok(productUseCase.getAllProducts(pageable));
+    public ResponseEntity<Page<Product>> findAllBinsWithDetails(@RequestParam(required = false) String productCode, @ParameterObject Pageable pageable) {
+        return ResponseEntity.ok(productUseCase.getAllProducts(productCode, pageable));
     }
 
     @GetMapping("/overview")

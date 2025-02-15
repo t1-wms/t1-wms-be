@@ -34,13 +34,13 @@ public class ProductAdapter implements ProductPort {
     }
 
     @Override
-    public List<Product> findProductWithPagination(Pageable pageable) {
-        return productMapper.findProductWithPagination(pageable);
+    public List<Product> findProductWithPagination(String productCode, Pageable pageable) {
+        return productMapper.findProductWithPagination(productCode, pageable);
     }
 
     @Override
-    public long countAllProducts() {
-        return productMapper.countAllProducts();
+    public long countAllProducts(String productCode) {
+        return productMapper.countAllProducts(productCode);
     }
 
     @Override
