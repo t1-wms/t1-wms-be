@@ -20,11 +20,26 @@ pipeline {
                 checkout scm
             }
         }
+
+        stage('Get Commit Message') { // 추가
+            steps {
+                script {
+                    def gitCommitMessage = sh(
+                        script: "git log -1 --pretty=%B",
+                        returnStdout: true
+                    ).trim()
+                    echo "Commit Message: ${gitCommitMessage}"
+                    env.GIT_COMMIT_MESSAGE = gitCommitMessage
+                }
+            }
+        }
+
         stage('Prepare') {
             steps {
                 sh 'gradle clean --no-daemon'
             }
         }
+
         stage('Replace Prod Properties') {
             steps {
                 withCredentials([file(credentialsId: 'wms-secret', variable: 'wms_secret_file')]) {
@@ -37,11 +52,13 @@ pipeline {
                 }
             }
         }
+
         stage('Build') {
             steps {
                 sh 'gradle build -x test'
             }
         }
+
         stage('Build Docker Image') {
             steps {
                 script {
@@ -50,6 +67,7 @@ pipeline {
                 }
             }
         }
+
         stage('Deploy to Backend Server') {
             steps {
                 script {
@@ -84,6 +102,31 @@ pipeline {
                 }
             }
         }
+    }
 
+    post { // 추가
+        success {
+            slackSend (
+                message: """
+                    :white_check_mark: **배포 성공** :white_check_mark:
+
+                    *Job*: ${env.JOB_NAME} [${env.BUILD_NUMBER}]
+                    *빌드 URL*: <${env.BUILD_URL}|링크>
+                    *최근 커밋 메시지*: ${env.GIT_COMMIT_MESSAGE}
+                """
+            )
+        }
+
+        failure {
+            slackSend (
+                message: """
+                    :x: **배포 실패** :x:
+
+                    *Job*: ${env.JOB_NAME} [${env.BUILD_NUMBER}]
+                    *빌드 URL*: <${env.BUILD_URL}|링크>
+                    *최근 커밋 메시지*: ${env.GIT_COMMIT_MESSAGE}
+                """
+            )
+        }
     }
 }
