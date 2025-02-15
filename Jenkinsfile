@@ -22,7 +22,7 @@ pipeline {
         }
         stage('Prepare') {
             steps {
-                sh 'gradle clean'
+                sh 'gradle clean --no-daemon'
             }
         }
         stage('Replace Prod Properties') {
@@ -49,11 +49,34 @@ pipeline {
                 }
             }
         }
-        stage('Deploy') {
+        stage('Deploy to Backend Server') {
             steps {
                 script {
                     // 선택한 환경에 맞는 docker-compose 파일을 선택
                     def composeFile = "docker-compose.${params.DEPLOY_ENV}.yml"
+
+                    // Backend 서버로 파일 전송 및 배포
+                    def sshServerName = 'BackendServer'  // 'BackendServer' 설정
+                    sshPublisher(publishers: [
+                        sshPublisherDesc(
+                            configName: sshServerName,  // 'BackendServer' 설정
+                            transfers: [
+                                sshTransfer(
+                                    sourceFiles: "**/*",
+                                    remoteDirectory: "/home/jenkins/backend",  // 배포할 서버 디렉터리
+                                    removePrefix: "./",
+                                    execCommand: "docker-compose -f /home/jenkins/backend/${composeFile} up -d"  // 백엔드 서버에서 실행할 명령어
+                                )
+                            ]
+                        )
+                    ])
+                }
+            }
+        }
+        stage('Run Docker Container on Backend Server') {
+            steps {
+                script {
+                    // 배포 환경에 맞는 docker-compose 파일을 백엔드 서버에 전달하고 실행
                     sh """
                         cp ./docker/${composeFile} ${SCRIPT_PATH}
                         cp ./docker/Dockerfile ${SCRIPT_PATH}
@@ -65,28 +88,5 @@ pipeline {
                 }
             }
         }
-        stage('Run Docker Container') {
-            steps {
-                script {
-                    // Docker 컨테이너 실행
-                    sh """
-                        docker-compose -f ${SCRIPT_PATH}/docker-compose.${params.DEPLOY_ENV}.yml up -d
-                    """
-                }
-            }
-        }
     }
-
-//     post {
-//         success {
-//             echo 'Deployment completed successfully.'
-//             // Slack 또는 이메일 알림 추가 가능
-//             // slackSend(channel: '#deployment', message: 'Deployment successful')
-//         }
-//         failure {
-//             echo 'Deployment failed.'
-//             // Slack 또는 이메일 알림 추가 가능
-//             // slackSend(channel: '#deployment', message: 'Deployment failed')
-//         }
-//     }
 }

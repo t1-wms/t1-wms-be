@@ -9,6 +9,8 @@ services:
       - TZ=Asia/Seoul
     networks:
       - servernetwork
+    volumes:
+      - ./app:/app  # 백엔드 애플리케이션 소스코드를 컨테이너 내부로 매핑
 
 networks:
   servernetwork:
