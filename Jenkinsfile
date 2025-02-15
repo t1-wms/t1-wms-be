@@ -4,6 +4,7 @@ pipeline {
         choice(
             name: 'DEPLOY_ENV',
             choices: ['blue', 'green'],
+            description: '배포 환경을 선택하세요'
         )
     }
     environment {
@@ -28,7 +29,6 @@ pipeline {
             steps {
                 withCredentials([file(credentialsId: 'wms-secret', variable: 'wms_secret_file')]) {
                     script {
-                        // 권한 수정 후 파일 복사
                         sh """
                             chmod -R 777 ./src/main/resources
                             cp ${wms_secret_file} ./src/main/resources/application-secret.yml
@@ -45,9 +45,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    // Docker 이미지 빌드
                     sh "docker build -f ./docker/Dockerfile -t ${DOCKER_IMAGE} ."
-                    // Docker 이미지에 빌드 번호 태그
                     sh "docker tag ${DOCKER_IMAGE} ${DOCKER_TAG}"
                 }
             }
@@ -62,13 +60,18 @@ pipeline {
                     def sshServerName = 'BackendServer'
                     sshPublisher(publishers: [
                         sshPublisherDesc(
-                            configName: sshServerName,  // 'BackendServer' 설정
+                            configName: sshServerName,
                             transfers: [
                                 sshTransfer(
-                                    sourceFiles: "build/libs/*.jar, ./docker/${composeFile}, ./docker/Dockerfile, ./scripts/deploy.sh",  // 필요한 파일만 전송
-                                    remoteDirectory: "/home/ec2-user/backend",  // 배포할 서버 디렉터리
+                                    sourceFiles: "build/libs/*.jar, ./docker/${composeFile}, ./docker/Dockerfile, ./scripts/deploy.sh",
+                                    remoteDirectory: "/home/ec2-user/backend",
                                     removePrefix: "./",
-                                    execCommand: "docker-compose -f /home/ec2-user/backend/${composeFile} up -d"
+                                    execCommand: """
+                                        # 기존 컨테이너 중지 및 제거
+                                        docker-compose -f /home/ec2-user/backend/${composeFile} down
+                                        # 새로 배포
+                                        docker-compose -f /home/ec2-user/backend/${composeFile} up -d
+                                    """
                                 )
                             ]
                         )
@@ -79,12 +82,12 @@ pipeline {
         stage('Run Docker Container on Backend Server') {
             steps {
                 script {
-                    // 배포 환경에 맞는 docker-compose 파일을 백엔드 서버에 전달하고 실행
+                    // 환경에 맞는 docker-compose 파일을 백엔드 서버에 전달하고 실행
                     sh """
                         cp ./docker/${composeFile} /home/ec2-user/backend
                         cp ./docker/Dockerfile /home/ec2-user/backend
                         cp ./scripts/deploy.sh /home/ec2-user/backend
-                        cp ./build/libs/*.jar /home/ec2-user/backend  // JAR 파일 복사
+                        cp ./build/libs/*.jar /home/ec2-user/backend
                         chmod +x /home/ec2-user/backend/deploy.sh
                         /home/ec2-user/backend/deploy.sh
                     """
