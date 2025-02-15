@@ -1,12 +1,12 @@
 package com.example.wms.outbound.application.service;
 
 import com.example.wms.infrastructure.pagination.util.PageableUtils;
-import com.example.wms.outbound.adapter.in.dto.OutboundPickingResponseDto;
+import com.example.wms.outbound.adapter.in.dto.OutboundPackingResponseDto;
 import com.example.wms.outbound.adapter.in.dto.ProductInfoDto;
 import com.example.wms.outbound.application.domain.Outbound;
 import com.example.wms.outbound.application.domain.OutboundPlan;
-import com.example.wms.outbound.application.port.in.GetOutboundPickingUseCase;
-import com.example.wms.outbound.application.port.out.GetOutboundPickingPort;
+import com.example.wms.outbound.application.port.in.GetOutboundPackingUseCase;
+import com.example.wms.outbound.application.port.out.GetOutboundPackingPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -19,25 +19,25 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class GetOutboundPickingService implements GetOutboundPickingUseCase {
+public class GetOutboundPackingService implements GetOutboundPackingUseCase {
 
-    private final GetOutboundPickingPort getOutboundPickingPort;
+    private final GetOutboundPackingPort getOutboundPackingPort;
 
     @Override
-    public Page<OutboundPickingResponseDto> getFilteredOutboundPickings(String outboundPickingNumber, LocalDate startDate, LocalDate endDate, Pageable pageable) {
+    public Page<OutboundPackingResponseDto> getFilteredOutboundPackings(String outboundPackingNumber, LocalDate startDate, LocalDate endDate, Pageable pageable) {
         Pageable safePageale = PageableUtils.convertToSafePageableStrict(pageable, Outbound.class);
-        List<Outbound> outboundList = getOutboundPickingPort.findOutboundPickingFilteringWithPageNation(outboundPickingNumber, startDate, endDate, safePageale);
+        List<Outbound> outboundList = getOutboundPackingPort.findOutboundPackingFilteringWithPageNation(outboundPackingNumber, startDate, endDate, safePageale);
         return new PageImpl<>(covertToDtoList(outboundList), pageable, outboundList.size());
     }
 
-    private List<OutboundPickingResponseDto> covertToDtoList(List<Outbound> outboundList) {
+    private List<OutboundPackingResponseDto> covertToDtoList(List<Outbound> outboundList) {
         return outboundList.stream()
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
     }
 
-    private OutboundPickingResponseDto convertToDto(Outbound outbound) {
-        List<ProductInfoDto> productList = getOutboundPickingPort.findProductInfoByOutboundPlanId(outbound.getOutboundPlanId())
+    private OutboundPackingResponseDto convertToDto(Outbound outbound) {
+        List<ProductInfoDto> productList = getOutboundPackingPort.findProductInfoByOutboundPlanId(outbound.getOutboundPlanId())
                 .stream()
                 .map(p->ProductInfoDto.builder()
                         .productId(p.getProductId())
@@ -47,16 +47,17 @@ public class GetOutboundPickingService implements GetOutboundPickingUseCase {
                         .build())
                 .collect(Collectors.toList());
 
-        OutboundPlan outboundPlan = getOutboundPickingPort.findOutboundPlanByOutboundPlanId(outbound.getOutboundPlanId());
+        OutboundPlan outboundPlan = getOutboundPackingPort.findOutboundPlanByOutboundPlanId(outbound.getOutboundPlanId());
 
-        return OutboundPickingResponseDto.builder()
+        return OutboundPackingResponseDto.builder()
                 .outboundId(outbound.getOutboundId())
                 .outboundPlanId(outbound.getOutboundPlanId())
                 .process("여기수정해야됨") //outbound테이블 보고 수정하기
                 .outboundScheduleNumber(outboundPlan.getOutboundScheduleNumber())
                 .outboundAssignNumber(outbound.getOutboundAssignNumber())
                 .outboundPickingNumber(outbound.getOutboundPickingNumber())
-                .outboundPickingDate(outbound.getOutboundPickingDate())
+                .outboundPackingNumber(outbound.getOutboundPackingNumber())
+                .outboundPackingDate(outbound.getOutboundPackingDate())
                 .productionPlanNumber(outboundPlan.getProductionPlanNumber())
                 .planDate(outboundPlan.getPlanDate())
                 .productList(productList)
