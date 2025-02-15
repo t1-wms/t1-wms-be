@@ -49,8 +49,7 @@ public class GetOutboundAssignService implements GetOutboundAssignUseCase {
                 .collect(Collectors.toList());
 
         OutboundPlan outboundPlan = getOutboundAssignPort.findOutboundPlanByOutboundPlanId(outbound.getOutboundPlanId());
-
-
+        
         return OutboundAssignResponseDto.builder()
                 .outboundId(outbound.getOutboundId())
                 .outboundPlanId(outbound.getOutboundPlanId())

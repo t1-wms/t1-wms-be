@@ -1,12 +1,15 @@
 package com.example.wms.infrastructure.mapper;
 
 import com.example.wms.outbound.application.domain.Outbound;
+import com.example.wms.outbound.application.domain.OutboundPlan;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Mapper
 public interface OutboundPickingMapper {
@@ -42,5 +45,16 @@ public interface OutboundPickingMapper {
     // 출고 피킹 수정
     @Update("UPDATE outbound SET outbound_picking_date = #{outboundPickingDate} WHERE outbound_id = #{outboundId}")
     void updateOutboundPicking(@Param("outboundId") Long outboundId, @Param("outboundPickingDate") LocalDate outboundPickingDate);
+
+    // 출고 피킹 조회
+    List<Outbound> findOutboundPickingFilteringWithPageNation(
+            @Param("outboundPickingNumber") String outboundPickingNumber,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate,
+            @Param("pageable") Pageable pageable);
+
+    OutboundPlan findOutboundPlanByOutboundPlanId(@Param("outboundPlanId") Long outboundPlanId);
+
+
 
 }
