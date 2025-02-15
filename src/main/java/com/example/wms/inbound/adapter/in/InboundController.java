@@ -47,11 +47,6 @@ public class InboundController {
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/{inboundId}")
-    @Operation(summary = "입하 검사 관리자가 등록하기", description = "입하 검사를 등록합니다.")
-    public ResponseEntity<Void> createInboundCheck(@RequestBody InboundCheckReqDto inboundCheckReqDto) {
-        inboundUseCase.createInboundCheck(inboundCheckReqDto);
-        return ResponseEntity.status(201).build();
-    }
+
 
 }
