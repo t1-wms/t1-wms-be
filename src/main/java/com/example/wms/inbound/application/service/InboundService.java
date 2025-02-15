@@ -1,6 +1,7 @@
 package com.example.wms.inbound.application.service;
 
 import com.example.wms.inbound.adapter.in.dto.request.InboundCheckReqDto;
+import com.example.wms.inbound.adapter.in.dto.request.InboundCheckUpdateReqDto;
 import com.example.wms.inbound.adapter.in.dto.request.InboundCheckedProductReqDto;
 import com.example.wms.inbound.adapter.in.dto.request.InboundReqDto;
 import com.example.wms.inbound.adapter.in.dto.response.InboundAllProductDto;
@@ -25,11 +26,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -213,6 +217,52 @@ public class InboundService implements InboundUseCase {
 
         return new PageImpl<>(inboundResDtoList, pageable, count);
     }
+
+    @Transactional
+    @Override
+    public void updateInboundCheck(Long inboundId, InboundCheckUpdateReqDto updateReqDto) {
+        Inbound inbound = inboundPort.findById(inboundId);
+
+        if (inbound == null) {
+            throw new NotFoundException("Inbound not found with id " + updateReqDto.getInboundId());
+        }
+
+        inbound.setCheckDate(LocalDate.parse(updateReqDto.getCheckDate()));
+        inbound.setCheckNumber(makeNumber("IC"));
+
+        inboundPort.updateIC(inbound.getInboundId(), inbound.getCheckDate(), inbound.getCheckNumber());
+
+        List<InboundCheck> existingChecks = inboundCheckPort.findByInboundId(updateReqDto.getInboundId());
+
+        Map<Long, InboundCheck> checkMap = existingChecks.stream()
+                .collect(Collectors.toMap(InboundCheck::getProductId, Function.identity()));
+
+        List<InboundCheck> updatedChecks = new ArrayList<>();
+
+        for (InboundCheckedProductReqDto checkedProduct : updateReqDto.getCheckedProductList()) {
+            Long productId = checkedProduct.getProductId();
+            Long updatedDefectiveCount = checkedProduct.getDefectiveLotCount();
+
+            Product product = productPort.findById(productId);
+
+            if (product == null) {
+                throw new NotFoundException("Product not found with id : " + productId);
+            }
+
+            if (checkMap.containsKey(productId)) {
+                InboundCheck existingCheck = checkMap.get(productId);
+                existingCheck.setDefectiveLotCount(updatedDefectiveCount);
+                updatedChecks.add(existingCheck);
+            }
+
+            if (updatedDefectiveCount > 0) {
+                orderPort.createOrder(product.getSupplierId(), updatedDefectiveCount);
+            }
+        }
+
+        inboundCheckPort.saveAll(updatedChecks);
+    }
+
 
 }
 
