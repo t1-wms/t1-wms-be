@@ -56,7 +56,7 @@ pipeline {
         stage('Deploy to Backend Server') {
             steps {
                 script {
-                    // 선택한 환경에 맞는 docker-compose 파일을 선택
+                    // 선택한 환경에 맞는 docker-compose 파일 선택
                     def composeFile = "docker-compose.${params.DEPLOY_ENV}.yml"
 
                     // Backend 서버로 파일 전송 및 배포
