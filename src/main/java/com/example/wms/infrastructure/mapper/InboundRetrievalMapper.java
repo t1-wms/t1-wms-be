@@ -1,8 +1,7 @@
 package com.example.wms.infrastructure.mapper;
 
-import com.example.wms.inbound.adapter.in.dto.response.InboundPlanProductDto;
+import com.example.wms.inbound.adapter.in.dto.response.InboundAllProductDto;
 import com.example.wms.inbound.adapter.in.dto.response.InboundProductDto;
-import com.example.wms.inbound.adapter.in.dto.response.InboundResDto;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.data.domain.Pageable;
 
@@ -12,9 +11,9 @@ import java.util.List;
 public interface InboundRetrievalMapper {
     List<InboundProductDto> findInboundProductListByOrderId(Long orderId);
 
-    List<InboundPlanProductDto> findInboundProductListWithPagination(@Param("pageable") Pageable pageable);
+    List<InboundAllProductDto> findInboundProductListWithPagination(@Param("pageable") Pageable pageable);
 
-    List<InboundPlanProductDto> findInboundFilteringWithPagination(@Param("inboundScheduleNumber") String inboundScheduleNumber, @Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate, @Param("pageable") Pageable pageable);
+    List<InboundAllProductDto> findInboundFilteringWithPagination(@Param("inboundScheduleNumber") String inboundScheduleNumber, @Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate, @Param("pageable") Pageable pageable);
 
     Integer countAllInboundPlan();
 

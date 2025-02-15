@@ -3,7 +3,7 @@ package com.example.wms.inbound.application.service;
 import com.example.wms.inbound.adapter.in.dto.request.InboundCheckReqDto;
 import com.example.wms.inbound.adapter.in.dto.request.InboundCheckedProductReqDto;
 import com.example.wms.inbound.adapter.in.dto.request.InboundReqDto;
-import com.example.wms.inbound.adapter.in.dto.response.InboundPlanProductDto;
+import com.example.wms.inbound.adapter.in.dto.response.InboundAllProductDto;
 import com.example.wms.inbound.adapter.in.dto.response.InboundProductDto;
 import com.example.wms.inbound.adapter.in.dto.response.InboundResDto;
 import com.example.wms.inbound.application.domain.Inbound;
@@ -81,10 +81,10 @@ public class InboundService implements InboundUseCase {
     public Page<InboundResDto> getInboundPlans(Pageable pageable) {
         Pageable safePageable = PageableUtils.convertToSafePageableStrict(pageable, Inbound.class);
 
-        List<InboundPlanProductDto> inboundPlanProductDtoList = inboundRetrievalPort.findInboundProductListWithPagination(safePageable);
+        List<InboundAllProductDto> inboundAllProductDtoList = inboundRetrievalPort.findInboundProductListWithPagination(safePageable);
         Integer count = inboundRetrievalPort.countAllInboundPlan();
 
-        List<InboundResDto> inboundResDtoList = convertToInboundResDto(inboundPlanProductDtoList);
+        List<InboundResDto> inboundResDtoList = convertToInboundResDto(inboundAllProductDtoList);
 
         return new PageImpl<>(inboundResDtoList,pageable,count);
     }
@@ -93,10 +93,10 @@ public class InboundService implements InboundUseCase {
     public Page<InboundResDto> getFilteredInboundPlans(String inboundScheduleNumber, LocalDate startDate, LocalDate endDate, Pageable pageable) {
         Pageable safePageable = PageableUtils.convertToSafePageableStrict(pageable, Inbound.class);
 
-        List<InboundPlanProductDto> inboundPlanProductDtoList = inboundRetrievalPort.findInboundFilteringWithPagination(inboundScheduleNumber, startDate, endDate, safePageable);
+        List<InboundAllProductDto> inboundAllProductDtoList = inboundRetrievalPort.findInboundFilteringWithPagination(inboundScheduleNumber, startDate, endDate, safePageable);
         Integer count = inboundRetrievalPort.countFilteredInboundPlan(inboundScheduleNumber, startDate, endDate);
 
-        List<InboundResDto> inboundResDtoList = convertToInboundResDto(inboundPlanProductDtoList);
+        List<InboundResDto> inboundResDtoList = convertToInboundResDto(inboundAllProductDtoList);
 
         return new PageImpl<>(inboundResDtoList,pageable,count);
     }
@@ -109,14 +109,14 @@ public class InboundService implements InboundUseCase {
 
 
 
-    private List<InboundResDto> convertToInboundResDto(List<InboundPlanProductDto> planProductList) {
+    private List<InboundResDto> convertToInboundResDto(List<InboundAllProductDto> planProductList) {
         if (planProductList.isEmpty()) {
             return Collections.emptyList();
         }
 
         Map<Long, InboundResDto> inboundMap = new LinkedHashMap<>();
 
-        for (InboundPlanProductDto dto : planProductList) {
+        for (InboundAllProductDto dto : planProductList) {
             inboundMap.putIfAbsent(dto.getInboundId(),
                     InboundResDto.builder()
                             .inboundId(dto.getInboundId())
