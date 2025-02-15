@@ -67,7 +67,8 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
             "/api/product",
             "/api/sse",
             "/api/outboundAssign",
-            "/api/supplier"
+            "/api/supplier",
+            "/api/outboundPicking"
     };
 
     /**

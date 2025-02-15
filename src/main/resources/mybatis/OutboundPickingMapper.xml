@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.example.wms.infrastructure.mapper.OutboundAssignMapper">
-    <select id="findOutboundAssignFilteringWithPageNation">
+<mapper namespace="com.example.wms.infrastructure.mapper.OutboundPickingMapper">
+    <select id="findOutboundPickingFilteringWithPageNation">
         SELECT *
         FROM outbound
         <where>
-            outbound_assign_number IS NOT NULL
+            outbound_assign_number IS NOT NULL AND outbound_picking_number IS NOT NULL
             <!-- 시작일 조건 (startDate) -->
             <if test="startDate != null">
                 AND
@@ -18,10 +18,10 @@
                 outbound_assign_date <![CDATA[<=]]> #{endDate}
             </if>
 
-            <!-- 번호 조건 (outboundAssignNumber) -->
-            <if test="outboundAssignNumber != null and outboundAssignNumber != ''">
+            <!-- 번호 조건 (outboundPickingNumber) -->
+            <if test="outboundPickingNumber != null and outboundPickingNumber != ''">
                 AND
-                outbound_assign_number LIKE CONCAT('%', #{outboundAssignNumber}, '%')
+                outbound_picking_number LIKE CONCAT('%', #{outboundPickingNumber}, '%')
             </if>
         </where>
 
