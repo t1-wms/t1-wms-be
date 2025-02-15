@@ -21,7 +21,7 @@ pipeline {
             }
         }
 
-        stage('Get Commit Message') { // 추가
+        stage('Get Commit Message') {
             steps {
                 script {
                     def gitCommitMessage = sh(
