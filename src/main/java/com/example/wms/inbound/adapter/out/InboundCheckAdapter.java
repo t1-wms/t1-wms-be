@@ -6,6 +6,8 @@ import com.example.wms.infrastructure.mapper.InboundCheckMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 @RequiredArgsConstructor
 public class InboundCheckAdapter implements InboundCheckPort {
@@ -18,7 +20,14 @@ public class InboundCheckAdapter implements InboundCheckPort {
     }
 
     @Override
-    public void findByInboundId(Long inboundId) {
-        inboundCheckMapper.findByInboundId(inboundId);
+    public List<InboundCheck> findByInboundId(Long inboundId) {
+        return inboundCheckMapper.findByInboundId(inboundId);
+    }
+
+    @Override
+    public void saveAll(List<InboundCheck> inboundChecks) {
+        for (InboundCheck inboundCheck : inboundChecks) {
+            inboundCheckMapper.insertOrUpdate(inboundCheck);
+        }
     }
 }
