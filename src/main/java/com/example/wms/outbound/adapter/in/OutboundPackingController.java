@@ -30,7 +30,7 @@ public class OutboundPackingController {
     private final UpdateOutboundPackingUseCase updateOutboundPackingUseCase;
     private final GetOutboundPackingUseCase getOutboundPackingUseCase;
 
-    @PutMapping("register/{outboundPlanId}")
+    @PutMapping("/register/{outboundPlanId}")
     @Operation(summary = "출고 패킹 등록")
     public ResponseEntity<Void> createOutboundPacking(@PathVariable("outboundPlanId") Long outboundPlanId) {
         Notification notification = createOutboundPackingUseCase.createOutboundPacking(outboundPlanId);

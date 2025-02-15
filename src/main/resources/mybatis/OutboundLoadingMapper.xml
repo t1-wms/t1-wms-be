@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.wms.infrastructure.mapper.OutboundLoadingMapper">
+    <select id="findOutboundLoadingFilteringWithPageNation">
+        SELECT *
+        FROM outbound
+        <where>
+            outbound_assign_number IS NOT NULL AND outbound_picking_number IS NOT NULL AND outbound_packing_number IS NOT NULL AND outbound_loading_number IS NOT NULL
+            <!-- 시작일 조건 (startDate) -->
+            <if test="startDate != null">
+                AND
+                outbound_loading_date <![CDATA[>=]]> #{startDate}
+            </if>
+
+            <!-- 종료일 조건 (endDate) -->
+            <if test="endDate != null">
+                AND
+                outbound_loading_date <![CDATA[<=]]> #{endDate}
+            </if>
+
+            <!-- 번호 조건 (outboundLoadingNumber) -->
+            <if test="outboundLoadingNumber != null and outboundLoadingNumber != ''">
+                AND
+                outbound_loading_number LIKE CONCAT('%', #{outboundLoadingNumber}, '%')
+            </if>
+        </where>
+
+        <!-- 정렬 조건 -->
+        <if test="pageable.sort.sorted">
+            <trim prefix="ORDER BY">
+                <foreach item="order" index="i" collection="pageable.sort" separator=", ">
+                    ${order.property}
+                    <choose>
+                        <when test="order.direction.toString() == 'ASC'">ASC</when>
+                        <otherwise>DESC</otherwise>
+                    </choose>
+                </foreach>
+            </trim>
+        </if>
+
+        <!-- 페이징 조건 -->
+        LIMIT #{pageable.pageSize} OFFSET #{pageable.offset}
+    </select>
+
+
+    <select id="findOutboundPlanByOutboundPlanId">
+        SELECT *
+        FROM outbound_plan
+        WHERE outbound_plan_id = #{outboundPlanId}
+    </select>
+</mapper>
