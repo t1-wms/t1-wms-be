@@ -24,11 +24,11 @@ public class SupplierService implements SupplierUseCase {
     private final SupplierPort supplierPort;
 
     @Override
-    public Page<SupplierResponseDto> getAllSuppliers(Pageable pageable) {
+    public Page<SupplierResponseDto> getAllSuppliers(String businessNumber, Pageable pageable) {
         Pageable safePageable = PageableUtils.convertToSafePageableStrict(pageable, Supplier.class);
 
-        List<SupplierResponseDto> supplierList = supplierPort.findSupplierWithPagination(safePageable);
-        long count = supplierPort.countAllSuppliers();
+        List<SupplierResponseDto> supplierList = supplierPort.findSupplierWithPagination(businessNumber, safePageable);
+        long count = supplierPort.countAllSuppliers(businessNumber);
 
         // supplierId 목록 추출
         List<Long> supplierIdList = supplierList.stream().map(SupplierResponseDto::getSupplierId).toList();

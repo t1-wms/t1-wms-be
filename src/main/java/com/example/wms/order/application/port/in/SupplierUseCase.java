@@ -6,5 +6,5 @@ import org.springframework.data.domain.Pageable;
 
 public interface SupplierUseCase {
 
-    Page<SupplierResponseDto> getAllSuppliers(Pageable pageable);
+    Page<SupplierResponseDto> getAllSuppliers(String businessNumber, Pageable pageable);
 }

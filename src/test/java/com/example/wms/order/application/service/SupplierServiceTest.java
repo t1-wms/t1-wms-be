@@ -19,8 +19,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -51,8 +50,8 @@ class SupplierServiceTest {
         List<SupplierResponseDto> supplierList = Arrays.asList(supplier1, supplier2);
 
         // 모킹: findSupplierWithPagination()와 countAllSuppliers()
-        when(supplierPort.findSupplierWithPagination(any(Pageable.class))).thenReturn(supplierList);
-        when(supplierPort.countAllSuppliers()).thenReturn(2L);
+        when(supplierPort.findSupplierWithPagination(eq(null), any(Pageable.class))).thenReturn(supplierList);
+        when(supplierPort.countAllSuppliers(null)).thenReturn(2L);
 
         // given: ProductInSupplierDto 샘플 데이터 생성 (각 supplier에 해당하는 상품 목록)
         ProductInSupplierDto product1 = new ProductInSupplierDto();
@@ -65,7 +64,7 @@ class SupplierServiceTest {
         when(supplierPort.findProductsBySupplierIds(anyList())).thenReturn(productList);
 
         // when: 테스트 대상 메서드 호출
-        Page<SupplierResponseDto> result = supplierService.getAllSuppliers(pageable);
+        Page<SupplierResponseDto> result = supplierService.getAllSuppliers(null, pageable);
 
         // then: 반환 결과 검증
         assertThat(result).isNotNull();
@@ -94,13 +93,13 @@ class SupplierServiceTest {
         List<SupplierResponseDto> supplierList = Collections.singletonList(supplier1);
 
         // 모킹: supplierPort
-        when(supplierPort.findSupplierWithPagination(any(Pageable.class))).thenReturn(supplierList);
-        when(supplierPort.countAllSuppliers()).thenReturn(1L);
+        when(supplierPort.findSupplierWithPagination(eq(null), any(Pageable.class))).thenReturn(supplierList);
+        when(supplierPort.countAllSuppliers(null)).thenReturn(1L);
         // 공급자에 매핑된 상품이 없는 경우 빈 리스트 반환
         when(supplierPort.findProductsBySupplierIds(anyList())).thenReturn(Collections.emptyList());
 
         // when
-        Page<SupplierResponseDto> result = supplierService.getAllSuppliers(pageable);
+        Page<SupplierResponseDto> result = supplierService.getAllSuppliers(null, pageable);
 
         // then
         assertThat(result).isNotNull();
