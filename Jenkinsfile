@@ -47,7 +47,7 @@ pipeline {
             steps {
                 script {
                     // Docker 이미지 빌드
-                    sh "docker build -t ${DOCKER_IMAGE} ."
+                    sh "docker build -f ./docker/Dockerfile -t ${DOCKER_IMAGE} ."
                     // Docker 이미지에 빌드 번호 태그 추가
                     sh "docker tag ${DOCKER_IMAGE} ${DOCKER_TAG}"
                 }
