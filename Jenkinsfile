@@ -46,12 +46,12 @@ pipeline {
         stage('Install Docker on Jenkins Agent') {
             steps {
                 script {
-                    // Docker 설치 (Ubuntu 기반 시스템)
+                    // Docker 설치
                     sh """
-                        apt-get update -y
-                        apt-get install -y docker.io
-                        systemctl enable docker
-                        systemctl start docker
+                        sudo apt-get update -y
+                        sudo apt-get install -y docker.io
+                        sudo systemctl enable docker
+                        sudo systemctl start docker
                     """
                 }
             }
@@ -82,7 +82,7 @@ pipeline {
                                     sourceFiles: "**/*",
                                     remoteDirectory: "/home/jenkins/backend",  // 배포할 서버 디렉터리
                                     removePrefix: "./",
-                                    execCommand: "docker-compose -f /home/jenkins/backend/${composeFile} up -d"  // 백엔드 서버에서 실행할 명령어
+                                    execCommand: "docker-compose -f /home/jenkins/backend/${composeFile} up -d"
                                 )
                             ]
                         )
