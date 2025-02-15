@@ -201,5 +201,18 @@ public class InboundService implements InboundUseCase {
         inboundPort.updateIC(inbound.getInboundId(), inbound.getCheckDate(), inbound.getScheduleNumber());
 
     }
+
+    @Override
+    public Page<InboundResDto> getFilteredInboundCheck(String inboundCheckNumber, LocalDate startDate, LocalDate endDate, Pageable pageable) {
+        Pageable safePageable = PageableUtils.convertToSafePageableStrict(pageable, Inbound.class);
+
+        List<InboundAllProductDto> inboundAllProductDtoList = inboundRetrievalPort.findInboundFilteringWithPagination(inboundCheckNumber, startDate, endDate, safePageable);
+        Integer count = inboundRetrievalPort.countFilteredInboundCheck(inboundCheckNumber, startDate, endDate);
+
+        List<InboundResDto> inboundResDtoList = convertToInboundResDto(inboundAllProductDtoList);
+
+        return new PageImpl<>(inboundResDtoList, pageable, count);
+    }
+
 }
 
