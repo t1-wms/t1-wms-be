@@ -7,7 +7,7 @@ pipeline {
         )
     }
     environment {
-        SCRIPT_PATH = '/var/jenkins_home/custom/wms'
+        SCRIPT_PATH = '/home/jenkins/custom/wms'  // 스크립트가 위치한 경로
         DOCKER_IMAGE = 'wms:latest'
         DOCKER_TAG = "wms:${BUILD_NUMBER}"
     }
@@ -67,9 +67,9 @@ pipeline {
                             transfers: [
                                 sshTransfer(
                                     sourceFiles: "**/*",
-                                    remoteDirectory: "/home/jenkins/backend",  // 배포할 서버 디렉터리
+                                    remoteDirectory: "/home/ec2-user/backend",  // 배포할 서버 디렉터리
                                     removePrefix: "./",
-                                    execCommand: "docker-compose -f /home/jenkins/backend/${composeFile} up -d"
+                                    execCommand: "docker-compose -f /home/ec2-user/backend/${composeFile} up -d"
                                 )
                             ]
                         )
@@ -82,12 +82,12 @@ pipeline {
                 script {
                     // 배포 환경에 맞는 docker-compose 파일을 백엔드 서버에 전달하고 실행
                     sh """
-                        cp ./docker/${composeFile} ${SCRIPT_PATH}
-                        cp ./docker/Dockerfile ${SCRIPT_PATH}
-                        cp ./scripts/deploy.sh ${SCRIPT_PATH}
-                        cp ./build/libs/*.jar ${SCRIPT_PATH}
-                        chmod +x ${SCRIPT_PATH}/deploy.sh
-                        ${SCRIPT_PATH}/deploy.sh
+                        cp ./docker/${composeFile} /home/ec2-user/backend
+                        cp ./docker/Dockerfile /home/ec2-user/backend
+                        cp ./scripts/deploy.sh /home/ec2-user/backend
+                        cp ./build/libs/*.jar /home/ec2-user/backend
+                        chmod +x /home/ec2-user/backend/deploy.sh
+                        /home/ec2-user/backend/deploy.sh
                     """
                 }
             }

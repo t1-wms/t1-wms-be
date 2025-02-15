@@ -1,7 +1,7 @@
 version: '3'
 services:
   backend:
-    build: ..
+    build: .  # 현재 디렉토리에서 Dockerfile을 찾아 빌드
     ports:
       - "8112:80"
     container_name: spring-wms-green
