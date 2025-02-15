@@ -29,7 +29,11 @@ pipeline {
             steps {
                 withCredentials([file(credentialsId: 'wms-secret', variable: 'wms_secret_file')]) {
                     script {
-                        sh "cp ${wms_secret_file} ./src/main/resources/application-secret.yml"
+                        // 권한 수정 후 파일 복사
+                        sh """
+                            chmod -R 777 ./src/main/resources
+                            cp ${wms_secret_file} ./src/main/resources/application-secret.yml
+                        """
                     }
                 }
             }
