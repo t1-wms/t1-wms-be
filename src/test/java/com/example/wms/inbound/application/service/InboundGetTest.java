@@ -27,9 +27,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 @ExtendWith(MockitoExtension.class)
-class InboundServiceTest {
+class InboundGetTest {
 
-    private static final Logger logger = LoggerFactory.getLogger(InboundServiceTest.class);
+    private static final Logger logger = LoggerFactory.getLogger(InboundGetTest.class);
 
     @Mock
     InboundRetrievalPort inboundRetrievalPort;

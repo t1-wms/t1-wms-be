@@ -12,7 +12,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
-public class InboundPlanDeleteTest {
+public class InboundDeleteTest {
 
     @InjectMocks
     private InboundService inboundService;
