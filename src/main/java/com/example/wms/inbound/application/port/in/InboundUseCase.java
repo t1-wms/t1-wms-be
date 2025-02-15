@@ -24,4 +24,5 @@ public interface InboundUseCase {
     Page<InboundResDto> getFilteredInboundCheck(String inboundCheckNumber, LocalDate startDate, LocalDate endDate, Pageable pageable);
     void updateInboundCheck(Long inboundId, InboundCheckUpdateReqDto updateReqDto);
 
+    void deleteInboundCheck(Long inboundId);
 }

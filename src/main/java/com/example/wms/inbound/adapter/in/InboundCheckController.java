@@ -45,4 +45,11 @@ public class InboundCheckController {
         inboundUseCase.updateInboundCheck(inboundId, inboundCheckUpdateReqDto);
         return ResponseEntity.ok().build();
     }
+
+    @DeleteMapping("/{inboundId}")
+    @Operation(summary ="입하 검사 삭제하기", description = "입하 검사를 삭제합니다.")
+    public ResponseEntity<Void> deleteInboundCheck(@PathVariable Long inboundId) {
+        inboundUseCase.deleteInboundCheck(inboundId);
+        return ResponseEntity.noContent().build();
+    }
 }
