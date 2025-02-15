@@ -1,9 +1,10 @@
 package com.example.wms.inbound.application.service;
 
 import com.example.wms.inbound.adapter.in.dto.request.InboundCheckReqDto;
+import com.example.wms.inbound.adapter.in.dto.request.InboundCheckUpdateReqDto;
 import com.example.wms.inbound.adapter.in.dto.request.InboundCheckedProductReqDto;
 import com.example.wms.inbound.adapter.in.dto.request.InboundReqDto;
-import com.example.wms.inbound.adapter.in.dto.response.InboundPlanProductDto;
+import com.example.wms.inbound.adapter.in.dto.response.InboundAllProductDto;
 import com.example.wms.inbound.adapter.in.dto.response.InboundProductDto;
 import com.example.wms.inbound.adapter.in.dto.response.InboundResDto;
 import com.example.wms.inbound.application.domain.Inbound;
@@ -25,11 +26,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -81,10 +85,10 @@ public class InboundService implements InboundUseCase {
     public Page<InboundResDto> getInboundPlans(Pageable pageable) {
         Pageable safePageable = PageableUtils.convertToSafePageableStrict(pageable, Inbound.class);
 
-        List<InboundPlanProductDto> inboundPlanProductDtoList = inboundRetrievalPort.findInboundProductListWithPagination(safePageable);
+        List<InboundAllProductDto> inboundAllProductDtoList = inboundRetrievalPort.findInboundProductListWithPagination(safePageable);
         Integer count = inboundRetrievalPort.countAllInboundPlan();
 
-        List<InboundResDto> inboundResDtoList = convertToInboundResDto(inboundPlanProductDtoList);
+        List<InboundResDto> inboundResDtoList = convertToInboundResDto(inboundAllProductDtoList);
 
         return new PageImpl<>(inboundResDtoList,pageable,count);
     }
@@ -93,10 +97,10 @@ public class InboundService implements InboundUseCase {
     public Page<InboundResDto> getFilteredInboundPlans(String inboundScheduleNumber, LocalDate startDate, LocalDate endDate, Pageable pageable) {
         Pageable safePageable = PageableUtils.convertToSafePageableStrict(pageable, Inbound.class);
 
-        List<InboundPlanProductDto> inboundPlanProductDtoList = inboundRetrievalPort.findInboundFilteringWithPagination(inboundScheduleNumber, startDate, endDate, safePageable);
+        List<InboundAllProductDto> inboundAllProductDtoList = inboundRetrievalPort.findInboundFilteringWithPagination(inboundScheduleNumber, startDate, endDate, safePageable);
         Integer count = inboundRetrievalPort.countFilteredInboundPlan(inboundScheduleNumber, startDate, endDate);
 
-        List<InboundResDto> inboundResDtoList = convertToInboundResDto(inboundPlanProductDtoList);
+        List<InboundResDto> inboundResDtoList = convertToInboundResDto(inboundAllProductDtoList);
 
         return new PageImpl<>(inboundResDtoList,pageable,count);
     }
@@ -109,14 +113,14 @@ public class InboundService implements InboundUseCase {
 
 
 
-    private List<InboundResDto> convertToInboundResDto(List<InboundPlanProductDto> planProductList) {
+    private List<InboundResDto> convertToInboundResDto(List<InboundAllProductDto> planProductList) {
         if (planProductList.isEmpty()) {
             return Collections.emptyList();
         }
 
         Map<Long, InboundResDto> inboundMap = new LinkedHashMap<>();
 
-        for (InboundPlanProductDto dto : planProductList) {
+        for (InboundAllProductDto dto : planProductList) {
             inboundMap.putIfAbsent(dto.getInboundId(),
                     InboundResDto.builder()
                             .inboundId(dto.getInboundId())
@@ -201,5 +205,64 @@ public class InboundService implements InboundUseCase {
         inboundPort.updateIC(inbound.getInboundId(), inbound.getCheckDate(), inbound.getScheduleNumber());
 
     }
+
+    @Override
+    public Page<InboundResDto> getFilteredInboundCheck(String inboundCheckNumber, LocalDate startDate, LocalDate endDate, Pageable pageable) {
+        Pageable safePageable = PageableUtils.convertToSafePageableStrict(pageable, Inbound.class);
+
+        List<InboundAllProductDto> inboundAllProductDtoList = inboundRetrievalPort.findInboundFilteringWithPagination(inboundCheckNumber, startDate, endDate, safePageable);
+        Integer count = inboundRetrievalPort.countFilteredInboundCheck(inboundCheckNumber, startDate, endDate);
+
+        List<InboundResDto> inboundResDtoList = convertToInboundResDto(inboundAllProductDtoList);
+
+        return new PageImpl<>(inboundResDtoList, pageable, count);
+    }
+
+    @Transactional
+    @Override
+    public void updateInboundCheck(Long inboundId, InboundCheckUpdateReqDto updateReqDto) {
+        Inbound inbound = inboundPort.findById(inboundId);
+
+        if (inbound == null) {
+            throw new NotFoundException("Inbound not found with id " + updateReqDto.getInboundId());
+        }
+
+        inbound.setCheckDate(LocalDate.parse(updateReqDto.getCheckDate()));
+        inbound.setCheckNumber(makeNumber("IC"));
+
+        inboundPort.updateIC(inbound.getInboundId(), inbound.getCheckDate(), inbound.getCheckNumber());
+
+        List<InboundCheck> existingChecks = inboundCheckPort.findByInboundId(updateReqDto.getInboundId());
+
+        Map<Long, InboundCheck> checkMap = existingChecks.stream()
+                .collect(Collectors.toMap(InboundCheck::getProductId, Function.identity()));
+
+        List<InboundCheck> updatedChecks = new ArrayList<>();
+
+        for (InboundCheckedProductReqDto checkedProduct : updateReqDto.getCheckedProductList()) {
+            Long productId = checkedProduct.getProductId();
+            Long updatedDefectiveCount = checkedProduct.getDefectiveLotCount();
+
+            Product product = productPort.findById(productId);
+
+            if (product == null) {
+                throw new NotFoundException("Product not found with id : " + productId);
+            }
+
+            if (checkMap.containsKey(productId)) {
+                InboundCheck existingCheck = checkMap.get(productId);
+                existingCheck.setDefectiveLotCount(updatedDefectiveCount);
+                updatedChecks.add(existingCheck);
+            }
+
+            if (updatedDefectiveCount > 0) {
+                orderPort.createOrder(product.getSupplierId(), updatedDefectiveCount);
+            }
+        }
+
+        inboundCheckPort.saveAll(updatedChecks);
+    }
+
+
 }
 

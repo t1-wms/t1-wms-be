@@ -1,6 +1,6 @@
 package com.example.wms.inbound.application.service;
 
-import com.example.wms.inbound.adapter.in.dto.response.InboundPlanProductDto;
+import com.example.wms.inbound.adapter.in.dto.response.InboundAllProductDto;
 import com.example.wms.inbound.adapter.in.dto.response.InboundResDto;
 import com.example.wms.inbound.application.port.out.InboundRetrievalPort;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,9 +27,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 @ExtendWith(MockitoExtension.class)
-class InboundServiceTest {
+class InboundGetTest {
 
-    private static final Logger logger = LoggerFactory.getLogger(InboundServiceTest.class);
+    private static final Logger logger = LoggerFactory.getLogger(InboundGetTest.class);
 
     @Mock
     InboundRetrievalPort inboundRetrievalPort;
@@ -37,13 +37,13 @@ class InboundServiceTest {
     @InjectMocks
     InboundService inboundService;
 
-    private List<InboundPlanProductDto> mockInboundPlanProductList;
+    private List<InboundAllProductDto> mockInboundPlanProductList;
 
     @BeforeEach
     void setUp() {
         mockInboundPlanProductList = Arrays.asList(
-                new InboundPlanProductDto(1L,"입고중",LocalDate.now(),"Schedule1", LocalDate.now(), 1L, "Order1", LocalDateTime.now(),1L,"Supplier1",1L,"P001","Product1",10,5),
-                new InboundPlanProductDto(2L,"입고완료",LocalDate.now(),"Schedule2", LocalDate.now(), 2L, "Order2", LocalDateTime.now(),2L,"Supplier2",2L,"P002","Product2",20,10)
+                new InboundAllProductDto(1L,"입고중",LocalDate.now(),"Schedule1", LocalDate.now(), 1L, "Order1", LocalDateTime.now(),1L,"Supplier1",1L,"P001","Product1",10,5),
+                new InboundAllProductDto(2L,"입고완료",LocalDate.now(),"Schedule2", LocalDate.now(), 2L, "Order2", LocalDateTime.now(),2L,"Supplier2",2L,"P002","Product2",20,10)
         );
     }
 

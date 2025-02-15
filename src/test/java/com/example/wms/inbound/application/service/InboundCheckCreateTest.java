@@ -50,7 +50,7 @@ public class InboundCheckCreateTest {
 
     @Test
     @DisplayName("관리자가 입하 검사를 생성하면 InboundCheckPort의 update 메서드와 LotPort의 updateStatus가 호출되어야 한다.")
-    public void testCreateInboundInspection() {
+    public void testCreateInboundCheck() {
 
         // given
         InboundCheckedProductReqDto checkedProductDto1 = InboundCheckedProductReqDto.builder()

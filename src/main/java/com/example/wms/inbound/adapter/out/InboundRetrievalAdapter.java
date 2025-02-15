@@ -1,6 +1,6 @@
 package com.example.wms.inbound.adapter.out;
 
-import com.example.wms.inbound.adapter.in.dto.response.InboundPlanProductDto;
+import com.example.wms.inbound.adapter.in.dto.response.InboundAllProductDto;
 import com.example.wms.inbound.adapter.in.dto.response.InboundProductDto;
 import com.example.wms.inbound.application.port.out.InboundRetrievalPort;
 import com.example.wms.infrastructure.mapper.InboundRetrievalMapper;
@@ -23,12 +23,12 @@ public class InboundRetrievalAdapter implements InboundRetrievalPort {
     }
 
     @Override
-    public List<InboundPlanProductDto> findInboundProductListWithPagination(Pageable pageable) {
+    public List<InboundAllProductDto> findInboundProductListWithPagination(Pageable pageable) {
         return inboundRetrievalMapper.findInboundProductListWithPagination(pageable);
     }
 
     @Override
-    public List<InboundPlanProductDto> findInboundFilteringWithPagination(String inboundScheduleNumber, LocalDate startDate, LocalDate endDate, Pageable pageable) {
+    public List<InboundAllProductDto> findInboundFilteringWithPagination(String inboundScheduleNumber, LocalDate startDate, LocalDate endDate, Pageable pageable) {
         return inboundRetrievalMapper.findInboundFilteringWithPagination(inboundScheduleNumber, startDate, endDate, pageable);
     }
 
@@ -41,4 +41,10 @@ public class InboundRetrievalAdapter implements InboundRetrievalPort {
     public Integer countFilteredInboundPlan(String inboundScheduleNumber, LocalDate startDate, LocalDate endDate) {
         return inboundRetrievalMapper.countAllInboundPlanFiltering(inboundScheduleNumber, startDate, endDate);
     }
+
+    @Override
+    public Integer countFilteredInboundCheck(String inboundCheckNumber, LocalDate startDate, LocalDate endDate) {
+        return inboundRetrievalMapper.countAllInboundCheckFiltering(inboundCheckNumber, startDate, endDate);
+    }
+
 }

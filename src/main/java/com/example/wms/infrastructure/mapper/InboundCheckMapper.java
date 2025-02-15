@@ -10,4 +10,5 @@ import java.util.List;
 public interface InboundCheckMapper {
     void insertInboundCheck(InboundCheck inboundCheck);
     List<InboundCheck> findByInboundId(@Param("inboundId") Long inboundId);
+    void insertOrUpdate(InboundCheck inboundCheck);
 }

@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class InboundPlanProductDto {
+public class InboundAllProductDto {
     private Long inboundId;
     private String inboundStatus;
     private LocalDate createdAt;

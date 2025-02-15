@@ -2,7 +2,6 @@ package com.example.wms.inbound.adapter.in;
 
 import com.example.wms.inbound.adapter.in.dto.request.InboundCheckReqDto;
 import com.example.wms.inbound.adapter.in.dto.request.InboundReqDto;
-import com.example.wms.inbound.adapter.in.dto.response.InboundPlanProductDto;
 import com.example.wms.inbound.adapter.in.dto.response.InboundResDto;
 import com.example.wms.inbound.application.port.in.InboundUseCase;
 import lombok.RequiredArgsConstructor;
@@ -48,11 +47,6 @@ public class InboundController {
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/{inboundId}")
-    @Operation(summary = "입하 검사 관리자가 등록하기", description = "입하 검사를 등록합니다.")
-    public ResponseEntity<Void> createInboundCheck(@RequestBody InboundCheckReqDto inboundCheckReqDto) {
-        inboundUseCase.createInboundCheck(inboundCheckReqDto);
-        return ResponseEntity.status(201).build();
-    }
+
 
 }
