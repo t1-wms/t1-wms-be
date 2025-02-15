@@ -53,7 +53,7 @@ pipeline {
         stage('Deploy to Backend Server') {
             steps {
                 script {
-                    // DEPLOY_ENV에 따라 COMPOSE_FILE을 설정, 기본값 blue 설정
+                    // DEPLOY_ENV에 따라 COMPOSE_FILE 설정
                     def deployEnv = params.DEPLOY_ENV ?: 'blue'
                     def composeFile = "docker-compose.${deployEnv}.yml"
 
@@ -68,10 +68,14 @@ pipeline {
                                     remoteDirectory: "/home/ec2-user/backend",
                                     removePrefix: "./",
                                     execCommand: """
+                                        echo "Starting deployment process..."
                                         # 기존 컨테이너 중지 및 제거
                                         docker-compose -f /home/ec2-user/backend/${composeFile} down
+                                        echo "Stopped and removed old containers."
+
                                         # 새로 배포
                                         docker-compose -f /home/ec2-user/backend/${composeFile} up -d
+                                        echo "Deployment completed!"
                                     """
                                 )
                             ]
@@ -80,5 +84,6 @@ pipeline {
                 }
             }
         }
+
     }
 }

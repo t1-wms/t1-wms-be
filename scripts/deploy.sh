@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e  # 오류 발생 시 스크립트 종료
+set -x
 
 # 작업 디렉토리로 이동
 cd /home/ec2-user/backend
