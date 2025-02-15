@@ -18,6 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -32,6 +33,7 @@ class ProductPageableServiceTest {
     @Test
     void getAllProducts() {
         //given
+        String productCode = null;
         Pageable pageable = PageRequest.of(
                 2,
                 3,
@@ -89,11 +91,11 @@ class ProductPageableServiceTest {
         List<Product> expectedProducts = List.of(product1, product2, product3);
         long totalCount = 24L;
 
-        when(productPort.findProductWithPagination(any(Pageable.class))).thenReturn(expectedProducts);
-        when(productPort.countAllProducts()).thenReturn(totalCount);
+        when(productPort.findProductWithPagination(eq(productCode), any(Pageable.class))).thenReturn(expectedProducts);
+        when(productPort.countAllProducts(eq(productCode))).thenReturn(totalCount);
 
         //when
-        Page<Product> resultPage = productService.getAllProducts(pageable);
+        Page<Product> resultPage = productService.getAllProducts(productCode, pageable);
 
         //then
         assertAll("Valid pageable scenario",
@@ -109,6 +111,8 @@ class ProductPageableServiceTest {
     @Test
     void getAllProducts_withInvalidSort() {
         // Given:
+        String productCode = null;
+
         // 잘못된 정렬 조건이 포함된 Pageable 생성 (예: 존재하지 않는 필드 "invalidField")
         Pageable invalidPageable = PageRequest.of(
                 0, // 첫번째 페이지
@@ -116,7 +120,7 @@ class ProductPageableServiceTest {
                 Sort.by("invalidField").ascending() // Product 엔티티에 존재하지 않는 필드
         );
 
-        assertThatThrownBy(() -> productService.getAllProducts(invalidPageable))
+        assertThatThrownBy(() -> productService.getAllProducts(productCode, invalidPageable))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Invalid sort property");
 

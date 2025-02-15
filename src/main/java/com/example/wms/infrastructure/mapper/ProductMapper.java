@@ -15,8 +15,8 @@ public interface ProductMapper {
     void updateABCGrade(@Param("productId") Long productId, @Param("abcGrade") String abcGrade);
     void updateBinLocation(@Param("productId") Long productId, @Param("binCode") String locationBinCode);
 
-    List<Product> findProductWithPagination(@Param("pageable") Pageable pageable);
-    long countAllProducts();
+    List<Product> findProductWithPagination(@Param("productCode") String productCode,@Param("pageable") Pageable pageable);
+    long countAllProducts(@Param("productCode") String productCode);
 
     @Select("SELECT product_id, product_name, product_code FROM product")
     List<ProductOverviewDto> selectProductOverview();

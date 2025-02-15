@@ -3,6 +3,9 @@
 <mapper namespace="com.example.wms.infrastructure.mapper.SupplierMapper">
     <select id="findSupplierWithPagination" resultType="com.example.wms.order.adapter.in.dto.SupplierResponseDto">
         SELECT * FROM supplier
+        <if test="businessNumber != null and businessNumber != ''">
+            WHERE business_number LIKE CONCAT('%', #{businessNumber}, '%')
+        </if>
         <if test="pageable.sort.sorted">
             <trim prefix="ORDER BY">
                 <foreach item="order" index="i" collection="pageable.sort" separator=", ">
@@ -15,6 +18,16 @@
             </trim>
         </if>
         LIMIT #{pageable.pageSize} OFFSET #{pageable.offset}
+    </select>
+
+    <select id="countAllSuppliers" resultType="long">
+        SELECT COUNT(*)
+        FROM supplier
+        <where>
+            <if test="businessNumber != null and businessNumber != ''">
+                business_number LIKE CONCAT('%', #{businessNumber}, '%')
+            </if>
+        </where>
     </select>
 
     <select id="findProductsBySupplierIds" resultType="com.example.wms.order.adapter.in.dto.ProductInSupplierDto" parameterType="list">

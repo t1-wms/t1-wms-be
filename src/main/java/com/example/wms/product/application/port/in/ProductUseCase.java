@@ -10,6 +10,6 @@ import java.util.List;
 public interface ProductUseCase {
     void performABCAnalysis();
     void assignLocationBinCode();
-    Page<Product> getAllProducts(Pageable pageable);
+    Page<Product> getAllProducts(String productCode, Pageable pageable);
     List<ProductOverviewDto> getProductOverview();
 }

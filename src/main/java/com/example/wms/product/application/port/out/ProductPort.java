@@ -11,8 +11,8 @@ public interface ProductPort {
     List<Product> getAllProducts();
     void updateABCGrades(Long productId, String abcGrade);
     void updateBinCode(Long productId, String binCode);
-    List<Product> findProductWithPagination(Pageable pageable);
-    long countAllProducts();
+    List<Product> findProductWithPagination(String productCode, Pageable pageable);
+    long countAllProducts(String productCode);
     List<ProductOverviewDto> findProductOverview();
     Product findById(Long productId);
 }

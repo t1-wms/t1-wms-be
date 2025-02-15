@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -25,10 +26,12 @@ public class SupplierController {
     @GetMapping
     @Operation(
             summary = "전체 공급업체 조회",
-            description = "전체 공급업체 목록을 페이지별로 조회할 수 있습니다."
+            description = "전체 공급업체 목록을 페이지별로 조회할 수 있습니다.\n" +
+            "- **사업자 번호 필터링:** 요청 파라미터로 `businessNumber` 값을 전달하면 해당 문자열이 포함된 납품처만 조회합니다.\n" +
+            "- **전체 조회:** `businessNumber`가 null 또는 빈 문자열일 경우 전체 납품처를 조회합니다.\n"
     )
-    ResponseEntity<Page<SupplierResponseDto>> getAllSuppliers(@ParameterObject Pageable pageable) {
-        return ResponseEntity.status(HttpStatus.OK).body(supplierUseCase.getAllSuppliers(pageable));
+    ResponseEntity<Page<SupplierResponseDto>> getAllSuppliers(@RequestParam(required = false) String businessNumber, @ParameterObject Pageable pageable) {
+        return ResponseEntity.status(HttpStatus.OK).body(supplierUseCase.getAllSuppliers(businessNumber, pageable));
     }
 
 }

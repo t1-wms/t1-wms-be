@@ -7,7 +7,7 @@ import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 public interface SupplierPort {
-    long countAllSuppliers();
-    List<SupplierResponseDto> findSupplierWithPagination(Pageable pageable);
+    long countAllSuppliers(String businessNumber);
+    List<SupplierResponseDto> findSupplierWithPagination(String businessNumber, Pageable pageable);
     List<ProductInSupplierDto> findProductsBySupplierIds(List<Long> supplierIds);
 }

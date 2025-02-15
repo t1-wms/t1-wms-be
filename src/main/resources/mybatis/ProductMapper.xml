@@ -41,6 +41,9 @@
 
     <select id="findProductWithPagination" resultMap="productResultMap">
         SELECT * FROM product
+        <if test="productCode != null and productCode != ''">
+            WHERE product_code LIKE CONCAT('%', #{productCode}, '%')
+        </if>
         <if test="pageable.sort.sorted">
             <trim prefix="ORDER BY">
                 <foreach item="order" index="i" collection="pageable.sort" separator=", ">
@@ -58,6 +61,9 @@
 
     <select id="countAllProducts" resultType="long">
         SELECT COUNT(*) FROM product
+        <if test="productCode != null and productCode != ''">
+            WHERE product_code LIKE CONCAT('%', #{productCode}, '%')
+        </if>
     </select>
 
     <select id="findById" resultMap="productResultMap">

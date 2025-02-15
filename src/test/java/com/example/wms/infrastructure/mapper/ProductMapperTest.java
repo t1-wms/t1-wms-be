@@ -48,6 +48,7 @@ class ProductMapperTest {
         int page = 2;
         int size = 3;
         int offset = page * size;
+        String productCode = null;
 
         Pageable pageable = PageRequest.of(
                 page,
@@ -57,7 +58,7 @@ class ProductMapperTest {
         );
 
         // When: 페이지 처리 및 정렬 조건에 맞게 제품 목록 조회
-        List<Product> products = productMapper.findProductWithPagination(pageable);
+        List<Product> products = productMapper.findProductWithPagination(productCode, pageable);
 
         // Then: 반환된 결과가 예상과 일치하는지 검증
         // (아래 검증 값은 미리 입력된 SQL 데이터가 아래와 같이 삽입되었음을 전제로 합니다.)
@@ -120,10 +121,11 @@ class ProductMapperTest {
 
     @Test
     void countAllProducts() {
+        String productCode = null;
         // When: 전체 제품 수를 조회
-        long totalProducts = productMapper.countAllProducts();
+        long totalProducts = productMapper.countAllProducts(productCode);
 
-        // Then: 데이터 SQL에 삽입된 제품 수가 25개라고 가정하면, 총 25가 반환되어야 함
+        // Then: 데이터 SQL에 삽입된 제품 수가 24개라고 가정하면, 총 24가 반환되어야 함
         assertThat(totalProducts).isEqualTo(24);
     }
 }

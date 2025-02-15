@@ -17,12 +17,12 @@ public class SupplierAdapter implements SupplierPort {
     private final SupplierMapper supplierMapper;
 
     @Override
-    public long countAllSuppliers() {
-        return supplierMapper.countAllSuppliers();
+    public long countAllSuppliers(String businessNumber) {
+        return supplierMapper.countAllSuppliers(businessNumber);
     }
 
-    public List<SupplierResponseDto> findSupplierWithPagination(Pageable pageable) {
-        return supplierMapper.findSupplierWithPagination(pageable);
+    public List<SupplierResponseDto> findSupplierWithPagination(String businessNumber, Pageable pageable) {
+        return supplierMapper.findSupplierWithPagination(businessNumber, pageable);
     }
     public List<ProductInSupplierDto> findProductsBySupplierIds(List<Long> supplierIds) {
         return supplierMapper.findProductsBySupplierIds(supplierIds);
