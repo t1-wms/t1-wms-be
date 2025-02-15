@@ -26,8 +26,8 @@ public class CreateOutboundPickingService implements CreateOutboundPickingUseCas
         Outbound existingOutbound = createOutboundPickingPort.findOutboundByPlanId(outboundPlanId);
 
         if (existingOutbound != null && existingOutbound.getOutboundPickingNumber() != null) {
-            // 이미 출고 지시가 있음
-            throw new DuplicatedException("이미 출고 지시가 등록된 상태입니다.");
+            // 이미 출고 피킹 있음
+            throw new DuplicatedException("이미 출고 피킹이 등록된 상태입니다.");
         }
 
         String currentDate = LocalDate.now().toString().replace("-", "");
