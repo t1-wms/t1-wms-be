@@ -39,6 +39,19 @@ pipeline {
                 sh 'gradle build -x test'
             }
         }
+        stage('Install Docker on Jenkins Agent') {
+            steps {
+                script {
+                    // Docker 설치 (Ubuntu 기반 시스템)
+                    sh """
+                        apt-get update -y
+                        apt-get install -y docker.io
+                        systemctl enable docker
+                        systemctl start docker
+                    """
+                }
+            }
+        }
         stage('Build Docker') {
             steps {
                 script {
