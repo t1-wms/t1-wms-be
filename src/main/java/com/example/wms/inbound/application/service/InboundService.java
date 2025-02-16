@@ -384,6 +384,29 @@ public class InboundService implements InboundUseCase {
         return new PageImpl<>(inboundList, pageable, inboundList.size());
     }
 
+    @Override
+    public Page<InboundProgressResDto> getAllInboundProgressWithPagination(LocalDate startDate, LocalDate endDate, Pageable pageable) {
+        List<InboundProgressDetailDto> inboundList = inboundRetrievalPort.findAllInboundProgressWithPagination(startDate, endDate, pageable);
+
+        List<InboundProgressDetailDto> scheduleList = inboundList.stream()
+                .filter(i -> i.getCheckNumber() == null && i.getPutAwayNumber() == null)
+                .toList();
+
+        List<InboundProgressDetailDto> checkList = inboundList.stream()
+                .filter(i -> i.getCheckNumber() != null && i.getPutAwayNumber() == null)
+                .toList();
+
+        List<InboundProgressDetailDto> putAwayList = inboundList.stream()
+                .filter(i -> i.getPutAwayNumber() != null)
+                .toList();
+
+        List<InboundProgressResDto> resultList = List.of(
+                new InboundProgressResDto(scheduleList, checkList, putAwayList)
+        );
+
+        return new PageImpl<>(resultList, pageable, resultList.size());
+    }
+
 
 }
 
