@@ -34,4 +34,10 @@
         </if>
     </select>
 
+    <update id="updateInventory">
+        UPDATE inventory
+        SET available_quantity = available_quantity + #{lotCount},
+            last_updated = NOW()
+        WHERE product_id = #{productId}
+    </update>
 </mapper>

@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
+
 import java.util.List;
 
 @Component
@@ -23,5 +24,10 @@ public class InventoryAdapter implements InventoryPort {
     @Override
     public long countAllProductInventories(String productCode) {
         return inventoryMapper.countAllProductInventories(productCode);
+    }
+
+    @Override
+    public void updateInventory(Long productId, Integer lotCount) {
+        inventoryMapper.updateInventory(productId, lotCount);
     }
 }

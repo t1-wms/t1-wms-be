@@ -15,4 +15,5 @@ public interface ProductPort {
     long countAllProducts(String productCode);
     List<ProductOverviewDto> findProductOverview();
     Product findById(Long productId);
+    String getLocationBinCode(Long productId);
 }

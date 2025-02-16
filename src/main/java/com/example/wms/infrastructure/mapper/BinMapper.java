@@ -8,4 +8,8 @@ import java.util.List;
 @Mapper
 public interface BinMapper {
     List<FlatBinDto> selectAllBinsWithDetails();
+    Long findAvailableBinIdInAisle(String zone, Integer aisle);
+    Long findAvailableBinInRow(String zone, Integer aisle, Integer rowNum);
+    Long findBinIdByBinCode(String binCode);
+    void incrementBinAmount(Long binId, Integer lotCount);
 }

@@ -9,4 +9,5 @@ import java.util.List;
 public interface InventoryPort {
     List<ProductInfoDto> findAllProductInventories(String productCode, Pageable pageable);
     long countAllProductInventories(String productCode);
+    void updateInventory(Long productId, Integer lotCount);
 }

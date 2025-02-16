@@ -1,9 +1,6 @@
 package com.example.wms.inbound.application.port.in;
 
-import com.example.wms.inbound.adapter.in.dto.request.InboundCheckReqDto;
-import com.example.wms.inbound.adapter.in.dto.request.InboundCheckUpdateReqDto;
-import com.example.wms.inbound.adapter.in.dto.request.InboundCheckWorkerReqDto;
-import com.example.wms.inbound.adapter.in.dto.request.InboundReqDto;
+import com.example.wms.inbound.adapter.in.dto.request.*;
 import com.example.wms.inbound.adapter.in.dto.response.InboundProductDto;
 import com.example.wms.inbound.adapter.in.dto.response.InboundResDto;
 import com.example.wms.inbound.adapter.in.dto.response.InboundWorkerCheckResDto;
@@ -22,10 +19,12 @@ public interface InboundUseCase {
     List<InboundProductDto> getAllInboundProductList(OrderProduct orderProduct);
     void createInboundSchedule(Order order);
     void deleteInboundPlan(Long inboundId);
-    void createInboundCheck(InboundCheckReqDto inboundCheckReqDto);
+    void createInboundCheck(Long inboundId, InboundCheckReqDto inboundCheckReqDto);
     Page<InboundResDto> getFilteredInboundCheck(String inboundCheckNumber, LocalDate startDate, LocalDate endDate, Pageable pageable);
     void updateInboundCheck(Long inboundId, InboundCheckUpdateReqDto updateReqDto);
 
     void deleteInboundCheck(Long inboundId);
     InboundWorkerCheckResDto createInboundCheckByWorker(List<InboundCheckWorkerReqDto> workerCheckRequests);
+
+    void putAway(Long inboundId, List<InboundPutAwayReqDto> putAwayRequests);
 }

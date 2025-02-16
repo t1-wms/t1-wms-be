@@ -93,7 +93,7 @@ public class InboundCheckCreateTest {
         when(productPort.findById(2L)).thenReturn(product2);
 
         // when
-        inboundService.createInboundCheck(inboundCheckReqDto);
+        inboundService.createInboundCheck(1L, inboundCheckReqDto);
 
         // then
         verify(inboundPort, times(1)).updateIC(eq(1L), any(LocalDate.class), any(String.class));
