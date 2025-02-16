@@ -1,8 +1,10 @@
 package com.example.wms.inventory.adapter.in;
 
 import com.example.wms.inventory.adapter.in.dto.ProductThresholdDto;
+import com.example.wms.inventory.adapter.in.dto.ThresholdUpdateRequestDto;
 import com.example.wms.inventory.application.port.in.InventoryUseCase;
 import com.example.wms.outbound.adapter.in.dto.ProductInfoDto;
+import com.example.wms.product.application.domain.Product;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -10,11 +12,8 @@ import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -45,5 +44,23 @@ public class InventoryController {
     public ResponseEntity<Page<ProductThresholdDto>> getAllProductThresholds(@RequestParam(required = false) String productCode, @ParameterObject
     Pageable pageable) {
         return ResponseEntity.status(HttpStatus.OK).body(inventoryUseCase.getAllProductThresholds(productCode, pageable));
+    }
+
+    @PatchMapping("/productThreshold")
+    @Operation(
+            summary = "품목의 재고 임계값 수정",
+            description = "특정 품목의 재고 임계값을 수정할 수 있습니다.\n"
+    )
+    public ResponseEntity<Product> getAllProductThresholds(@RequestBody ThresholdUpdateRequestDto thresholdUpdateRequestDto) {
+
+        Product updatedProduct = inventoryUseCase.updateThreshold(thresholdUpdateRequestDto);
+
+        if (updatedProduct != null) {
+            // 업데이트된 품목 정보를 응답에 담아 반환 (200 OK)
+            return ResponseEntity.ok(updatedProduct);
+        } else {
+            // 제품이 존재하지 않는 경우 404 Not Found 반환
+            return ResponseEntity.notFound().build();
+        }
     }
 }
