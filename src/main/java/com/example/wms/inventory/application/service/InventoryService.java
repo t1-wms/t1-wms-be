@@ -1,12 +1,15 @@
 package com.example.wms.inventory.application.service;
 
 import com.example.wms.inventory.adapter.in.dto.ProductThresholdDto;
+import com.example.wms.inventory.adapter.in.dto.ThresholdUpdateRequestDto;
 import com.example.wms.inventory.application.port.in.InventoryUseCase;
 import com.example.wms.inventory.application.port.out.InventoryPort;
 import com.example.wms.outbound.adapter.in.dto.ProductInfoDto;
+import com.example.wms.product.application.domain.Product;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,6 +21,7 @@ public class InventoryService implements InventoryUseCase {
     private final InventoryPort inventoryPort;
 
     @Override
+    @Transactional(readOnly = true)
     public Page<ProductInfoDto> getAllProductInventories(String productCode, Pageable pageable) {
         List<String> allowedFields = List.of("productId", "productCode", "productName", "productCount");
         Pageable safePageable = convertToSafePageable(pageable, allowedFields);
@@ -29,6 +33,7 @@ public class InventoryService implements InventoryUseCase {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Page<ProductThresholdDto> getAllProductThresholds(String productCode, Pageable pageable) {
         List<String> allowedFields = List.of("productId", "productCode", "productName", "productCount", "productThreshold");
         Pageable safePageable = convertToSafePageable(pageable, allowedFields);
@@ -37,6 +42,14 @@ public class InventoryService implements InventoryUseCase {
         long count = inventoryPort.countAllProductInventories(productCode);
 
         return new PageImpl<>(productThresholdDtoList, safePageable, count);
+    }
+
+    @Override
+    @Transactional
+    public Product updateThreshold(ThresholdUpdateRequestDto thresholdUpdateRequestDto) {
+        int updatedCount = inventoryPort.updateThreshold(thresholdUpdateRequestDto);
+        Product existingProduct = inventoryPort.findByProductId(thresholdUpdateRequestDto.getProductId());
+        return existingProduct;
     }
 
     private Pageable convertToSafePageable(Pageable pageable, List<String> allowedProperties) {

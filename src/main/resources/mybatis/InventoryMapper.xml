@@ -66,5 +66,17 @@
             last_updated = NOW()
         WHERE product_id = #{productId}
     </update>
+
+    <update id="updateThreshold">
+        UPDATE product
+        SET threshold = #{threshold}
+        WHERE product_id = #{productId}
+    </update>
+
+    <select id="findByProductId">
+        SELECT *
+        FROM product
+        WHERE product_id = #{productId}
+    </select>
 </mapper>
 

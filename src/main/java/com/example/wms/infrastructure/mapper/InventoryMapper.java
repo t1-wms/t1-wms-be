@@ -1,7 +1,9 @@
 package com.example.wms.infrastructure.mapper;
 
 import com.example.wms.inventory.adapter.in.dto.ProductThresholdDto;
+import com.example.wms.inventory.adapter.in.dto.ThresholdUpdateRequestDto;
 import com.example.wms.outbound.adapter.in.dto.ProductInfoDto;
+import com.example.wms.product.application.domain.Product;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.data.domain.Pageable;
@@ -14,4 +16,6 @@ public interface InventoryMapper {
     long countAllProductInventories(@Param("productCode") String productCode);
     List<ProductThresholdDto> findAllProductThresholds(@Param("productCode") String productCode, @Param("pageable") Pageable pageable);
     void updateInventory(Long productId, Integer lotCount);
+    Product findByProductId(Long productId);
+    int updateThreshold(ThresholdUpdateRequestDto thresholdUpdateRequestDto);
 }

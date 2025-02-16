@@ -11,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +25,7 @@ public class SupplierService implements SupplierUseCase {
     private final SupplierPort supplierPort;
 
     @Override
+    @Transactional(readOnly = true)
     public Page<SupplierResponseDto> getAllSuppliers(String businessNumber, Pageable pageable) {
         Pageable safePageable = PageableUtils.convertToSafePageableStrict(pageable, Supplier.class);
 
