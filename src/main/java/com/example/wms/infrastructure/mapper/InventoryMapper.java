@@ -10,7 +10,8 @@ import java.util.List;
 
 @Mapper
 public interface InventoryMapper {
-    List<ProductInfoDto> findAllProductInventories(@Param("productCode") String productCode, @Param("pageable") Pageable pageable);
+    List<ProductInfoDto> findAllProductInventories(@Param("productCode") String productCode, @Param("pageable")Pageable pageable);
     long countAllProductInventories(@Param("productCode") String productCode);
     List<ProductThresholdDto> findAllProductThresholds(@Param("productCode") String productCode, @Param("pageable") Pageable pageable);
+    void updateInventory(Long productId, Integer lotCount);
 }

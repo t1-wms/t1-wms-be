@@ -25,4 +25,36 @@
                  LEFT JOIN product p ON l.product_id = p.product_id;
     </select>
 
+    <select id="findAvailableBinIdInAisle" resultType="java.lang.Long">
+        SELECT bin_id
+        FROM bin
+        WHERE zone = #{zone}
+            AND aisle = #{aisle}
+        ORDER BY row ASC, floor ASC, amount ASC
+        LIMIT 1
+    </select>
+
+    <select id="findAvailableBinInRow" resultType="java.lang.Long">
+        SELECT bin_id
+        FROM bin
+        WHERE zone = #{zone}
+            AND aisle = #{aisle}
+            AND row_num = #{rowNum}
+        ORDER BY floor ASC, amount ASC
+        LIMIT 1
+    </select>
+
+    <select id="findBinIdByBinCode" resultType="java.lang.Long">
+        SELECT bin_id
+        FROM bin
+        WHERE bin_code = #{binCode}
+    </select>
+
+    <update id="incrementBinAmount">
+        UPDATE bin
+        SET amount = amount + #{lotCount}
+        WHERE bin_id = #{binId}
+    </update>
+
+
 </mapper>

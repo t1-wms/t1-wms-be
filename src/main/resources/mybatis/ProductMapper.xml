@@ -20,6 +20,13 @@
         SELECT * FROM product
     </select>
 
+    <!-- locationBincode 가져오기 -->
+    <select id="getLocationBinCode" resultType="java.lang.String">
+        SELECT location_bin_code
+        FROM product
+        WHERE product_id = #{productId};
+    </select>
+
     <!-- ABC 분석 판매금액 기준 -->
     <update id="updateABCGrade">
         UPDATE product
@@ -59,7 +66,7 @@
     </select>
 
 
-    <select id="countAllProducts" resultType="long">
+    <select id="countAllProducts" resultType="java.lang.Long">
         SELECT COUNT(*) FROM product
         <if test="productCode != null and productCode != ''">
             WHERE product_code LIKE CONCAT('%', #{productCode}, '%')

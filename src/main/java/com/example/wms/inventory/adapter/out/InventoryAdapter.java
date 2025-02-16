@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
+
 import java.util.List;
 
 @Component
@@ -29,5 +30,7 @@ public class InventoryAdapter implements InventoryPort {
     @Override
     public List<ProductThresholdDto> findAllProductThresholds(String productCode, Pageable pageable) {
         return inventoryMapper.findAllProductThresholds(productCode, pageable);
+    public void updateInventory(Long productId, Integer lotCount) {
+        inventoryMapper.updateInventory(productId, lotCount);
     }
 }

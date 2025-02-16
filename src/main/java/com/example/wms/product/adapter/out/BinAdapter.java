@@ -17,4 +17,24 @@ public class BinAdapter implements BinPort {
     public List<FlatBinDto> selectAllBinsWithDetails() {
         return binMapper.selectAllBinsWithDetails();
     }
+
+    @Override
+    public Long findAvailableBinIdInAisle(String zone, Integer aisle) {
+        return binMapper.findAvailableBinIdInAisle(zone, aisle);
+    }
+
+    @Override
+    public Long findBinIdByBinCode(String locationBinCode) {
+        return binMapper.findBinIdByBinCode(locationBinCode);
+    }
+
+    @Override
+    public Long findAvailableBinIdInRow(String zone, Integer aisle, Integer rowNum) {
+        return binMapper.findAvailableBinInRow(zone, aisle, rowNum);
+    }
+
+    @Override
+    public void incrementBinAmount(Long binId, Integer lotCount) {
+        binMapper.incrementBinAmount(binId, lotCount);
+    }
 }

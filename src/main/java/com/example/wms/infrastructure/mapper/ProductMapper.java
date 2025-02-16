@@ -22,4 +22,5 @@ public interface ProductMapper {
     List<ProductOverviewDto> selectProductOverview();
 
     Product findById(@Param("productId") Long productId);
+    String getLocationBinCode(@Param("productId") Long productId);
 }

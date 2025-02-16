@@ -14,18 +14,20 @@ import com.example.wms.inbound.application.port.out.InboundPort;
 import com.example.wms.inbound.application.port.out.InboundRetrievalPort;
 import com.example.wms.infrastructure.exception.NotFoundException;
 import com.example.wms.infrastructure.pagination.util.PageableUtils;
+import com.example.wms.inventory.application.port.out.InventoryPort;
 import com.example.wms.order.application.domain.Order;
 import com.example.wms.order.application.domain.OrderProduct;
 import com.example.wms.order.application.port.out.OrderPort;
 import com.example.wms.product.adapter.in.dto.LotInfoDto;
+import com.example.wms.product.application.domain.Lot;
 import com.example.wms.product.application.domain.Product;
+import com.example.wms.product.application.port.out.BinPort;
 import com.example.wms.product.application.port.out.LotPort;
 import com.example.wms.product.application.port.out.ProductPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,6 +47,8 @@ public class InboundService implements InboundUseCase {
     private final InboundRetrievalPort inboundRetrievalPort;
     private final LotPort lotPort;
     private final OrderPort orderPort;
+    private final BinPort binPort;
+    private final InventoryPort inventoryPort;
 
     @Transactional
     @Override
@@ -162,9 +166,9 @@ public class InboundService implements InboundUseCase {
 
     @Transactional
     @Override
-    public void createInboundCheck(InboundCheckReqDto inboundCheckReqDto) {
+    public void createInboundCheck(Long inboundId, InboundCheckReqDto inboundCheckReqDto) {
 
-        Inbound inbound = inboundPort.findById(inboundCheckReqDto.getInboundId());
+        Inbound inbound = inboundPort.findById(inboundId);
         if (inbound == null) {
             throw new NotFoundException("inbound not found with id " + inboundCheckReqDto.getInboundId());
         }
@@ -301,6 +305,63 @@ public class InboundService implements InboundUseCase {
         List<LotInfoDto> lots = inboundPort.getLotsByScheduleNumber(scheduleNumber);
 
         return new InboundWorkerCheckResDto(checkNumber, lots);
+    }
+
+    @Override
+    public void putAway(Long inboundId, List<InboundPutAwayReqDto> putAwayRequests) {
+        String putAwayNumber = makeNumber("PA");
+        LocalDate putAwayDate = LocalDate.now();
+
+        inboundPort.updatePA(inboundId, putAwayDate, putAwayNumber);
+
+        for (InboundPutAwayReqDto request : putAwayRequests) {
+            Long productId = request.getProductId();
+            Integer lotCount = request.getLotCount();
+
+            String locationBinCode = productPort.getLocationBinCode(productId);
+
+            Long binId = findExactBinId(locationBinCode);
+
+            if (binId == null) {
+                throw new NotFoundException("해당 품목을 적치할 bin이 없습니다. " + locationBinCode);
+            }
+
+            for(int i=0; i<lotCount; i++) {
+                Lot lot = Lot.builder()
+                        .productId(productId)
+                        .binId(binId)
+                        .status("입고완료")
+                        .inboundId(inboundId)
+                        .build();
+                lotPort.insertLot(lot);
+            }
+
+            binPort.incrementBinAmount(binId, lotCount);
+
+            inventoryPort.updateInventory(productId, lotCount);
+        }
+    }
+
+    private Long findExactBinId(String locationBinCode) {
+        if (locationBinCode.matches("[A-F]-\\d{2}-\\d{2}-\\d{2}")) {
+            return binPort.findBinIdByBinCode(locationBinCode);
+        }
+
+        if (locationBinCode.matches("[A-F]-\\d{2}-\\d{2}")) {
+            String[] parts = locationBinCode.split("-");
+            String zone = parts[0];
+            Integer aisle = Integer.parseInt(parts[1]);
+            Integer row = Integer.parseInt(parts[2]);
+            return binPort.findAvailableBinIdInRow(zone, aisle, row);
+        }
+
+        if (locationBinCode.matches("[A-F]-\\d{2}")) {
+            String[] parts = locationBinCode.split("-");
+            String zone = parts[0];
+            Integer aisle = Integer.parseInt(parts[1]);
+            return binPort.findAvailableBinIdInAisle(zone, aisle);
+        }
+        return null;
     }
 
 

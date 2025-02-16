@@ -12,4 +12,5 @@ public interface InventoryPort {
     long countAllProductInventories(String productCode);
 
     List<ProductThresholdDto> findAllProductThresholds(String productCode, Pageable pageable);
+    void updateInventory(Long productId, Integer lotCount);
 }

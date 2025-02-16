@@ -93,7 +93,19 @@ public class ProductService implements ProductUseCase {
             String aisle = String.format("%02d", (index / 36 % 6 ) + 1);
             String row = String.format("%02d", (index / 6 % 6) + 1);
             String floor = String.format("%02d", (index % 6) + 1);
-            String binCode = String.format("%s-%s-%s-%s", zone, aisle, row, floor);
+            int stockLotCount = product.getStockLotCount();
+
+            String binCode;
+
+            if (stockLotCount <= 6) {
+                binCode = String.format("%s-%s-%s-%s", zone, aisle, row, floor); // A-01-01-01
+            } else if (stockLotCount <= 36) {
+                binCode = String.format("%s-%s-%s", zone, aisle, row); // A-01-01
+            } else if (stockLotCount <= 216) {
+                binCode = String.format("%s-%s", zone, aisle);
+            } else {
+                binCode = zone;
+            }
 
             productPort.updateBinCode(product.getProductId(), binCode);
         }

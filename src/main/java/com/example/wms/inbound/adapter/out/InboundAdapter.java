@@ -56,4 +56,9 @@ public class InboundAdapter implements InboundPort {
         return inboundMapper.findLotsByScheduleNumber(scheduleNumber);
     }
 
+    @Override
+    public void updatePA(Long inboundId, LocalDate putAwayDate, String putAwayNumber) {
+        inboundMapper.updatePA(inboundId, putAwayDate, putAwayNumber);
+    }
+
 }
