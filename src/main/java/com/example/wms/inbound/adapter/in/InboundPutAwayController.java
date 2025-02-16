@@ -1,9 +1,7 @@
 package com.example.wms.inbound.adapter.in;
 
 import com.example.wms.inbound.adapter.in.dto.request.InboundPutAwayReqDto;
-import com.example.wms.inbound.adapter.in.dto.request.InboundReqDto;
 import com.example.wms.inbound.adapter.in.dto.response.InboundPutAwayResDto;
-import com.example.wms.inbound.adapter.in.dto.response.InboundResDto;
 import com.example.wms.inbound.application.port.in.InboundUseCase;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
