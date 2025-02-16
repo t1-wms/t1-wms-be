@@ -46,4 +46,37 @@
         ON DUPLICATE KEY UPDATE
             defective_lot_count = VALUES(defective_lot_count);
     </insert>
+
+    <select id="findOrderIdByScheduleNumber" resultType="java.lang.Long">
+        SELECT order_id
+        FROM inbound
+        WHERE schedule_number = #{scheduleNumber}
+    </select>
+
+    <update id="updateInboundWorkerCheck">
+        UPDATE inbound
+        SET check_number = #{checkNumber},
+            check_date = DATE(NOW()),
+            inbound_status = "입하검사완료"
+        WHERE schedule_number = #{scheduleNumber}
+    </update>
+
+    <update id="updateOrderProduct">
+        UPDATE order_product
+        SET is_defective = #{isDefective}
+        WHERE order_id = #{orderId}
+        AND product_id = #{productId}
+    </update>
+
+    <select id="findLotsByScheduleNumber" resultType="com.example.wms.product.adapter.in.dto.LotInfoDto">
+        SELECT
+            l.product_id,
+            COUNT(l.lot_id) AS lotCount,
+            b.bin_code
+        FROM lot l
+        JOIN bin b ON l.bin_id = b.bin_id
+        JOIN inbound i ON l.inbound_id = i.inbound_id
+        WHERE i.schedule_number = #{scheduleNumber}
+        GROUP BY l.product_id, b.bin_code
+    </select>
 </mapper>

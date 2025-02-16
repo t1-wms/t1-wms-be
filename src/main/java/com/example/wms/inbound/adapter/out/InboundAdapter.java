@@ -3,10 +3,12 @@ package com.example.wms.inbound.adapter.out;
 import com.example.wms.inbound.application.domain.Inbound;
 import com.example.wms.inbound.application.port.out.InboundPort;
 import com.example.wms.infrastructure.mapper.InboundMapper;
+import com.example.wms.product.adapter.in.dto.LotInfoDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -32,6 +34,26 @@ public class InboundAdapter implements InboundPort {
     @Override
     public void updateIC(Long inboundId, LocalDate checkDate, String checkNumber) {
         inboundMapper.updateIC(inboundId, checkDate, checkNumber);
+    }
+
+    @Override
+    public Long getOrderIdByScheduleNumber(String scheduleNumber) {
+        return inboundMapper.findOrderIdByScheduleNumber(scheduleNumber);
+    }
+
+    @Override
+    public void updateInboundCheck(String scheduleNumber, String checkNumber) {
+        inboundMapper.updateInboundWorkerCheck(scheduleNumber, checkNumber);
+    }
+
+    @Override
+    public void updateOrderProduct(Long orderId, Long productId, Boolean isDefective) {
+        inboundMapper.updateOrderProduct(orderId, productId, isDefective);
+    }
+
+    @Override
+    public List<LotInfoDto> getLotsByScheduleNumber(String scheduleNumber) {
+        return inboundMapper.findLotsByScheduleNumber(scheduleNumber);
     }
 
 }
