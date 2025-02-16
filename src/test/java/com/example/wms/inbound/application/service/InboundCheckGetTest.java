@@ -4,6 +4,7 @@ import com.example.wms.inbound.adapter.in.dto.response.InboundAllProductDto;
 import com.example.wms.inbound.adapter.in.dto.response.InboundResDto;
 import com.example.wms.inbound.application.port.out.InboundRetrievalPort;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -42,6 +43,7 @@ class InboundCheckGetTest {
     }
 
     @Test
+    @DisplayName("입하 검사 전체 목록을 정상적으로 조회하는 경우를 테스트합니다.")
     void testGetInboundCheck() {
         Pageable pageable = PageRequest.of(0,10);
         when(inboundRetrievalPort.findInboundProductListWithPagination(any(Pageable.class)))
@@ -60,6 +62,7 @@ class InboundCheckGetTest {
     }
 
     @Test
+    @DisplayName("입하 검사 전체 목록을 입하번호 및 기간별로 조회하는 경우를 테스트합니다.")
     void testGetFilteredInboundChecks() {
 
         // given
