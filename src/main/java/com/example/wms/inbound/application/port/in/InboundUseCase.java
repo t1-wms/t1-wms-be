@@ -26,4 +26,5 @@ public interface InboundUseCase {
     void putAway(Long inboundId, List<InboundPutAwayReqDto> putAwayRequests);
     Page<ProductInboundResDto> getAllInboundByProductWithPagination(LocalDate startDate, LocalDate endDate, Pageable pageable);
     Page<SupplierInboundResDto> getAllInboundBySupplierWithPagination(LocalDate startDate, LocalDate endDate, Pageable pageable);
+    Page<InboundProgressResDto> getAllInboundProgressWithPagination(LocalDate startDate, LocalDate endDate, Pageable pageable);
 }
