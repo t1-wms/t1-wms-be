@@ -25,4 +25,5 @@ public interface InboundUseCase {
     Page<InboundPutAwayResDto> getFilteredPutAway(String putAwayNumber, LocalDate startDate, LocalDate endDate, Pageable pageable);
     void putAway(Long inboundId, List<InboundPutAwayReqDto> putAwayRequests);
     Page<ProductInboundResDto> getAllInboundByProductWithPagination(LocalDate startDate, LocalDate endDate, Pageable pageable);
+    Page<SupplierInboundResDto> getAllInboundBySupplierWithPagination(LocalDate startDate, LocalDate endDate, Pageable pageable);
 }
