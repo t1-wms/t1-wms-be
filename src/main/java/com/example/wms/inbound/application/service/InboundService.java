@@ -378,6 +378,12 @@ public class InboundService implements InboundUseCase {
         return new PageImpl<>(inboundList, pageable, inboundList.size());
     }
 
+    @Override
+    public Page<SupplierInboundResDto> getAllInboundBySupplierWithPagination(LocalDate startDate, LocalDate endDate, Pageable pageable) {
+        List<SupplierInboundResDto> inboundList = inboundRetrievalPort.findAllInboundBySupplierWithPagination(startDate, endDate, pageable);
+        return new PageImpl<>(inboundList, pageable, inboundList.size());
+    }
+
 
 }
 
