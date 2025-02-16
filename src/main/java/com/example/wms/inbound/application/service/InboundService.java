@@ -1,10 +1,7 @@
 package com.example.wms.inbound.application.service;
 
 import com.example.wms.inbound.adapter.in.dto.request.*;
-import com.example.wms.inbound.adapter.in.dto.response.InboundAllProductDto;
-import com.example.wms.inbound.adapter.in.dto.response.InboundProductDto;
-import com.example.wms.inbound.adapter.in.dto.response.InboundResDto;
-import com.example.wms.inbound.adapter.in.dto.response.InboundWorkerCheckResDto;
+import com.example.wms.inbound.adapter.in.dto.response.*;
 import com.example.wms.inbound.application.domain.Inbound;
 import com.example.wms.inbound.application.domain.InboundCheck;
 import com.example.wms.inbound.application.port.in.InboundUseCase;
@@ -95,6 +92,7 @@ public class InboundService implements InboundUseCase {
 
         return new PageImpl<>(inboundResDtoList,pageable,count);
     }
+
 
     @Override
     public Page<InboundResDto> getFilteredInboundPlans(String inboundScheduleNumber, LocalDate startDate, LocalDate endDate, Pageable pageable) {
@@ -267,6 +265,16 @@ public class InboundService implements InboundUseCase {
     }
 
     @Override
+    public Page<InboundPutAwayResDto> getFilteredPutAway(String putAwayNumber, LocalDate startDate, LocalDate endDate, Pageable pageable) {
+        Pageable safePageable = PageableUtils.convertToSafePageableStrict(pageable, Inbound.class);
+
+        List<InboundPutAwayResDto> inboundPutAwayList = inboundRetrievalPort.findFilteredInboundPutAway(putAwayNumber, startDate, endDate, safePageable);
+        Integer count = inboundRetrievalPort.countFilteredPutAway(putAwayNumber, startDate, endDate);
+
+        return new PageImpl<>(inboundPutAwayList, safePageable, count);
+    }
+
+    @Override
     public void deleteInboundCheck(Long inboundId) {
         Inbound inbound = inboundPort.findById(inboundId);
 
@@ -362,6 +370,41 @@ public class InboundService implements InboundUseCase {
             return binPort.findAvailableBinIdInAisle(zone, aisle);
         }
         return null;
+    }
+
+    @Override
+    public Page<ProductInboundResDto> getAllInboundByProductWithPagination(LocalDate startDate, LocalDate endDate, Pageable pageable) {
+        List<ProductInboundResDto> inboundList = inboundRetrievalPort.findAllInboundByProductWithPagination(startDate, endDate, pageable);
+        return new PageImpl<>(inboundList, pageable, inboundList.size());
+    }
+
+    @Override
+    public Page<SupplierInboundResDto> getAllInboundBySupplierWithPagination(LocalDate startDate, LocalDate endDate, Pageable pageable) {
+        List<SupplierInboundResDto> inboundList = inboundRetrievalPort.findAllInboundBySupplierWithPagination(startDate, endDate, pageable);
+        return new PageImpl<>(inboundList, pageable, inboundList.size());
+    }
+
+    @Override
+    public Page<InboundProgressResDto> getAllInboundProgressWithPagination(LocalDate startDate, LocalDate endDate, Pageable pageable) {
+        List<InboundProgressDetailDto> inboundList = inboundRetrievalPort.findAllInboundProgressWithPagination(startDate, endDate, pageable);
+
+        List<InboundProgressDetailDto> scheduleList = inboundList.stream()
+                .filter(i -> i.getCheckNumber() == null && i.getPutAwayNumber() == null)
+                .toList();
+
+        List<InboundProgressDetailDto> checkList = inboundList.stream()
+                .filter(i -> i.getCheckNumber() != null && i.getPutAwayNumber() == null)
+                .toList();
+
+        List<InboundProgressDetailDto> putAwayList = inboundList.stream()
+                .filter(i -> i.getPutAwayNumber() != null)
+                .toList();
+
+        List<InboundProgressResDto> resultList = List.of(
+                new InboundProgressResDto(scheduleList, checkList, putAwayList)
+        );
+
+        return new PageImpl<>(resultList, pageable, resultList.size());
     }
 
 

@@ -55,6 +55,8 @@
         LIMIT #{pageable.pageSize} OFFSET #{pageable.offset}
     </select>
 
+
+
     <select id="findInboundFilteringWithPagination" resultMap="InboundRetrievalResultMap">
         SELECT * FROM (
             SELECT
@@ -114,6 +116,246 @@
         LIMIT #{pageable.pageSize} OFFSET #{pageable.offset}
     </select>
 
+    <select id="findInboundPutAwayFilteringWithPagination" resultMap="InboundPutAwayResultMap">
+        SELECT * FROM (
+            SELECT
+                i.inbound_id,
+                i.inbound_status AS process,
+                i.created_at,
+                i.schedule_number,
+                i.check_number,
+                i.put_away_number,
+                i.put_away_date,
+                o.order_id,
+                o.order_number,
+                o.order_date,
+                s.supplier_id,
+                s.supplier_name,
+                p.product_id,
+                p.product_code,
+                p.product_name,
+                (p.stock_lot_count * p.lot_unit) AS product_count,
+                p.lot_count
+            FROM inbound i
+            JOIN orders o i.order_id = o.order_id
+            JOIN supplier s ON o.supplier_id = s.supplier_id
+            JOIN order_product op ON o.order_id = op.order_id
+            JOIN product p ON op.product_id = p.product_id
+        ) inbound_data
+        <where>
+            <if test="startDate != null">
+                put_away_date <![CDATA[>=]]> #{startDate}
+            </if>
+
+            <if test="endDate != null">
+                <if test="startDate != null">
+                    AND
+                </if>
+                put_away_date <![CDATA[<=]]> #{endDate}
+            </if>
+
+            <if test="putAwayNumber != null and putAwayNumber != ''">
+                <if test="startDate != null or endDate != null">
+                    AND
+                </if>
+                put_away_number LIKE CONCAT('%', #{putAwayNumber}, '%')
+            </if>
+        </where>
+
+        <if test="pageable.sort.sorted">
+            <trim prefix="ORDER BY">
+                <foreach item="order" index="i" collection="pageable.sort" separator=", ">
+                    ${order.property}
+                    <choose>
+                        <when test="order.direction.toString() == 'ASC'">ASC</when>
+                        <otherwise>DESC</otherwise>
+                    </choose>
+                </foreach>
+            </trim>
+        </if>
+
+        LIMIT #{pageable.pageSize} OFFSET #{pageable.offset}
+    </select>
+
+    <select id="findAllInboundByProductWithPagination" resultMap="ProductInboundResultMap">
+        SELECT * FROM (
+        SELECT
+        p.product_id,
+        p.product_code,
+        p.product_name,
+        (p.stock_lot_count * p.lot_unit) AS product_count,
+        SUM(CASE WHEN op.is_defective = TRUE THEN p.lot_unit ELSE 0 END) AS defective_count,
+        i.inbound_id,
+        i.check_number,
+        i.put_away_number,
+        i.schedule_date,
+        i.check_date,
+        i.put_away_date
+        FROM product p
+        LEFT JOIN order_product op ON p.product_id = op.product_id
+        LEFT JOIN inbound i ON op.order_id = i.order_id
+        GROUP BY p.product_id, i.inbound_id
+        ) inbound_data
+
+        <where>
+            <if test="startDate != null">
+                schedule_date <![CDATA[>=]]> #{startDate}
+            </if>
+
+            <if test="endDate != null">
+                <if test="startDate != null">
+                    AND
+                </if>
+                schedule_date <![CDATA[<=]]> #{endDate}
+            </if>
+        </where>
+
+        <if test="pageable.sort.sorted">
+            <trim prefix="ORDER BY">
+                <foreach item="order" index="i" collection="pageable.sort" separator=", ">
+                    ${order.property}
+                    <choose>
+                        <when test="order.direction.toString() == 'ASC'">ASC</when>
+                        <otherwise>DESC</otherwise>
+                    </choose>
+                </foreach>
+            </trim>
+        </if>
+        LIMIT #{pageable.pageSize} OFFSET #{pageable.offset}
+    </select>
+
+    <select id="countAllInboundPlan" resultType="int">
+        SELECT COUNT(*) FROM inbound;
+    </select>
+
+    <select id="countFilteredPutAway" resultType="int">
+        SELECT COUNT(*) FROM inbound
+        WHERE put_away_number = #{putAwayNumber}
+        AND put_away_date BETWEEN #{startDate} AND #{endDate}
+    </select>
+
+    <select id="countAllInboundPlanFiltering" resultType="int">
+        SELECT COUNT(*) FROM inbound
+        WHERE schedule_number = #{scheduleNumber}
+        AND schedule_date BETWEEN #{startDate} AND #{endDate}
+    </select>
+
+    <select id="countAllInboundCheckFiltering" resultType="int">
+        SELECT COUNT(*) FROM inbound
+        WHERE check_number = #{checkNumber}
+        AND check_date BETWEEN #{startDate} AND #{endDate}
+    </select>
+
+    <select id="findAllInboundBySupplierWithPagination" resultMap="SupplierInboundResultMap">
+        SELECT * FROM (
+        SELECT
+        s.supplier_id,
+        s.supplier_name,
+        SUM(p.stock_lot_count * p.lot_unit) AS product_count,
+        SUM(CASE WHEN op.is_defective = TRUE THEN p.lot_unit ELSE 0 END) AS defective_count,
+        i.inbound_id,
+        i.schedule_number,
+        i.check_number,
+        i.put_away_number,
+        i.schedule_date,
+        i.check_date,
+        i.put_away_date
+        FROM supplier s
+        LEFT JOIN orders o ON s.supplier_id = o.supplier_id
+        LEFT JOIN order_product op ON o.order_id = op.order_id
+        LEFT JOIN product p ON op.product_id = p.product_id
+        LEFT JOIN inbound i ON o.order_id = i.order_id
+        GROUP BY s.supplier_id, i.inbound_id
+        ) inbound_data
+
+        <where>
+            <if test="startDate != null">
+                schedule_date <![CDATA[>=]]> #{startDate}
+            </if>
+            <if test="endDate != null">
+                <if test="startDate != null"> AND </if>
+                schedule_date <![CDATA[<=]]> #{endDate}
+            </if>
+        </where>
+
+        <if test="pageable.sort.sorted">
+            <trim prefix="ORDER BY">
+                <foreach item="order" index="i" collection="pageable.sort" separator=", ">
+                    ${order.property}
+                    <choose>
+                        <when test="order.direction.toString() == 'ASC'">ASC</when>
+                        <otherwise>DESC</otherwise>
+                    </choose>
+                </foreach>
+            </trim>
+        </if>
+
+        LIMIT #{pageable.pageSize} OFFSET #{pageable.offset}
+    </select>
+
+    <select id="findAllInboundProgressWithPagination" resultMap="InboundProgressResultMap">
+        SELECT
+        i.inbound_id,
+        i.schedule_number,
+        i.check_number,
+        i.put_away_number,
+        i.schedule_date,
+        i.check_date,
+        i.put_away_date,
+        o.order_number,
+        o.order_date,
+        s.supplier_name
+        FROM inbound i
+        JOIN orders o ON i.order_id = o.order_id
+        JOIN supplier s ON o.supplier_id = s.supplier_id
+
+        <where>
+            <if test="startDate != null">
+                i.schedule_date <![CDATA[>=]]> #{startDate}
+            </if>
+            <if test="endDate != null">
+                <if test="startDate != null"> AND </if>
+                i.schedule_date <![CDATA[<=]]> #{endDate}
+            </if>
+        </where>
+
+        ORDER BY i.schedule_date DESC
+
+        LIMIT #{pageable.pageSize} OFFSET #{pageable.offset}
+    </select>
+
+    <resultMap id="InboundProgressResultMap" type="com.example.wms.inbound.adapter.in.dto.response.InboundProgressDetailDto">
+        <id column="inbound_id" property="inboundId"/>
+        <result column="schedule_number" property="scheduleNumber"/>
+        <result column="check_number" property="checkNumber"/>
+        <result column="put_away_number" property="putAwayNumber"/>
+        <result column="schedule_date" property="scheduleDate"/>
+        <result column="check_date" property="checkDate"/>
+        <result column="put_away_date" property="putAwayDate"/>
+        <result column="order_number" property="orderNumber"/>
+        <result column="order_date" property="orderDate"/>
+        <result column="supplier_name" property="supplierName"/>
+    </resultMap>
+
+
+
+    <resultMap id="SupplierInboundResultMap" type="com.example.wms.inbound.adapter.in.dto.response.SupplierInboundResDto">
+        <id column="supplier_id" property="supplierId"/>
+        <result column="supplier_name" property="supplierName"/>
+        <result column="product_count" property="productCount"/>
+        <result column="defective_count" property="defectiveCount"/>
+
+        <collection property="inboundList" ofType="com.example.wms.inbound.adapter.in.dto.response.SupplierInboundDetailDto">
+            <id column="inbound_id" property="inboundId"/>
+            <result column="schedule_number" property="scheduleNumber"/>
+            <result column="check_number" property="checkNumber"/>
+            <result column="put_away_number" property="putAwayNumber"/>
+            <result column="schedule_date" property="scheduleDate"/>
+            <result column="check_date" property="checkDate"/>
+            <result column="put_away_date" property="putAwayDate"/>
+        </collection>
+    </resultMap>
+
     <resultMap id="InboundRetrievalResultMap" type="com.example.wms.inbound.adapter.in.dto.response.InboundResDto">
         <id property="inboundId" column="inbound_id"/>
         <result property="inboundStatus" column="inbound_status"/>
@@ -143,8 +385,43 @@
         <result property="lotCount" column="lot_count"/>
     </resultMap>
 
-    <select id="countAllInboundPlan" resultType="int">
-        SELECT COUNT(*) FROM inbound;
-    </select>
+    <resultMap id="InboundPutAwayResultMap" type="com.example.wms.inbound.adapter.in.dto.response.InboundPutAwayResDto">
+        <id column="inbound_id" property="inboundId"/>
+        <result column="process" property="process"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="schedule_number" property="scheduleNumber"/>
+        <result column="check_number" property="checkNumber"/>
+        <result column="put_away_number" property="putAwayNumber"/>
+        <result column="put_away_date" property="putAwayDate"/>
+        <result column="order_id" property="orderId"/>
+        <result column="order_number" property="orderNumber"/>
+        <result column="order_date" property="orderDate"/>
+        <result column="supplier_id" property="supplierId"/>
+        <result column="supplier_name" property="supplierName"/>
 
+        <collection property="productList" ofType="com.example.wms.inbound.adapter.in.dto.response.InboundProductDto">
+            <id column="product_id" property="productId"/>
+            <result column="product_code" property="productCode"/>
+            <result column="product_name" property="productName"/>
+            <result column="product_count" property="productCount"/>
+            <result column="lot_count" property="lotCount"/>
+        </collection>
+    </resultMap>
+
+    <resultMap id="ProductInboundResultMap" type="com.example.wms.inbound.adapter.in.dto.response.ProductInboundResDto">
+        <id column="product_id" property="productId"/>
+        <result column="product_code" property="productCode"/>
+        <result column="product_name" property="productName"/>
+        <result column="product_count" property="productCount"/>
+        <result column="defective_count" property="defectiveCount"/>
+
+        <collection property="inboundList" ofType="com.example.wms.inbound.adapter.in.dto.response.InboundDetailDto">
+            <id column="inbound_id" property="inboundId"/>
+            <result column="check_number" property="checkNumber"/>
+            <result column="put_away_number" property="putAwayNumber"/>
+            <result column="schedule_date" property="scheduleDate"/>
+            <result column="check_date" property="checkDate"/>
+            <result column="put_away_date" property="putAwayDate"/>
+        </collection>
+    </resultMap>
 </mapper>

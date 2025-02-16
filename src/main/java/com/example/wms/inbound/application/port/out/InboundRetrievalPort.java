@@ -1,7 +1,6 @@
 package com.example.wms.inbound.application.port.out;
 
-import com.example.wms.inbound.adapter.in.dto.response.InboundAllProductDto;
-import com.example.wms.inbound.adapter.in.dto.response.InboundProductDto;
+import com.example.wms.inbound.adapter.in.dto.response.*;
 import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDate;
@@ -14,5 +13,9 @@ public interface InboundRetrievalPort {
     Integer countAllInboundPlan();
     Integer countFilteredInboundPlan(String inboundScheduleNumber, LocalDate startDate, LocalDate endDate);
     Integer countFilteredInboundCheck(String inboundCheckNumber, LocalDate startDate, LocalDate endDate);
-
+    List<InboundPutAwayResDto> findFilteredInboundPutAway(String putAwayNumber, LocalDate startDate, LocalDate endDate, Pageable pageable);
+    Integer countFilteredPutAway(String putAwayNumber, LocalDate startDate, LocalDate endDate);
+    List<ProductInboundResDto> findAllInboundByProductWithPagination(LocalDate startDate, LocalDate endDate, Pageable pageable);
+    List<SupplierInboundResDto> findAllInboundBySupplierWithPagination(LocalDate startDate, LocalDate endDate, Pageable pageable);
+    List<InboundProgressDetailDto> findAllInboundProgressWithPagination(LocalDate startDate, LocalDate endDate, Pageable pageable);
 }
