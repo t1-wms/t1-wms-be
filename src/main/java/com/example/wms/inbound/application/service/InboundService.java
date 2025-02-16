@@ -166,9 +166,9 @@ public class InboundService implements InboundUseCase {
 
     @Transactional
     @Override
-    public void createInboundCheck(InboundCheckReqDto inboundCheckReqDto) {
+    public void createInboundCheck(Long inboundId, InboundCheckReqDto inboundCheckReqDto) {
 
-        Inbound inbound = inboundPort.findById(inboundCheckReqDto.getInboundId());
+        Inbound inbound = inboundPort.findById(inboundId);
         if (inbound == null) {
             throw new NotFoundException("inbound not found with id " + inboundCheckReqDto.getInboundId());
         }

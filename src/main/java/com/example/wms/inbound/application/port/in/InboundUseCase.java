@@ -19,7 +19,7 @@ public interface InboundUseCase {
     List<InboundProductDto> getAllInboundProductList(OrderProduct orderProduct);
     void createInboundSchedule(Order order);
     void deleteInboundPlan(Long inboundId);
-    void createInboundCheck(InboundCheckReqDto inboundCheckReqDto);
+    void createInboundCheck(Long inboundId, InboundCheckReqDto inboundCheckReqDto);
     Page<InboundResDto> getFilteredInboundCheck(String inboundCheckNumber, LocalDate startDate, LocalDate endDate, Pageable pageable);
     void updateInboundCheck(Long inboundId, InboundCheckUpdateReqDto updateReqDto);
 
