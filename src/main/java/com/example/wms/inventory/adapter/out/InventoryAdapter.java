@@ -1,6 +1,7 @@
 package com.example.wms.inventory.adapter.out;
 
 import com.example.wms.infrastructure.mapper.InventoryMapper;
+import com.example.wms.inventory.adapter.in.dto.ProductThresholdDto;
 import com.example.wms.inventory.application.port.out.InventoryPort;
 import com.example.wms.outbound.adapter.in.dto.ProductInfoDto;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +28,8 @@ public class InventoryAdapter implements InventoryPort {
     }
 
     @Override
+    public List<ProductThresholdDto> findAllProductThresholds(String productCode, Pageable pageable) {
+        return inventoryMapper.findAllProductThresholds(productCode, pageable);
     public void updateInventory(Long productId, Integer lotCount) {
         inventoryMapper.updateInventory(productId, lotCount);
     }

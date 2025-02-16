@@ -1,5 +1,6 @@
 package com.example.wms.inventory.application.service;
 
+import com.example.wms.inventory.adapter.in.dto.ProductThresholdDto;
 import com.example.wms.inventory.application.port.in.InventoryUseCase;
 import com.example.wms.inventory.application.port.out.InventoryPort;
 import com.example.wms.outbound.adapter.in.dto.ProductInfoDto;
@@ -18,7 +19,8 @@ public class InventoryService implements InventoryUseCase {
 
     @Override
     public Page<ProductInfoDto> getAllProductInventories(String productCode, Pageable pageable) {
-        Pageable safePageable = convertToSafePageable(pageable);
+        List<String> allowedFields = List.of("productId", "productCode", "productName", "productCount");
+        Pageable safePageable = convertToSafePageable(pageable, allowedFields);
 
         List<ProductInfoDto> productInventoryList = inventoryPort.findAllProductInventories(productCode, safePageable);
         long count = inventoryPort.countAllProductInventories(productCode);
@@ -26,19 +28,41 @@ public class InventoryService implements InventoryUseCase {
         return new PageImpl<>(productInventoryList, safePageable, count);
     }
 
-    private Pageable convertToSafePageable(Pageable pageable) {
+    @Override
+    public Page<ProductThresholdDto> getAllProductThresholds(String productCode, Pageable pageable) {
+        List<String> allowedFields = List.of("productId", "productCode", "productName", "productCount", "productThreshold");
+        Pageable safePageable = convertToSafePageable(pageable, allowedFields);
+
+        List<ProductThresholdDto> productThresholdDtoList = inventoryPort.findAllProductThresholds(productCode, safePageable);
+        long count = inventoryPort.countAllProductInventories(productCode);
+
+        return new PageImpl<>(productThresholdDtoList, safePageable, count);
+    }
+
+    private Pageable convertToSafePageable(Pageable pageable, List<String> allowedProperties) {
+        pageable.getSort().forEach(order -> {
+            if (!allowedProperties.contains(order.getProperty())) {
+                throw new IllegalArgumentException("허용되지 않은 정렬 조건이 있습니다: " + order.getProperty());
+            }
+        });
         List<Sort.Order> safeOrders = pageable.getSort().stream()
-                .filter(order -> List.of("productId", "productCode", "productName", "productCount").contains(order.getProperty()))
-                .map(order -> new Sort.Order(
-                        order.getDirection(),
-                        "productCount".equals(order.getProperty())
-                                ? "available_quantity"
-                                : camelToSnake(order.getProperty())
-                ))
+                .filter(order -> allowedProperties.contains(order.getProperty()))
+                .map(order -> {
+                    String property;
+                    if ("productCount".equals(order.getProperty())) {
+                        property = "available_quantity";
+                    } else if ("productThreshold".equals(order.getProperty())) {
+                        property = "threshold";
+                    } else {
+                        property = camelToSnake(order.getProperty());
+                    }
+                    return new Sort.Order(order.getDirection(), property);
+                })
                 .collect(Collectors.toList());
 
         return PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(safeOrders));
     }
+
 
     private String camelToSnake(String str) {
         return str.replaceAll("([a-z])([A-Z]+)", "$1_$2").toLowerCase();
