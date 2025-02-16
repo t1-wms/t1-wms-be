@@ -2,6 +2,7 @@ package com.example.wms.inbound.adapter.out;
 
 import com.example.wms.inbound.adapter.in.dto.response.InboundAllProductDto;
 import com.example.wms.inbound.adapter.in.dto.response.InboundProductDto;
+import com.example.wms.inbound.adapter.in.dto.response.InboundPutAwayResDto;
 import com.example.wms.inbound.application.port.out.InboundRetrievalPort;
 import com.example.wms.infrastructure.mapper.InboundRetrievalMapper;
 import lombok.RequiredArgsConstructor;
@@ -46,5 +47,16 @@ public class InboundRetrievalAdapter implements InboundRetrievalPort {
     public Integer countFilteredInboundCheck(String inboundCheckNumber, LocalDate startDate, LocalDate endDate) {
         return inboundRetrievalMapper.countAllInboundCheckFiltering(inboundCheckNumber, startDate, endDate);
     }
+
+    @Override
+    public List<InboundPutAwayResDto> findFilteredInboundPutAway(String putAwayNumber, LocalDate startDate, LocalDate endDate, Pageable pageable) {
+        return inboundRetrievalMapper.findInboundPutAwayFilteringWithPagination(putAwayNumber, startDate, endDate, pageable);
+    }
+
+    @Override
+    public Integer countFilteredPutAway(String putAwayNumber, LocalDate startDate, LocalDate endDate) {
+        return inboundRetrievalMapper.countFilteredPutAway(putAwayNumber, startDate, endDate);
+    }
+
 
 }
