@@ -2,6 +2,7 @@ package com.example.wms.infrastructure.mapper;
 
 import com.example.wms.inbound.adapter.in.dto.response.InboundResDto;
 import com.example.wms.inbound.application.domain.Inbound;
+import com.example.wms.product.adapter.in.dto.LotInfoDto;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.time.LocalDate;
@@ -15,4 +16,8 @@ public interface InboundMapper {
     Inbound findById(Long inboundId);
     void updateIC(Long inboundId, LocalDate checkDate, String checkNumber);
     void updatePA(Long inboundId);
+    Long findOrderIdByScheduleNumber(String scheduleNumber);
+    void updateInboundWorkerCheck(String scheduleNumber, String checkNumber);
+    void updateOrderProduct(Long orderId, Long productId, boolean isDefective);
+    List<LotInfoDto> findLotsByScheduleNumber(String scheduleNumber);
 }
