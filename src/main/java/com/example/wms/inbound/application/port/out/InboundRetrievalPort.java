@@ -17,4 +17,5 @@ public interface InboundRetrievalPort {
     Integer countFilteredPutAway(String putAwayNumber, LocalDate startDate, LocalDate endDate);
     List<ProductInboundResDto> findAllInboundByProductWithPagination(LocalDate startDate, LocalDate endDate, Pageable pageable);
     List<SupplierInboundResDto> findAllInboundBySupplierWithPagination(LocalDate startDate, LocalDate endDate, Pageable pageable);
+    List<InboundProgressDetailDto> findAllInboundProgressWithPagination(LocalDate startDate, LocalDate endDate, Pageable pageable);
 }

@@ -66,5 +66,10 @@ public class InboundRetrievalAdapter implements InboundRetrievalPort {
         return inboundRetrievalMapper.findAllInboundBySupplierWithPagination(startDate, endDate, pageable);
     }
 
+    @Override
+    public List<InboundProgressDetailDto> findAllInboundProgressWithPagination(LocalDate startDate, LocalDate endDate, Pageable pageable) {
+        return inboundRetrievalMapper.findAllInboundProgressWithPagination(startDate, endDate, pageable);
+    }
+
 
 }
