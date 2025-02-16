@@ -1,11 +1,19 @@
 pipeline {
     agent any
-
+    parameters {
+        choice(
+            name: 'DEPLOY_ENV',
+            choices: ['blue', 'green'],
+            description: '배포 환경을 선택하세요'
+        )
+    }
     environment {
         DOCKER_IMAGE = 'wms:latest'
         DOCKER_TAG = "wms:${BUILD_NUMBER}"
     }
-
+    tools {
+        gradle 'gradle 8.11.1'
+    }
     stages {
         stage('Checkout') {
             steps {
@@ -13,73 +21,112 @@ pipeline {
             }
         }
 
-        stage('Install dependencies') {
+        stage('Get Commit Message') {
             steps {
-                nodejs(nodeJSInstallationName: 'NodeJS 21.1.0') {
-                    sh 'rm -rf node_modules package-lock.json'
-                    sh 'npm install'
-                    sh 'npm install typescript@~5.6.2 --save-dev'
-                    sh 'npm install react@^18.3.1 react-dom@^18.3.1 @types/react-dom@^18.3.5 --save'
+                script {
+                    def gitCommitMessage = sh(
+                        script: "git log -1 --pretty=%B",
+                        returnStdout: true
+                    ).trim()
+                    echo "Commit Message: ${gitCommitMessage}"
+                    env.GIT_COMMIT_MESSAGE = gitCommitMessage
+                }
+            }
+        }
+
+        stage('Prepare') {
+            steps {
+                sh 'gradle clean --no-daemon'
+            }
+        }
+
+        stage('Replace Prod Properties') {
+            steps {
+                withCredentials([file(credentialsId: 'wms-secret', variable: 'wms_secret_file')]) {
+                    script {
+                        sh """
+                            chmod -R 777 ./src/main/resources
+                            cp ${wms_secret_file} ./src/main/resources/application-secret.yml
+                        """
+                    }
                 }
             }
         }
 
         stage('Build') {
-            parallel {
-                stage('Build wms') {
-                    steps {
-                        dir("./packages/wms") {
-                            nodejs(nodeJSInstallationName: 'NodeJS 21.1.0') {
-                                sh 'npm run build'
-                            }
-                        }
-                    }
-                }
-                stage('Build worker') {
-                    steps {
-                        dir("./packages/worker") {
-                            nodejs(nodeJSInstallationName: 'NodeJS 21.1.0') {
-                                sh 'npm run build'
-                            }
-                        }
-                    }
-                }
+            steps {
+                sh 'gradle build -x test'
             }
         }
 
         stage('Build Docker Image') {
             steps {
                 script {
-                    sh "docker build -f ./Dockerfile -t ${DOCKER_IMAGE} ."
+                    sh "docker build -f ./docker/Dockerfile -t ${DOCKER_IMAGE} ."
                     sh "docker tag ${DOCKER_IMAGE} ${DOCKER_TAG}"
                 }
             }
         }
 
-        stage('Deploy to EC2') {
+        stage('Deploy to Backend Server') {
             steps {
                 script {
-                    def sshServerName = 'FrontendServer'
+                    // DEPLOY_ENV에 따라 COMPOSE_FILE 설정
+                    def deployEnv = params.DEPLOY_ENV ?: 'blue'
+                    def composeFile = "docker-compose.${deployEnv}.yml"
+
+                    // Backend 서버로 파일 전송 및 배포
+                    def sshServerName = 'BackendServer'
                     sshPublisher(publishers: [
                         sshPublisherDesc(
                             configName: sshServerName,
-                            execCommand: """
-                                echo 'Deploying to EC2...'
+                            transfers: [
+                                sshTransfer(
+                                    sourceFiles: "build/libs/*.jar, ./docker/${composeFile}, ./docker/Dockerfile, ./scripts/deploy.sh",
+                                    remoteDirectory: "/home/ec2-user/backend",
+                                    removePrefix: "./",
+                                    execCommand: """
+                                        echo "Starting deployment process..."
+                                        # 기존 컨테이너 중지 및 제거
+                                        docker-compose -f /home/ec2-user/backend/${composeFile} down
+                                        echo "Stopped and removed old containers."
 
-                                # 기존 컨테이너가 있다면 중지하고 삭제
-                                docker stop frontend_container || true
-                                docker rm frontend_container || true
-
-                                # 새로 Docker 컨테이너 실행 (덮어씌우기)
-                                docker build -f /home/ec2-user/frontend/Dockerfile -t ${DOCKER_TAG} /home/ec2-user/frontend
-                                docker run -d -p 80:80 --name frontend_container ${DOCKER_TAG}
-
-                                echo 'Deployment completed!'
-                            """
+                                        # 새로 배포
+                                        docker-compose -f /home/ec2-user/backend/${composeFile} up -d
+                                        echo "Deployment completed!"
+                                    """
+                                )
+                            ]
                         )
                     ])
                 }
             }
+        }
+    }
+
+    post { // 추가
+        success {
+            slackSend (
+                message: """
+                    :white_check_mark: **배포 성공** :white_check_mark:
+
+                    *Job*: ${env.JOB_NAME} [${env.BUILD_NUMBER}]
+                    *빌드 URL*: <${env.BUILD_URL}|링크>
+                    *최근 커밋 메시지*: ${env.GIT_COMMIT_MESSAGE}
+                """
+            )
+        }
+
+        failure {
+            slackSend (
+                message: """
+                    :x: **배포 실패** :x:
+
+                    *Job*: ${env.JOB_NAME} [${env.BUILD_NUMBER}]
+                    *빌드 URL*: <${env.BUILD_URL}|링크>
+                    *최근 커밋 메시지*: ${env.GIT_COMMIT_MESSAGE}
+                """
+            )
         }
     }
 }
