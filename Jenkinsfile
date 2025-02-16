@@ -59,12 +59,10 @@ pipeline {
         stage('Deploy to EC2') {
             steps {
                 script {
-                    // EC2에서 Docker 컨테이너 덮어쓰기 (파일 전송 없이)
                     def sshServerName = 'FrontendServer'
                     sshPublisher(publishers: [
                         sshPublisherDesc(
                             configName: sshServerName,
-                            transfers: [],
                             execCommand: """
                                 echo 'Deploying to EC2...'
 
