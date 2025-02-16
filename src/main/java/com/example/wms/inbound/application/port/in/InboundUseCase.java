@@ -1,9 +1,6 @@
 package com.example.wms.inbound.application.port.in;
 
-import com.example.wms.inbound.adapter.in.dto.request.InboundCheckReqDto;
-import com.example.wms.inbound.adapter.in.dto.request.InboundCheckUpdateReqDto;
-import com.example.wms.inbound.adapter.in.dto.request.InboundCheckWorkerReqDto;
-import com.example.wms.inbound.adapter.in.dto.request.InboundReqDto;
+import com.example.wms.inbound.adapter.in.dto.request.*;
 import com.example.wms.inbound.adapter.in.dto.response.InboundProductDto;
 import com.example.wms.inbound.adapter.in.dto.response.InboundResDto;
 import com.example.wms.inbound.adapter.in.dto.response.InboundWorkerCheckResDto;
@@ -28,4 +25,6 @@ public interface InboundUseCase {
 
     void deleteInboundCheck(Long inboundId);
     InboundWorkerCheckResDto createInboundCheckByWorker(List<InboundCheckWorkerReqDto> workerCheckRequests);
+
+    void putAway(Long inboundId, List<InboundPutAwayReqDto> putAwayRequests);
 }

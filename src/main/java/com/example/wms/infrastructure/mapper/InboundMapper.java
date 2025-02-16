@@ -15,7 +15,7 @@ public interface InboundMapper {
     void delete(Long inboundId);
     Inbound findById(Long inboundId);
     void updateIC(Long inboundId, LocalDate checkDate, String checkNumber);
-    void updatePA(Long inboundId);
+    void updatePA(Long inboundId, LocalDate putAwayDate, String putAwayNumber);
     Long findOrderIdByScheduleNumber(String scheduleNumber);
     void updateInboundWorkerCheck(String scheduleNumber, String checkNumber);
     void updateOrderProduct(Long orderId, Long productId, boolean isDefective);

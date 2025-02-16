@@ -217,3 +217,11 @@ CREATE TABLE IF NOT EXISTS inbound_check (
                                              CONSTRAINT fk_inbound_check_inbound FOREIGN KEY (inbound_id) REFERENCES inbound(inbound_id),
                                              CONSTRAINT fk_inbound_check_product FOREIGN KEY (product_id) REFERENCES product(product_id)
 );
+
+CREATE TABLE IF NOT EXISTS inventory (
+                            inventory_id BIGINT AUTO_INCREMENT PRIMARY KEY, -- 재고 고유 ID
+                            product_id   BIGINT NOT NULL,                     -- 제품 ID
+                            available_quantity INT NOT NULL,                  -- 사용 가능한 수량
+                            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                            CONSTRAINT fk_product FOREIGN KEY (product_id) REFERENCES product(product_id)
+);
