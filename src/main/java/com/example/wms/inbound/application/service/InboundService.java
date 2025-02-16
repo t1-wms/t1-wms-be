@@ -1,12 +1,10 @@
 package com.example.wms.inbound.application.service;
 
-import com.example.wms.inbound.adapter.in.dto.request.InboundCheckReqDto;
-import com.example.wms.inbound.adapter.in.dto.request.InboundCheckUpdateReqDto;
-import com.example.wms.inbound.adapter.in.dto.request.InboundCheckedProductReqDto;
-import com.example.wms.inbound.adapter.in.dto.request.InboundReqDto;
+import com.example.wms.inbound.adapter.in.dto.request.*;
 import com.example.wms.inbound.adapter.in.dto.response.InboundAllProductDto;
 import com.example.wms.inbound.adapter.in.dto.response.InboundProductDto;
 import com.example.wms.inbound.adapter.in.dto.response.InboundResDto;
+import com.example.wms.inbound.adapter.in.dto.response.InboundWorkerCheckResDto;
 import com.example.wms.inbound.application.domain.Inbound;
 import com.example.wms.inbound.application.domain.InboundCheck;
 import com.example.wms.inbound.application.port.in.InboundUseCase;
@@ -19,6 +17,7 @@ import com.example.wms.infrastructure.pagination.util.PageableUtils;
 import com.example.wms.order.application.domain.Order;
 import com.example.wms.order.application.domain.OrderProduct;
 import com.example.wms.order.application.port.out.OrderPort;
+import com.example.wms.product.adapter.in.dto.LotInfoDto;
 import com.example.wms.product.application.domain.Product;
 import com.example.wms.product.application.port.out.LotPort;
 import com.example.wms.product.application.port.out.ProductPort;
@@ -276,6 +275,32 @@ public class InboundService implements InboundUseCase {
         inbound.setInboundStatus("입하예정");
 
         inboundPort.updateIC(inboundId, null, null);
+    }
+
+    @Transactional
+    @Override
+    public InboundWorkerCheckResDto createInboundCheckByWorker(List<InboundCheckWorkerReqDto> workerCheckRequests) {
+        if(workerCheckRequests.isEmpty()) {
+            throw new IllegalArgumentException("검수할 품목이 없습니다.");
+        }
+
+        String scheduleNumber = workerCheckRequests.get(0).getScheduleNumber();
+        Long orderId = inboundPort.getOrderIdByScheduleNumber(scheduleNumber);
+
+        if (orderId == null) {
+            throw new IllegalArgumentException("해당 입하 예정 번호에 대한 주문을 찾을 수 없습니다: " + scheduleNumber);
+        }
+
+        for (InboundCheckWorkerReqDto reqDto : workerCheckRequests) {
+            inboundPort.updateOrderProduct(orderId, reqDto.getProductId(), reqDto.getIsDefective());
+        }
+
+        String checkNumber = makeNumber("IC");
+        inboundPort.updateInboundCheck(scheduleNumber, checkNumber);
+
+        List<LotInfoDto> lots = inboundPort.getLotsByScheduleNumber(scheduleNumber);
+
+        return new InboundWorkerCheckResDto(checkNumber, lots);
     }
 
 
