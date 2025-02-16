@@ -3,6 +3,7 @@ package com.example.wms.infrastructure.mapper;
 import com.example.wms.inbound.adapter.in.dto.response.InboundAllProductDto;
 import com.example.wms.inbound.adapter.in.dto.response.InboundProductDto;
 import com.example.wms.inbound.adapter.in.dto.response.InboundPutAwayResDto;
+import com.example.wms.inbound.adapter.in.dto.response.ProductInboundResDto;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,6 +20,7 @@ public interface InboundRetrievalMapper {
 
     List<InboundPutAwayResDto> findInboundPutAwayFilteringWithPagination(@Param("putAwayNumber") String putAwayNumber, @Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate, @Param("pageable")Pageable pageable);
 
+
     Integer countAllInboundPlan();
 
     Integer countFilteredPutAway(@Param("putAwayNumber") String putAwayNumber, @Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
@@ -27,5 +29,6 @@ public interface InboundRetrievalMapper {
 
     Integer countAllInboundCheckFiltering(@Param("checkNumber") String checkNumber, @Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
 
+    List<ProductInboundResDto> findAllInboundByProductWithPagination(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate, @Param("pageable")Pageable pageable);
 
 }
