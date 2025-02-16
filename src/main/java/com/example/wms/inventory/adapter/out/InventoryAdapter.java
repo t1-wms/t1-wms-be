@@ -20,6 +20,7 @@ public class InventoryAdapter implements InventoryPort {
     public List<ProductInfoDto> findAllProductInventories(String productCode, Pageable pageable) {
         return inventoryMapper.findAllProductInventories(productCode, pageable);
     }
+
     @Override
     public long countAllProductInventories(String productCode) {
         return inventoryMapper.countAllProductInventories(productCode);
