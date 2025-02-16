@@ -34,4 +34,31 @@
         </if>
     </select>
 
+    <select id="findAllProductThresholds" resultType="productThresholdDto">
+        SELECT
+        p.product_id,
+        p.product_code,
+        p.product_name,
+        i.available_quantity AS productCount,
+        p.threshold AS productThreshold
+        FROM product p
+        JOIN inventory i ON p.product_id = i.product_id
+        <if test="productCode != null and productCode != ''">
+            WHERE p.product_code LIKE CONCAT('%', #{productCode}, '%')
+        </if>
+        <if test="pageable.sort.sorted">
+            <trim prefix="ORDER BY">
+                <foreach item="order" index="i" collection="pageable.sort" separator=", ">
+                    ${order.property}
+                    <choose>
+                        <when test="order.direction.toString() == 'ASC'"> ASC</when>
+                        <otherwise> DESC</otherwise>
+                    </choose>
+                </foreach>
+            </trim>
+        </if>
+        LIMIT #{pageable.pageSize} OFFSET #{pageable.offset}
+    </select>
+
+
 </mapper>
