@@ -134,10 +134,14 @@ pipeline {
                             configName: sshServerName,
                             transfers: [
                                 sshTransfer(
-                                    sourceFiles: "build/libs/*.jar, docker/docker-compose.*.yml, docker/Dockerfile, scripts/deploy.sh",
-                                    remoteDirectory: "",
+                                    sourceFiles: "build/libs/*.jar, docker/docker-compose.*.yml, docker/Dockerfile, nginx/nginx.conf, scripts/deploy.sh",
+                                    remoteDirectory: "backend",
                                     removePrefix: "",
                                     execCommand: """
+                                        cd /home/ec2-user/backend
+
+                                        # Create docker network if not exists
+                                        docker network create servernetwork || true
                                         set -x
                                         echo "===== Starting deployment process... ====="
                                         echo "Current working directory:"
