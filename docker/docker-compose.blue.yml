@@ -6,7 +6,7 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "8011:8011"
+      - "8011:8080"
     container_name: spring-wms-blue
     environment:
       - TZ=Asia/Seoul
