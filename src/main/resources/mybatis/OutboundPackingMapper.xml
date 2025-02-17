@@ -41,7 +41,7 @@
         p.product_id,
         p.product_code,
         p.product_name,
-        opp.required_quantity as productCount
+        opp.required_quantity as product_count
         FROM outbound o
         JOIN outbound_plan op ON o.outbound_plan_id = op.outbound_plan_id
         LEFT JOIN outbound_plan_product opp ON o.outbound_plan_id = opp.outbound_plan_id
