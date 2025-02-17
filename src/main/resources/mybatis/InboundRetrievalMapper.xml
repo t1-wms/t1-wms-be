@@ -8,8 +8,7 @@
             p.product_id,
             p.product_code,
             p.product_name,
-            (p.stock_lot_count * p.lot_unit) AS product_count,
-            p.lot_count
+            (p.stock_lot_count * p.lot_unit) AS product_count
         FROM inbound i
         JOIN `order` o ON i.order_id = o.order_id
         JOIN order_product op ON o.order_id = op.order_id
@@ -60,7 +59,7 @@
     <select id="findInboundFilteringWithPagination" resultMap="InboundAllProductResultMap">
         SELECT
             i.inbound_id,
-            i.process,
+            i.inbound_status,
             i.created_at,
             i.schedule_number,
             i.check_number,
@@ -121,7 +120,7 @@
     <select id="findInboundCheckFilteringWithPagination" resultMap="InboundAllProductResultMap">
         SELECT
         i.inbound_id,
-        i.process,
+        i.inbound_status,
         i.created_at,
         i.schedule_number,
         i.check_number,
@@ -178,11 +177,10 @@
 
         LIMIT #{pageable.pageSize} OFFSET #{pageable.offset}
     </select>
-
     <select id="findInboundPutAwayFilteringWithPagination" resultMap="InboundPutAwayResultMap">
         SELECT
         i.inbound_id,
-        i.process,
+        i.inbound_status,
         i.created_at,
         i.schedule_number,
         i.check_number,
@@ -223,6 +221,10 @@
                 put_away_number LIKE CONCAT('%', #{inboundPutAwayNumber}, '%')
             </if>
         </where>
+        GROUP BY
+        i.inbound_id, i.inbound_status, i.created_at, i.schedule_number, i.check_number, i.check_date,
+        i.order_id, o.order_number, o.order_date, o.supplier_id, s.supplier_name,
+        p.product_id, p.product_code, p.product_name, p.stock_lot_count, p.lot_unit
 
         <if test="pageable.sort.sorted">
             <trim prefix="ORDER BY">
