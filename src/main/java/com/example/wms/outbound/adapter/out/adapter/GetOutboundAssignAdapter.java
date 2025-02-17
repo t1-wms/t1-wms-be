@@ -35,4 +35,9 @@ public class GetOutboundAssignAdapter implements GetOutboundAssignPort {
     public OutboundPlan findOutboundPlanByOutboundPlanId(Long outboundPlanId) {
         return outboundAssignMapper.findOutboundPlanByOutboundPlanId(outboundPlanId);
     }
+
+    @Override
+    public Integer countAssign(String outboundAssignNumber, LocalDate startDate, LocalDate endDate) {
+        return outboundAssignMapper.countAssign(outboundAssignNumber, startDate, endDate);
+    }
 }

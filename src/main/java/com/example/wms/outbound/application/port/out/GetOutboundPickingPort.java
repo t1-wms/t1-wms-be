@@ -12,4 +12,5 @@ public interface GetOutboundPickingPort {
     List<Outbound> findOutboundPickingFilteringWithPageNation(String outboundPickingNumber, LocalDate startDate, LocalDate endDate, Pageable pageable);
     List<ProductInfoDto> findProductInfoByOutboundPlanId(Long outboundPlanId);
     OutboundPlan findOutboundPlanByOutboundPlanId(Long outboundPlanId);
+    Integer countAllPicking(String outboundPickingNumber, LocalDate startDate, LocalDate endDate);
 }

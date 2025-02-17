@@ -48,4 +48,30 @@
         FROM outbound_plan
         WHERE outbound_plan_id = #{outboundPlanId}
     </select>
+
+    <select id="countAllPicking">
+        SELECT COUNT(*)
+        FROM outbound
+        <where>
+            outbound_assign_number IS NOT NULL AND outbound_picking_number IS NOT NULL
+            <!-- 시작일 조건 (startDate) -->
+            <if test="startDate != null">
+                AND
+                outbound_picking_date <![CDATA[>=]]> #{startDate}
+            </if>
+
+            <!-- 종료일 조건 (endDate) -->
+            <if test="endDate != null">
+                AND
+                outbound_picking_date <![CDATA[<=]]> #{endDate}
+            </if>
+
+            <!-- 번호 조건 (outboundPickingNumber) -->
+            <if test="outboundPickingNumber != null and outboundPickingNumber != ''">
+                AND
+                outbound_picking_number LIKE CONCAT('%', #{outboundPickingNumber}, '%')
+            </if>
+        </where>
+    </select>
+
 </mapper>

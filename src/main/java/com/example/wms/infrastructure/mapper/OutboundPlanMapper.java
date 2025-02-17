@@ -2,6 +2,7 @@ package com.example.wms.infrastructure.mapper;
 
 import com.example.wms.outbound.adapter.in.dto.OutboundPlanRequestDto;
 import com.example.wms.outbound.adapter.in.dto.ProductInfoDto;
+import com.example.wms.outbound.application.domain.Outbound;
 import com.example.wms.outbound.application.domain.OutboundPlan;
 import org.apache.ibatis.annotations.*;
 import org.springframework.data.domain.Pageable;
@@ -9,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Mapper
 public interface OutboundPlanMapper {
@@ -71,4 +73,11 @@ public interface OutboundPlanMapper {
     );
 
     Integer countAllOutboundPlanFiltering(String outboundScheduleNumber, LocalDate startDate, LocalDate endDate);
+
+    @Select("""
+        SELECT *
+        FROM outbound
+        WHERE outbound_plan_id = #{outboundPlanId};
+    """)
+    Optional<Outbound> findOutboundByOutboundPlanId(@Param("outboundPlanId") Long outboundPlanId);
 }

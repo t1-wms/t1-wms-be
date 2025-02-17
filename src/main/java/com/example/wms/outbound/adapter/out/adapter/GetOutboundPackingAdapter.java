@@ -34,4 +34,9 @@ public class GetOutboundPackingAdapter implements GetOutboundPackingPort {
     public OutboundPlan findOutboundPlanByOutboundPlanId(Long outboundPlanId) {
         return outboundPackingMapper.findOutboundPlanByOutboundPlanId(outboundPlanId);
     }
+
+    @Override
+    public Integer countPacking(String outboundPackingNumber, LocalDate startDate, LocalDate endDate) {
+        return outboundPackingMapper.countPacking(outboundPackingNumber, startDate, endDate);
+    }
 }
