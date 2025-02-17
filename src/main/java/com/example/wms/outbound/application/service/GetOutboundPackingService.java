@@ -12,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -24,11 +25,12 @@ public class GetOutboundPackingService implements GetOutboundPackingUseCase {
     private final GetOutboundPackingPort getOutboundPackingPort;
 
     @Override
+    @Transactional
     public Page<OutboundPackingResponseDto> getFilteredOutboundPackings(String outboundPackingNumber, LocalDate startDate, LocalDate endDate, Pageable pageable) {
-        Pageable safePageale = PageableUtils.convertToSafePageableStrict(pageable, Outbound.class);
-        List<Outbound> outboundList = getOutboundPackingPort.findOutboundPackingFilteringWithPageNation(outboundPackingNumber, startDate, endDate, safePageale);
+        Pageable safePageale = PageableUtils.convertToSafePageableStrict(pageable, OutboundPackingResponseDto.class);
+        List<OutboundPackingResponseDto> outboundList = getOutboundPackingPort.findOutboundPackingFilteringWithPageNation(outboundPackingNumber, startDate, endDate, safePageale);
         Integer count = getOutboundPackingPort.countPacking(outboundPackingNumber, startDate, endDate);
-        return new PageImpl<>(covertToDtoList(outboundList), pageable, count);
+        return new PageImpl<>(outboundList, pageable, count);
     }
 
     private List<OutboundPackingResponseDto> covertToDtoList(List<Outbound> outboundList) {

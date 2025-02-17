@@ -3,21 +3,23 @@ package com.example.wms.outbound.adapter.in.dto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.util.List;
 
 @Data
 @Builder
+@NoArgsConstructor
 @AllArgsConstructor
 public class OutboundPackingResponseDto {
     private Long outboundId;
 
     private Long outboundPlanId;
 
-    private String process;
+    private String process; //plan
 
-    private String outboundScheduleNumber;
+    private String outboundScheduleNumber; //plan
 
     private String outboundAssignNumber;
 
@@ -27,9 +29,9 @@ public class OutboundPackingResponseDto {
 
     private LocalDate outboundPackingDate;
 
-    private String productionPlanNumber;
+    private String productionPlanNumber; //plan
 
-    private LocalDate planDate;
+    private LocalDate planDate; //plan
 
     private List<ProductInfoDto> productList;
 }
