@@ -1,5 +1,6 @@
 package com.example.wms.infrastructure.mapper;
 
+import com.example.wms.outbound.adapter.in.dto.OutboundAssignResponseDto;
 import com.example.wms.outbound.application.domain.Outbound;
 import com.example.wms.outbound.application.domain.OutboundPlan;
 import org.apache.ibatis.annotations.Mapper;
@@ -14,7 +15,7 @@ import java.util.List;
 @Mapper
 public interface OutboundAssignMapper {
     // outboundAssign  조회
-    List<Outbound> findOutboundAssignFilteringWithPageNation(
+    List<OutboundAssignResponseDto> findOutboundAssignFilteringWithPageNation(
             @Param("outboundAssignNumber") String outboundAssignNumber,
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate,
