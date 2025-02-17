@@ -23,8 +23,11 @@ public class InboundProductDto {
     private String productName;
 
     @Schema(description = "품목 수량", example = "30")
-    private Integer productCount;
+    private Long productCount;
 
     @Schema(description = "품목 lot 수량", example = "3")
-    private Integer lotCount;
+    private Long lotCount;
+
+    @Schema(description = "품목별 불량 Lot 수량", example = "5")
+    private Long defectiveCount;
 }

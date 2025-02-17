@@ -22,7 +22,7 @@ public interface InboundUseCase {
     void updateInboundCheck(Long inboundId, InboundCheckUpdateReqDto updateReqDto);
     void deleteInboundCheck(Long inboundId);
     InboundWorkerCheckResDto createInboundCheckByWorker(List<InboundCheckWorkerReqDto> workerCheckRequests);
-    Page<InboundPutAwayResDto> getFilteredPutAway(String putAwayNumber, LocalDate startDate, LocalDate endDate, Pageable pageable);
+    Page<InboundPutAwayResDto> getFilteredPutAway(String inboundPutAwayNumber, LocalDate startDate, LocalDate endDate, Pageable pageable);
     void putAway(Long inboundId, List<InboundPutAwayReqDto> putAwayRequests);
     Page<ProductInboundResDto> getAllInboundByProductWithPagination(LocalDate startDate, LocalDate endDate, Pageable pageable);
     Page<SupplierInboundResDto> getAllInboundBySupplierWithPagination(LocalDate startDate, LocalDate endDate, Pageable pageable);
