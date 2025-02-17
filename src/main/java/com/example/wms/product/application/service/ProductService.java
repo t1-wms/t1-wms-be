@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -127,6 +128,7 @@ public class ProductService implements ProductUseCase {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Page<Product> getAllProducts(String productCode, Pageable pageable) {
         // 외부에서 받은 Pageable을 안전하게 변환 (유효하지 않은 정렬 조건이 있으면 예외 발생)
         Pageable safePageable = PageableUtils.convertToSafePageableStrict(pageable, Product.class);
