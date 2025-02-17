@@ -147,14 +147,17 @@ pipeline {
                                         echo "===== Moving files ====="
                                         # 기존 파일 정리
                                         rm -f *.jar *.yml Dockerfile
-                                        rm -rf nginx/conf.d/* nginx/*.conf
+                                        rm -rf nginx/*.conf nginx/conf.d/*
+
+                                        # nginx 디렉토리 생성
+                                        mkdir -p nginx/conf.d
 
                                         # 필요한 파일 복사
                                         cp docker/docker-compose.*.yml ./
                                         cp docker/Dockerfile ./
                                         cp build/libs/*.jar ./app.jar
-                                        cp nginx/nginx.conf ./nginx/
-                                        cp nginx/backend.conf ./nginx/conf.d/
+                                        cp nginx/nginx.conf nginx/
+                                        cp nginx/backend.conf nginx/conf.d/
 
                                         echo "===== Checking files ====="
                                         ls -la
