@@ -103,6 +103,7 @@ pipeline {
 
     post {
         success {
+            echo ":white_check_mark: Deployment Successful"
             // slackSend (
             //     message: """
             //         :white_check_mark: **배포 성공** :white_check_mark:
@@ -114,6 +115,7 @@ pipeline {
         }
 
         failure {
+            echo ":x: Deployment Failed"
             // slackSend (
             //     message: """
             //         :x: **배포 실패** :x:
