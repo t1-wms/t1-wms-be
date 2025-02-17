@@ -93,11 +93,11 @@
                 schedule_date <![CDATA[<=]]> #{endDate}
             </if>
 
-            <if test="scheduleNumber != null and scheduleNumber != ''">
+            <if test="inboundScheduleNumber != null and inboundScheduleNumber != ''">
                 <if test="startDate != null or endDate != null">
                     AND
                 </if>
-                schedule_number LIKE CONCAT('%', #{scheduleNumber}, '%')
+                schedule_number LIKE CONCAT('%', #{inboundScheduleNumber}, '%')
             </if>
         </where>
 
