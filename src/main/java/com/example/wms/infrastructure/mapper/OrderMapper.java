@@ -1,8 +1,7 @@
 package com.example.wms.infrastructure.mapper;
 
 import com.example.wms.order.application.domain.Order;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.*;
 
 import java.util.List;
 
@@ -23,4 +22,18 @@ public interface OrderMapper {
     String getLastOrderNumber();
 
     void createOrder(Order order);
+
+    @Insert("""
+        INSERT INTO `order`
+        (supplier_id, order_date, is_approved, is_delayed, order_number, order_status, daily_plan_id, is_return_order, inbound_date)
+        VALUES
+        (#{supplierId}, #{orderDate}, #{isApproved}, #{isDelayed}, #{orderNumber}, #{orderStatus}, #{dailyPlanId}, #{isReturnOrder}, #{inboundDate})
+    """)
+    @Options(useGeneratedKeys = true, keyProperty = "orderId")
+    void registerOrder(Order order);
+
+    @Select("""
+        SELECT order_number FROM `order` ORDER BY order_number DESC LIMIT 1;
+    """)
+    String findMaxOutboundOrderNumber();
 }
