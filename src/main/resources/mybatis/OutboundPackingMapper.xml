@@ -19,7 +19,7 @@
             <id property="productId" column="product_id"/>
             <result property="productCode" column="product_code"/>
             <result property="productName" column="product_name"/>
-            <result property="productCount" column="product_count"/>
+            <result property="productCount" column="productCount"/>
         </collection>
     </resultMap>
 
