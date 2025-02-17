@@ -49,7 +49,7 @@ public class OrderAdapter implements OrderPort {
 
         String lastOrderNumber = orderMapper.getLastOrderNumber();
 
-        int newNumber = 1;
+        int newNumber = 0;
 
         if (lastOrderNumber != null) {
             String lastNumberStr = lastOrderNumber.substring(10);
