@@ -8,7 +8,6 @@ pipeline {
         )
     }
     environment {
-        DOCKER_IMAGE = 'backend:latest'  // 컨테이너 이름을 backend로 수정
         DOCKER_TAG = "backend:${BUILD_NUMBER}"
     }
     tools {
@@ -63,8 +62,7 @@ pipeline {
             steps {
                 script {
                     echo "===== Building Docker Image ====="
-                    sh "docker build -f ./docker/Dockerfile -t ${DOCKER_IMAGE} ."
-                    sh "docker tag ${DOCKER_IMAGE} ${DOCKER_TAG}"
+                    sh "docker build -f ./docker/Dockerfile -t ${DOCKER_TAG} ."
 
                     // Docker 이미지 확인
                     sh "docker images"
@@ -72,45 +70,46 @@ pipeline {
             }
         }
 
-        stage('Deploy to Backend Server') {
-            steps {
-                script {
-                    // DEPLOY_ENV에 따라 COMPOSE_FILE 설정
-                    def deployEnv = params.DEPLOY_ENV ?: 'blue'
-                    def composeFile = "docker-compose.${deployEnv}.yml"
+            stage('Deploy to Backend Server') {
+                steps {
+                    script {
+                        // DEPLOY_ENV에 따라 COMPOSE_FILE 설정
+                        def deployEnv = params.DEPLOY_ENV ?: 'blue'
+                        def composeFile = "docker-compose.${deployEnv}.yml"
 
-                    // Backend 서버로 파일 전송 및 배포
-                    def sshServerName = 'BackendServer'
-                    sshPublisher(publishers: [
-                        sshPublisherDesc(
-                            configName: sshServerName,
-                            transfers: [
-                                sshTransfer(
-                                    sourceFiles: "build/libs/*.jar, ./docker/${composeFile}, ./docker/Dockerfile, ./scripts/deploy.sh",
-                                    remoteDirectory: "/home/ec2-user/backend",
-                                    removePrefix: "./",
-                                    execCommand: """
-                                        echo "===== Starting deployment process... ====="
-                                        # 기존 컨테이너 중지 및 제거
-                                        docker-compose -f /home/ec2-user/backend/${composeFile} down
-                                        echo "Stopped and removed old containers."
+                        // Backend 서버로 파일 전송 및 배포
+                        def sshServerName = 'BackendServer'
+                        sshPublisher(publishers: [
+                            sshPublisherDesc(
+                                configName: sshServerName,
+                                transfers: [
+                                    sshTransfer(
+                                        sourceFiles: "build/libs/*.jar, ./docker/${composeFile}, ./docker/Dockerfile, ./scripts/deploy.sh",
+                                        remoteDirectory: "", // 이미 디폴트로 /home/ec2-user/backend가 설정됨
+                                        removePrefix: "./",
+                                        execCommand: """
+                                            echo "===== Starting deployment process... ====="
+                                            # 기존 컨테이너 중지 및 제거
+                                            docker-compose -f ${composeFile} down
+                                            echo "Stopped and removed old containers."
 
-                                        # 새로 배포
-                                        docker-compose -f /home/ec2-user/backend/${composeFile} up -d
-                                        echo "Deployment completed!"
+                                            # 새로 배포
+                                            docker-compose -f ${composeFile} up -d
+                                            echo "Deployment completed!"
 
-                                        # 실행 중인 컨테이너 확인
-                                        echo "===== Docker containers running ====="
-                                        docker ps -a
+                                            # 실행 중인 컨테이너 확인
+                                            echo "===== Docker containers running ====="
+                                            docker ps -a
 
-                                        # backend 컨테이너 로그 출력
-                                        echo "===== Backend container logs ====="
-                                        docker logs backend
-                                    """
-                                )
-                            ]
-                        )
-                    ])
+                                            # backend 컨테이너 로그 출력
+                                            echo "===== Backend container logs ====="
+                                            docker logs backend
+                                        """
+                                    )
+                                ]
+                            )
+                        ])
+                    }
                 }
             }
         }
