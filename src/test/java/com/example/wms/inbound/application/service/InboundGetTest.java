@@ -1,6 +1,7 @@
 package com.example.wms.inbound.application.service;
 
 import com.example.wms.inbound.adapter.in.dto.response.InboundAllProductDto;
+import com.example.wms.inbound.adapter.in.dto.response.InboundProductDto;
 import com.example.wms.inbound.adapter.in.dto.response.InboundResDto;
 import com.example.wms.inbound.application.port.out.InboundRetrievalPort;
 import org.junit.jupiter.api.BeforeEach;
@@ -43,10 +44,74 @@ class InboundGetTest {
     @BeforeEach
     void setUp() {
         mockInboundPlanProductList = Arrays.asList(
-                new InboundAllProductDto(1L,"입고중",LocalDate.now(),"Schedule1", LocalDate.now(), 1L, "Order1", LocalDateTime.now(),1L,"Supplier1",1L,"P001","Product1",10,5),
-                new InboundAllProductDto(2L,"입고완료",LocalDate.now(),"Schedule2", LocalDate.now(), 2L, "Order2", LocalDateTime.now(),2L,"Supplier2",2L,"P002","Product2",20,10)
+                InboundAllProductDto.builder()
+                        .inboundId(1L)
+                        .inboundStatus("입고중")
+                        .createdAt(LocalDate.now())
+                        .scheduleNumber("Schedule1")
+                        .scheduleDate(LocalDate.now())
+                        .checkDate(LocalDate.now())
+                        .checkNumber("Check1")
+                        .orderId(1L)
+                        .orderNumber("or1")
+                        .orderDate(LocalDate.now())
+                        .supplierId(1L)
+                        .supplierName("Supplier1")
+                        .productList(Arrays.asList(
+                                InboundProductDto.builder()
+                                        .productId(101L)
+                                        .productCode("P001")
+                                        .productName("Product1")
+                                        .productCount(10L)
+                                        .lotCount(5L)
+                                        .defectiveCount(1L)
+                                        .build(),
+                                InboundProductDto.builder()
+                                        .productId(102L)
+                                        .productCode("P002")
+                                        .productName("Product2")
+                                        .productCount(15L)
+                                        .lotCount(7L)
+                                        .defectiveCount(2L)
+                                        .build()
+                        ))
+                        .build(),
+
+                InboundAllProductDto.builder()
+                        .inboundId(2L)
+                        .inboundStatus("입고완료")
+                        .createdAt(LocalDate.now())
+                        .scheduleNumber("Schedule2")
+                        .scheduleDate(LocalDate.now())
+                        .checkDate(LocalDate.now())
+                        .checkNumber("Check2")
+                        .orderId(2L)
+                        .orderNumber("or2")
+                        .orderDate(LocalDate.now())
+                        .supplierId(2L)
+                        .supplierName("Supplier2")
+                        .productList(Arrays.asList(
+                                InboundProductDto.builder()
+                                        .productId(103L)
+                                        .productCode("P003")
+                                        .productName("Product3")
+                                        .productCount(20L)
+                                        .lotCount(10L)
+                                        .defectiveCount(3L)
+                                        .build(),
+                                InboundProductDto.builder()
+                                        .productId(104L)
+                                        .productCode("P004")
+                                        .productName("Product4")
+                                        .productCount(25L)
+                                        .lotCount(12L)
+                                        .defectiveCount(4L)
+                                        .build()
+                        ))
+                        .build()
         );
     }
+
 
     @Test
     @DisplayName("입하 예정 목록을 조회합니다.")

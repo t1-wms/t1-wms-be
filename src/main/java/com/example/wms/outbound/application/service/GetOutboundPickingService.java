@@ -25,10 +25,10 @@ public class GetOutboundPickingService implements GetOutboundPickingUseCase {
 
     @Override
     public Page<OutboundPickingResponseDto> getFilteredOutboundPickings(String outboundPickingNumber, LocalDate startDate, LocalDate endDate, Pageable pageable) {
-        Pageable safePageale = PageableUtils.convertToSafePageableStrict(pageable, Outbound.class);
-        List<Outbound> outboundList = getOutboundPickingPort.findOutboundPickingFilteringWithPageNation(outboundPickingNumber, startDate, endDate, safePageale);
+        Pageable safePageale = PageableUtils.convertToSafePageableStrict(pageable, OutboundPickingResponseDto.class);
+        List<OutboundPickingResponseDto> outboundList = getOutboundPickingPort.findOutboundPickingFilteringWithPageNation(outboundPickingNumber, startDate, endDate, safePageale);
         Integer count = getOutboundPickingPort.countAllPicking(outboundPickingNumber, startDate, endDate);
-        return new PageImpl<>(covertToDtoList(outboundList), pageable, count);
+        return new PageImpl<>(outboundList, pageable, count);
     }
 
     private List<OutboundPickingResponseDto> covertToDtoList(List<Outbound> outboundList) {

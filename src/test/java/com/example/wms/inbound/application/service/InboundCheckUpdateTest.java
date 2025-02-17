@@ -69,8 +69,8 @@ public class InboundCheckUpdateTest {
                 .build();
 
         List<InboundCheck> existingChecks = List.of(
-                InboundCheck.builder().inboundId(inboundId).productId(10L).defectiveCount(3L).build(),
-                InboundCheck.builder().inboundId(inboundId).productId(20L).defectiveCount(1L).build()
+                InboundCheck.builder().inboundId(inboundId).productId(10L).defectiveLotCount(3L).build(),
+                InboundCheck.builder().inboundId(inboundId).productId(20L).defectiveLotCount(1L).build()
         );
 
         when(inboundPort.findById(inboundId)).thenReturn(inbound);

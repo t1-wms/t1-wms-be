@@ -1,6 +1,7 @@
 package com.example.wms.inbound.application.service;
 
 import com.example.wms.inbound.adapter.in.dto.response.InboundAllProductDto;
+import com.example.wms.inbound.adapter.in.dto.response.InboundProductDto;
 import com.example.wms.inbound.adapter.in.dto.response.InboundResDto;
 import com.example.wms.inbound.application.port.out.InboundRetrievalPort;
 import org.junit.jupiter.api.BeforeEach;
@@ -37,8 +38,55 @@ class InboundCheckGetTest {
     @BeforeEach
     void setUp() {
         mockInboundCheckProductList = Arrays.asList(
-                new InboundAllProductDto(1L,"입하검사완료",LocalDate.now(),"IC202502010001",LocalDate.now(),1L,"OR202502010001",LocalDateTime.now(),1L,"tire company",1L,"a123","tire1",30,3),
-                new InboundAllProductDto(2L,"입하검사완료",LocalDate.now(),"IC202502010002",LocalDate.now(),1L,"OR202502010001",LocalDateTime.now(),1L,"tire company",1L,"a123","tire2",50,5)
+                InboundAllProductDto.builder()
+                        .inboundId(1L)
+                        .inboundStatus("입하검사완료")
+                        .createdAt(LocalDate.now())
+                        .scheduleNumber("IC202502010001")
+                        .scheduleDate(LocalDate.now())
+                        .checkDate(LocalDate.now())
+                        .checkNumber("CHK202502010001")
+                        .orderId(1L)
+                        .orderNumber("OR202502010001")
+                        .orderDate(LocalDate.now())
+                        .supplierId(1L)
+                        .supplierName("tire company")
+                        .productList(Arrays.asList(
+                                InboundProductDto.builder()
+                                        .productId(101L)
+                                        .productCode("a123")
+                                        .productName("tire1")
+                                        .productCount(30L)
+                                        .lotCount(3L)
+                                        .defectiveCount(2L) // 예제 데이터 추가
+                                        .build()
+                        ))
+                        .build(),
+
+                InboundAllProductDto.builder()
+                        .inboundId(2L)
+                        .inboundStatus("입하검사완료")
+                        .createdAt(LocalDate.now())
+                        .scheduleNumber("IC202502010002")
+                        .scheduleDate(LocalDate.now())
+                        .checkDate(LocalDate.now())
+                        .checkNumber("CHK202502010002")
+                        .orderId(1L)
+                        .orderNumber("OR202502010001")
+                        .orderDate(LocalDate.now())
+                        .supplierId(1L)
+                        .supplierName("tire company")
+                        .productList(Arrays.asList(
+                                InboundProductDto.builder()
+                                        .productId(102L)
+                                        .productCode("b123")
+                                        .productName("tire2")
+                                        .productCount(50L)
+                                        .lotCount(5L)
+                                        .defectiveCount(3L) // 예제 데이터 추가
+                                        .build()
+                        ))
+                        .build()
         );
     }
 

@@ -1,5 +1,6 @@
 package com.example.wms.outbound.application.port.out;
 
+import com.example.wms.outbound.adapter.in.dto.OutboundPlanResponseDto;
 import com.example.wms.outbound.adapter.in.dto.ProductInfoDto;
 import com.example.wms.outbound.application.domain.Outbound;
 import com.example.wms.outbound.application.domain.OutboundPlan;
@@ -10,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface GetOutboundPlanPort {
-    List<OutboundPlan> findOutboundPlanFilteringWithPageNation(String outboundScheduleNumber, LocalDate startDate, LocalDate endDate, Pageable pageable);
+    List<OutboundPlanResponseDto> findOutboundPlanFilteringWithPageNation(String outboundScheduleNumber, LocalDate startDate, LocalDate endDate, Pageable pageable);
     Integer countFilteredOutboundPlan(String outboundScheduleNumber, LocalDate startDate, LocalDate endDate);
     List<ProductInfoDto> findProductInfoByOutboundPlanId(Long outboundPlanId);
     Optional<Outbound> findOutboundByOutboundPlanId(Long outboundPlanId);

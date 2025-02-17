@@ -55,12 +55,12 @@ public class InboundCheckCreateTest {
         // given
         InboundCheckedProductReqDto checkedProductDto1 = InboundCheckedProductReqDto.builder()
                 .productId(1L) // 품목 ID
-                .defectiveCount(15L) // 불합격 lot 개수
+                .defectiveLotCount(15L) // 불합격 lot 개수
                 .build();
 
         InboundCheckedProductReqDto checkedProductDto2 = InboundCheckedProductReqDto.builder()
                 .productId(2L) // 품목 ID
-                .defectiveCount(20L) // 불합격 lot 개수
+                .defectiveLotCount(20L) // 불합격 lot 개수
                 .build();
 
         List<InboundCheckedProductReqDto> inboundCheckedProductDtoList = Arrays.asList(checkedProductDto1, checkedProductDto2); // 수정 필요

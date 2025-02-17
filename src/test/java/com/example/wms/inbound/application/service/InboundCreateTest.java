@@ -38,7 +38,7 @@ public class InboundCreateTest {
         Order order = Order.builder()
                 .orderId(1L)
                 .supplierId(1L)
-                .inboundDate(LocalDateTime.of(2025,2,14,10,0))
+                .inboundDate(LocalDate.of(2025,2,14))
                 .build();
 
         inboundService.createInboundSchedule(order);

@@ -13,7 +13,7 @@ import java.util.List;
 @AllArgsConstructor
 public class InboundPutAwayResDto {
     private Long inboundId;
-    private String process;
+    private String inboundStatus;
     private String createdAt;
     private String scheduleNumber;
     private String checkNumber;

@@ -26,10 +26,10 @@ public class GetOutboundAssignService implements GetOutboundAssignUseCase {
 
     @Override
     public Page<OutboundAssignResponseDto> getFilteredOutboundAssings(String outboundAssignNumber, LocalDate startDate, LocalDate endDate, Pageable pageable) {
-        Pageable safePageable = PageableUtils.convertToSafePageableStrict(pageable, Outbound.class);
-        List<Outbound> outboundList = getOutboundAssignPort.findOutboundAssignFilteringWithPageNation(outboundAssignNumber, startDate, endDate, safePageable);
+        Pageable safePageable = PageableUtils.convertToSafePageableStrict(pageable, OutboundAssignResponseDto.class);
+        List<OutboundAssignResponseDto> outboundList = getOutboundAssignPort.findOutboundAssignFilteringWithPageNation(outboundAssignNumber, startDate, endDate, safePageable);
         Integer count = getOutboundAssignPort.countAssign(outboundAssignNumber, startDate, endDate);
-        return new PageImpl<>(covertToDtoList(outboundList), pageable, count);
+        return new PageImpl<>(outboundList, pageable, count);
     }
 
     private List<OutboundAssignResponseDto> covertToDtoList(List<Outbound> outboundList) {

@@ -2,6 +2,7 @@ package com.example.wms.outbound.adapter.out.adapter;
 
 import com.example.wms.infrastructure.mapper.OutboundPlanMapper;
 import com.example.wms.infrastructure.mapper.OutboundPlanProductMapper;
+import com.example.wms.outbound.adapter.in.dto.OutboundPlanResponseDto;
 import com.example.wms.outbound.adapter.in.dto.ProductInfoDto;
 import com.example.wms.outbound.application.domain.Outbound;
 import com.example.wms.outbound.application.domain.OutboundPlan;
@@ -22,7 +23,7 @@ public class GetOutboundPlanAdapter implements GetOutboundPlanPort {
     private final OutboundPlanProductMapper outboundPlanProductMapper;
 
     @Override
-    public List<OutboundPlan> findOutboundPlanFilteringWithPageNation(String outboundScheduleNumber, LocalDate startDate, LocalDate endDate, Pageable pageable) {
+    public List<OutboundPlanResponseDto> findOutboundPlanFilteringWithPageNation(String outboundScheduleNumber, LocalDate startDate, LocalDate endDate, Pageable pageable) {
         return outboundPlanMapper.findOutboundPlanFilteringWithPageNation(outboundScheduleNumber, startDate, endDate, pageable);
     }
 

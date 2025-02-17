@@ -26,10 +26,10 @@ public class GetOutboundLoadingService implements GetOutboundLoadingUseCase {
 
     @Override
     public Page<OutboundLoadingResponseDto> getFilteredOutboundLoadings(String outboundLoadingNumber, LocalDate startDate, LocalDate endDate, Pageable pageable) {
-        Pageable safePageale = PageableUtils.convertToSafePageableStrict(pageable, Outbound.class);
-        List<Outbound> outboundList = getOutboundLoadingPort.findOutboundLoadingFilteringWithPageNation(outboundLoadingNumber, startDate, endDate, safePageale);
+        Pageable safePageale = PageableUtils.convertToSafePageableStrict(pageable, OutboundLoadingResponseDto.class);
+        List<OutboundLoadingResponseDto> outboundList = getOutboundLoadingPort.findOutboundLoadingFilteringWithPageNation(outboundLoadingNumber, startDate, endDate, safePageale);
         Integer count = getOutboundLoadingPort.countLoading(outboundLoadingNumber, startDate, endDate);
-        return new PageImpl<>(covertToDtoList(outboundList), pageable, count);
+        return new PageImpl<>(outboundList, pageable, count);
     }
 
     private List<OutboundLoadingResponseDto> covertToDtoList(List<Outbound> outboundList) {
