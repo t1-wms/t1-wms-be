@@ -39,4 +39,9 @@ public class GetOutboundPickingAdapter implements GetOutboundPickingPort {
     public Integer countAllPicking(String outboundPickingNumber, LocalDate startDate, LocalDate endDate) {
         return outboundPickingMapper.countAllPicking(outboundPickingNumber, startDate, endDate);
     }
+
+    @Override
+    public Outbound findOutboundByOutboundId(Long outboundId) {
+        return outboundPickingMapper.findOutboundByOutboundId(outboundId);
+    }
 }

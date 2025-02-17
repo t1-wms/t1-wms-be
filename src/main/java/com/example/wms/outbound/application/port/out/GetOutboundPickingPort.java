@@ -13,4 +13,5 @@ public interface GetOutboundPickingPort {
     List<ProductInfoDto> findProductInfoByOutboundPlanId(Long outboundPlanId);
     OutboundPlan findOutboundPlanByOutboundPlanId(Long outboundPlanId);
     Integer countAllPicking(String outboundPickingNumber, LocalDate startDate, LocalDate endDate);
+    Outbound findOutboundByOutboundId(Long outboundId);
 }

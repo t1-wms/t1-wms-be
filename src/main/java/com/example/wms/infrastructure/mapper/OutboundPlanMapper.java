@@ -33,11 +33,18 @@ public interface OutboundPlanMapper {
     @Delete("DELETE FROM outbound_plan_product WHERE outbound_plan_id = #{outboundPlanId}")
     void deleteOutboundPlanProductsByPlanId(@Param("outboundPlanId") Long outboundPlanId);
 
+    // outbound 삭제하기
+    @Delete("DELETE FROM outbound WHERE outbound_plan_id = #{outboundPlanId}")
+    void deleteOutboundById(@Param("outboundPlanId") Long outboundPlanId);
+
     // outboundPlan 삭제 시 outboundPlanProduct도 함께 삭제
     @Transactional
     default void deleteOutboundPlanAndProducts(Long outboundPlanId) {
         // outbound_plan_product 삭제
         deleteOutboundPlanProductsByPlanId(outboundPlanId);
+
+        // outbound 삭제
+        deleteOutboundById(outboundPlanId);
 
         // outbound_plan 삭제
         deleteById(outboundPlanId);
