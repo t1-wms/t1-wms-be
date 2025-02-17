@@ -13,4 +13,5 @@ public interface GetOutboundLoadingPort {
     List<ProductInfoDto> findProductInfoByOutboundPlanId(Long outboundPlanId);
     OutboundPlan findOutboundPlanByOutboundPlanId(Long outboundPlanId);
     Integer countLoading(String outboundLoadingNumber, LocalDate startDate, LocalDate endDate);
+    Outbound findOutboundByOutboundId(Long outboundId);
 }

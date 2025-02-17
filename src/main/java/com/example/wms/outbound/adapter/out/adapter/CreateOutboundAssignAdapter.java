@@ -2,6 +2,7 @@ package com.example.wms.outbound.adapter.out.adapter;
 
 import com.example.wms.infrastructure.mapper.OutboundMapper;
 import com.example.wms.outbound.application.domain.Outbound;
+import com.example.wms.outbound.application.domain.OutboundPlan;
 import com.example.wms.outbound.application.port.out.CreateOutboundAssignPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,6 +36,11 @@ public class CreateOutboundAssignAdapter implements CreateOutboundAssignPort {
     @Override
     public void update(Outbound outbound) {
         outboundMapper.insertOutboundAssign(outbound.getOutboundId(),outbound.getOutboundAssignNumber(),outbound.getOutboundAssignDate());
+    }
+
+    @Override
+    public void updateOutboundPlanStatus(OutboundPlan outboundPlan) {
+        outboundMapper.updateOutboundPlanStatus(outboundPlan.getOutboundPlanId(), "출고지시");
     }
 
 }

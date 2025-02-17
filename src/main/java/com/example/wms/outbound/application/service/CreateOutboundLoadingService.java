@@ -4,8 +4,10 @@ import com.example.wms.infrastructure.exception.DuplicatedException;
 import com.example.wms.notification.application.domain.Notification;
 import com.example.wms.notification.application.port.out.NotificationPort;
 import com.example.wms.outbound.application.domain.Outbound;
+import com.example.wms.outbound.application.domain.OutboundPlan;
 import com.example.wms.outbound.application.port.in.CreateOutboundLoadingUseCase;
 import com.example.wms.outbound.application.port.out.CreateOutboundLoadingPort;
+import com.example.wms.outbound.application.port.out.GetOutboundLoadingPort;
 import com.example.wms.user.application.domain.enums.UserRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,6 +19,7 @@ import java.time.LocalDate;
 public class CreateOutboundLoadingService implements CreateOutboundLoadingUseCase {
 
     private final CreateOutboundLoadingPort createOutboundLoadingPort;
+    private final GetOutboundLoadingPort getOutboundLoadingPort;
     private final NotificationPort notificationPort;
 
     @Override
@@ -45,6 +48,10 @@ public class CreateOutboundLoadingService implements CreateOutboundLoadingUseCas
         existingOutbound.setOutboundLoadingDate(LocalDate.now());
 
         createOutboundLoadingPort.createOutboundLoading(existingOutbound);
+
+        // outboundPlan status 바꿔주기
+        OutboundPlan outboundPlan = getOutboundLoadingPort.findOutboundPlanByOutboundPlanId(outboundPlanId);
+        createOutboundLoadingPort.updateOutboundPlanStatus(outboundPlan);
 
         Notification notification = Notification.builder()
                 .content("출고 로딩이 등록되었습니다.")

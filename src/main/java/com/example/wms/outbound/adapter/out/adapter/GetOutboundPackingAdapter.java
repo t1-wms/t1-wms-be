@@ -40,4 +40,9 @@ public class GetOutboundPackingAdapter implements GetOutboundPackingPort {
     public Integer countPacking(String outboundPackingNumber, LocalDate startDate, LocalDate endDate) {
         return outboundPackingMapper.countPacking(outboundPackingNumber, startDate, endDate);
     }
+
+    @Override
+    public Outbound findOutboundByOutboundId(Long outboundId) {
+        return outboundPackingMapper.findOutboundByOutboundId(outboundId);
+    }
 }

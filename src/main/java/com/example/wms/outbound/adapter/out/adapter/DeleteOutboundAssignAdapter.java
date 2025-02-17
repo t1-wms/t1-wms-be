@@ -2,6 +2,7 @@ package com.example.wms.outbound.adapter.out.adapter;
 
 import com.example.wms.infrastructure.mapper.OutboundMapper;
 import com.example.wms.outbound.application.domain.Outbound;
+import com.example.wms.outbound.application.domain.OutboundPlan;
 import com.example.wms.outbound.application.port.out.DeleteOutboundAssignPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -20,5 +21,10 @@ public class DeleteOutboundAssignAdapter implements DeleteOutboundAssignPort {
     @Override
     public void deleteOutboundAssign(Long outboundId) {
         outboundMapper.deleteOutboundAssign(outboundId);
+    }
+
+    @Override
+    public void updateOutboundPlanStatus(OutboundPlan outboundPlan) {
+        outboundMapper.updateOutboundPlanStatus(outboundPlan.getOutboundPlanId(), "출고예정");
     }
 }
