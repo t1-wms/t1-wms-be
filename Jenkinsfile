@@ -9,7 +9,6 @@ pipeline {
     }
     environment {
         DOCKER_TAG = "backend:${BUILD_NUMBER}"
-        DEPLOY_PATH = "/home/ec2-user/backend"
     }
     tools {
         gradle 'gradle 8.11.1'
@@ -121,12 +120,9 @@ pipeline {
                 script {
                     echo "===== Stage: Deploy to Backend Server ====="
                     def deployEnv = params.DEPLOY_ENV ?: 'blue'
-                    def composeFile = "docker-compose.${deployEnv}.yml"
                     def containerName = "spring-wms-${deployEnv}"
-                    def sshServerName = 'BackendServer'
 
                     echo "Deployment Environment: ${deployEnv}"
-                    echo "Docker Compose File: ${composeFile}"
                     echo "Container Name: ${containerName}"
 
                     sshPublisher(publishers: [
@@ -138,44 +134,49 @@ pipeline {
                                     remoteDirectory: "",
                                     removePrefix: "",
                                     execCommand: """
-                                        cd /home/ec2-user/backend
-
-                                        # Create docker network if not exists
-                                        docker network create servernetwork || true
                                         set -x
                                         echo "===== Starting deployment process... ====="
-                                        echo "Current working directory:"
-                                        pwd
+                                        cd /home/ec2-user/backend
 
-                                        echo "Directory contents:"
+                                        # 1. 환경 준비
+                                        echo "===== Preparing environment ====="
+                                        docker network create servernetwork || true
+                                        mkdir -p nginx/conf.d
+
+                                        # 2. 파일 정리 및 이동
+                                        echo "===== Moving files ====="
+                                        # 기존 파일 정리
+                                        rm -f *.jar *.yml Dockerfile
+                                        rm -rf nginx/conf.d/* nginx/*.conf
+
+                                        # 필요한 파일 복사
+                                        cp docker/docker-compose.*.yml ./
+                                        cp docker/Dockerfile ./
+                                        cp build/libs/*.jar ./app.jar
+                                        cp nginx/nginx.conf ./nginx/
+                                        cp nginx/backend.conf ./nginx/conf.d/
+
+                                        echo "===== Checking files ====="
                                         ls -la
+                                        echo "=== nginx directory ==="
+                                        ls -la nginx/
+                                        echo "=== nginx/conf.d directory ==="
+                                        ls -la nginx/conf.d/
 
-                                        echo "===== Docker Compose File Content ====="
-                                        cat ${composeFile}
+                                        # 3. 이전 컨테이너 정리
+                                        echo "===== Cleaning up old containers ====="
+                                        docker compose -f docker-compose.${deployEnv}.yml down || true
+                                        docker rm -f ${containerName} || true
 
-                                        echo "===== Stopping existing containers ====="
-                                        docker-compose -f ${composeFile} down || true
+                                        # 4. 컨테이너 실행
+                                        echo "===== Starting new containers ====="
+                                        docker compose -f docker-compose.${deployEnv}.yml up -d --build
 
-                                        echo "===== Building and starting new containers ====="
-                                        docker-compose -f ${composeFile} up -d --build
-
-                                        echo "===== Docker container status ====="
+                                        # 5. 상태 확인
+                                        echo "===== Checking deployment status ====="
                                         docker ps -a
-
-                                        echo "===== Docker container logs ====="
-                                        docker-compose -f ${composeFile} logs
-
-                                        echo "===== Container inspection ====="
-                                        docker inspect ${containerName} || true
-
-                                        echo "===== Network inspection ====="
-                                        docker network ls
-                                        docker network inspect servernetwork || true
-
-                                        echo "===== System status ====="
-                                        df -h
-                                        free -m
-                                        docker info
+                                        sleep 5
+                                        docker logs ${containerName} || true
                                     """
                                 )
                             ]
