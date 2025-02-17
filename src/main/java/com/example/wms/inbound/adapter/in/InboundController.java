@@ -44,7 +44,7 @@ public class InboundController {
     @PageableAsQueryParam
     public ResponseEntity<Page<InboundResDto>> getInboundPlans(
             @Parameter(name ="inboundScheduleNumber", in = ParameterIn.QUERY, description = "입하 예정 번호")
-            @RequestParam(value = "inboundScheduleNumber", required = false) String inboundScheduleNumber,
+            @RequestParam(value = "number", required = false) String inboundScheduleNumber,
 
             @Parameter(name ="startDate", in = ParameterIn.QUERY, description = "시작 날짜")
             @RequestParam(value = "startDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
