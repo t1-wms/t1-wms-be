@@ -1,5 +1,6 @@
 package com.example.wms.infrastructure.mapper;
 
+import com.example.wms.outbound.adapter.in.dto.OutboundPickingResponseDto;
 import com.example.wms.outbound.application.domain.Outbound;
 import com.example.wms.outbound.application.domain.OutboundPlan;
 import org.apache.ibatis.annotations.Mapper;
@@ -47,7 +48,7 @@ public interface OutboundPickingMapper {
     void updateOutboundPicking(@Param("outboundId") Long outboundId, @Param("outboundPickingDate") LocalDate outboundPickingDate);
 
     // 출고 피킹 조회
-    List<Outbound> findOutboundPickingFilteringWithPageNation(
+    List<OutboundPickingResponseDto> findOutboundPickingFilteringWithPageNation(
             @Param("outboundPickingNumber") String outboundPickingNumber,
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate,
