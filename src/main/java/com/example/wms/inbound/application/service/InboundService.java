@@ -179,7 +179,7 @@ public class InboundService implements InboundUseCase {
 
         for (InboundCheckedProductReqDto checkedProduct : inboundCheckReqDto.getCheckedProductList()) {
             Long productId = checkedProduct.getProductId();
-            Long defectiveCount = checkedProduct.getDefectiveCount();
+            Long defectiveCount = checkedProduct.getDefectiveLotCount();
 
             Product product = productPort.findById(productId);
 
@@ -190,7 +190,7 @@ public class InboundService implements InboundUseCase {
             InboundCheck inboundCheck = InboundCheck.builder()
                     .inboundId(inbound.getInboundId())
                     .productId(productId)
-                    .defectiveCount(defectiveCount)
+                    .defectiveLotCount(defectiveCount)
                     .build();
 
             inboundCheckList.add(inboundCheck);
@@ -240,7 +240,7 @@ public class InboundService implements InboundUseCase {
 
         for (InboundCheckedProductReqDto checkedProduct : updateReqDto.getCheckedProductList()) {
             Long productId = checkedProduct.getProductId();
-            Long updatedDefectiveCount = checkedProduct.getDefectiveCount();
+            Long updatedDefectiveCount = checkedProduct.getDefectiveLotCount();
 
             Product product = productPort.findById(productId);
 
@@ -250,7 +250,7 @@ public class InboundService implements InboundUseCase {
 
             if (checkMap.containsKey(productId)) {
                 InboundCheck existingCheck = checkMap.get(productId);
-                existingCheck.setDefectiveCount(updatedDefectiveCount);
+                existingCheck.setDefectiveLotCount(updatedDefectiveCount);
                 updatedChecks.add(existingCheck);
             }
 

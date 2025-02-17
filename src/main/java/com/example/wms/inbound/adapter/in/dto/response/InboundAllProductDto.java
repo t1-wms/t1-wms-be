@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Builder
@@ -18,14 +19,12 @@ public class InboundAllProductDto {
     private LocalDate createdAt;
     private String scheduleNumber;
     private LocalDate scheduleDate;
+    private LocalDate checkDate;
+    private String checkNumber;
     private Long orderId;
     private String orderNumber;
-    private LocalDateTime orderDate;
+    private LocalDate orderDate;
     private Long supplierId;
     private String supplierName;
-    private Long productId;
-    private String productCode;
-    private String productName;
-    private Integer productCount;
-    private Integer lotCount;
+    private List<InboundProductDto> productList;
 }

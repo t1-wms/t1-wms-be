@@ -79,4 +79,8 @@
         WHERE i.schedule_number = #{scheduleNumber}
         GROUP BY l.product_id, b.bin_code
     </select>
+
+    <select id="findById" parameterType="long" resultType="Inbound">
+        SELECT * FROM inbound WHERE inbound_id = #{inboundId}
+    </select>
 </mapper>

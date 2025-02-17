@@ -8,8 +8,7 @@
             p.product_id,
             p.product_code,
             p.product_name,
-            (p.stock_lot_count * p.lot_unit) AS product_count,
-            p.lot_count
+            (p.stock_lot_count * p.lot_unit) AS product_count
         FROM inbound i
         JOIN `order` o ON i.order_id = o.order_id
         JOIN order_product op ON o.order_id = op.order_id
@@ -60,11 +59,12 @@
     <select id="findInboundFilteringWithPagination" resultMap="InboundAllProductResultMap">
         SELECT
             i.inbound_id,
-            i.process,
+            i.inbound_status,
             i.created_at,
             i.schedule_number,
-            i.check_number,
+            i.schedule_date,
             i.check_date,
+            i.check_number,
             i.order_id,
             o.order_number,
             o.order_date,
@@ -74,14 +74,12 @@
             p.product_code,
             p.product_name,
             (p.stock_lot_count * p.lot_unit) AS product_count,
-            (p.stock_lot_count * p.lot_unit) AS lot_count,
-            COALESCE(SUM(ic.defective_lot_count), 0) AS defective_count
+            (p.stock_lot_count * p.lot_unit) AS lot_count
         FROM inbound i
         JOIN `order` o ON i.order_id = o.order_id
         JOIN supplier s ON o.supplier_id = s.supplier_id
         JOIN order_product op ON o.order_id = op.order_id
         JOIN product p ON op.product_id = p.product_id
-        LEFT JOIN inbound_check ic ON ic.inbound_id = i.inbound_id AND ic.product_id = p.product_id
         <where>
             <if test="startDate != null">
                 schedule_date <![CDATA[>=]]> #{startDate}
@@ -121,11 +119,12 @@
     <select id="findInboundCheckFilteringWithPagination" resultMap="InboundAllProductResultMap">
         SELECT
         i.inbound_id,
-        i.process,
+        i.inbound_status,
         i.created_at,
         i.schedule_number,
-        i.check_number,
+        i.schedule_date,
         i.check_date,
+        i.check_number,
         i.order_id,
         o.order_number,
         o.order_date,
@@ -136,13 +135,14 @@
         p.product_name,
         (p.stock_lot_count * p.lot_unit) AS product_count,
         (p.stock_lot_count * p.lot_unit) AS lot_count,
-        COALESCE(SUM(ic.defective_lot_count), 0) AS defective_count
+        COALESCE(SUM(ic.defective_lot_count), 0) AS defective_lot_count
         FROM inbound i
         JOIN `order` o ON i.order_id = o.order_id
         JOIN supplier s ON o.supplier_id = s.supplier_id
         JOIN order_product op ON o.order_id = op.order_id
         JOIN product p ON op.product_id = p.product_id
         LEFT JOIN inbound_check ic ON ic.inbound_id = i.inbound_id AND ic.product_id = p.product_id
+
         <where>
             <if test="startDate != null">
                 schedule_date <![CDATA[>=]]> #{startDate}
@@ -162,7 +162,9 @@
                 check_number LIKE CONCAT('%', #{inboundCheckNumber}, '%')
             </if>
         </where>
-        GROUP BY i.inbound_id, p.product_id
+        GROUP BY i.inbound_id, i.inbound_status, i.created_at, i.schedule_number, i.check_number, i.check_date,
+        i.order_id, o.order_number, o.order_date, o.supplier_id, s.supplier_name,
+        p.product_id, p.product_code, p.product_name, p.stock_lot_count, p.lot_unit
 
         <if test="pageable.sort.sorted">
             <trim prefix="ORDER BY">
@@ -178,15 +180,15 @@
 
         LIMIT #{pageable.pageSize} OFFSET #{pageable.offset}
     </select>
-
     <select id="findInboundPutAwayFilteringWithPagination" resultMap="InboundPutAwayResultMap">
         SELECT
         i.inbound_id,
-        i.process,
+        i.inbound_status,
         i.created_at,
         i.schedule_number,
         i.check_number,
-        i.check_date,
+        i.put_away_number,
+        i.put_away_date,
         i.order_id,
         o.order_number,
         o.order_date,
@@ -197,7 +199,7 @@
         p.product_name,
         (p.stock_lot_count * p.lot_unit) AS product_count,
         (p.stock_lot_count * p.lot_unit) AS lot_count,
-        COALESCE(SUM(ic.defective_lot_count), 0) AS defective_count
+        COALESCE(SUM(ic.defective_lot_count), 0) AS defective_lot_count
         FROM inbound i
         JOIN `order` o ON i.order_id = o.order_id
         JOIN supplier s ON o.supplier_id = s.supplier_id
@@ -223,6 +225,10 @@
                 put_away_number LIKE CONCAT('%', #{inboundPutAwayNumber}, '%')
             </if>
         </where>
+        GROUP BY
+        i.inbound_id, i.inbound_status, i.created_at, i.schedule_number, i.check_number, i.check_date,
+        i.order_id, o.order_number, o.order_date, o.supplier_id, s.supplier_name,
+        p.product_id, p.product_code, p.product_name, p.stock_lot_count, p.lot_unit
 
         <if test="pageable.sort.sorted">
             <trim prefix="ORDER BY">
@@ -456,17 +462,24 @@
 
     <resultMap id="InboundAllProductResultMap" type="com.example.wms.inbound.adapter.in.dto.response.InboundAllProductDto">
         <id column="inbound_id" property="inboundId"/>
-        <result column="process" property="process"/>
+        <result column="inbound_status" property="inboundStatus"/>
         <result column="created_at" property="createdAt"/>
         <result column="schedule_number" property="scheduleNumber"/>
-        <result column="check_number" property="checkNumber"/>
+        <result column="schedule_date" property="scheduleDate"/>
         <result column="check_date" property="checkDate"/>
+        <result column="check_number" property="checkNumber"/>
         <result column="order_id" property="orderId"/>
         <result column="order_number" property="orderNumber"/>
         <result column="order_date" property="orderDate"/>
         <result column="supplier_id" property="supplierId"/>
         <result column="supplier_name" property="supplierName"/>
-        <collection property="productList" resultMap ="InboundProductResultMap"/>
+        <collection property="productList" ofType="com.example.wms.inbound.adapter.in.dto.response.InboundProductDto">
+            <id property="productId" column="product_id"/>
+            <result property="productCode" column="product_code"/>
+            <result property="productName" column="product_name"/>
+            <result property="productCount" column="product_count"/>
+            <result property="lotCount" column="lot_count"/>
+        </collection>
     </resultMap>
 
     <resultMap id="InboundProductResultMap" type="com.example.wms.inbound.adapter.in.dto.response.InboundProductDto">
@@ -475,7 +488,7 @@
         <result column="product_name" property="productName"/>
         <result column="product_count" property="productCount"/>
         <result column="lot_count" property="lotCount"/>
-        <result column="defective_count" property="defectiveCount"/>
+        <result column="defective_lot_count" property="defectiveLotCount"/>
     </resultMap>
 
 
@@ -483,7 +496,7 @@
         <id column="supplier_id" property="supplierId"/>
         <result column="supplier_name" property="supplierName"/>
         <result column="product_count" property="productCount"/>
-        <result column="defective_count" property="defectiveCount"/>
+        <result column="defective_lot_count" property="defectiveLotCount"/>
 
         <collection property="inboundList" ofType="com.example.wms.inbound.adapter.in.dto.response.SupplierInboundDetailDto">
             <id column="inbound_id" property="inboundId"/>
@@ -502,6 +515,8 @@
         <result property="createdAt" column="created_at"/>
         <result property="scheduleNumber" column="schedule_number"/>
         <result property="scheduleDate" column="schedule_date"/>
+        <result property="checkNumber" column="check_number"/>
+        <result property="checkDate" column="check_date"/>
         <result property="orderId" column="order_id"/>
         <result property="orderNumber" column="order_number"/>
         <result property="orderDate" column="order_date"/>
@@ -521,7 +536,7 @@
 
     <resultMap id="InboundPutAwayResultMap" type="com.example.wms.inbound.adapter.in.dto.response.InboundPutAwayResDto">
         <id column="inbound_id" property="inboundId"/>
-        <result column="process" property="process"/>
+        <result column="inbound_status" property="inboundStatus"/>
         <result column="created_at" property="createdAt"/>
         <result column="schedule_number" property="scheduleNumber"/>
         <result column="check_number" property="checkNumber"/>
@@ -547,7 +562,7 @@
         <result column="product_code" property="productCode"/>
         <result column="product_name" property="productName"/>
         <result column="product_count" property="productCount"/>
-        <result column="defective_count" property="defectiveCount"/>
+        <result column="defective_lot_count" property="defectiveLotCount"/>
 
         <collection property="inboundList" ofType="com.example.wms.inbound.adapter.in.dto.response.InboundDetailDto">
             <id column="inbound_id" property="inboundId"/>

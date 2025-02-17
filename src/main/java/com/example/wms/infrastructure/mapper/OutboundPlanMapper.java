@@ -1,6 +1,7 @@
 package com.example.wms.infrastructure.mapper;
 
 import com.example.wms.outbound.adapter.in.dto.OutboundPlanRequestDto;
+import com.example.wms.outbound.adapter.in.dto.OutboundPlanResponseDto;
 import com.example.wms.outbound.adapter.in.dto.ProductInfoDto;
 import com.example.wms.outbound.application.domain.Outbound;
 import com.example.wms.outbound.application.domain.OutboundPlan;
@@ -68,7 +69,7 @@ public interface OutboundPlanMapper {
     })
     void updateOutboundPlanProducts(@Param("outboundPlanId") Long outboundPlanId, @Param("productList") List<ProductInfoDto> productList);
 
-    List<OutboundPlan> findOutboundPlanFilteringWithPageNation(
+    List<OutboundPlanResponseDto> findOutboundPlanFilteringWithPageNation(
             @Param("outboundScheduleNumber") String outboundScheduleNumber,
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate,

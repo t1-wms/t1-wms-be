@@ -1,5 +1,7 @@
 package com.example.wms.infrastructure.mapper;
 
+import com.example.wms.outbound.adapter.in.dto.OutboundAssignResponseDto;
+import com.example.wms.outbound.adapter.in.dto.OutboundLoadingResponseDto;
 import com.example.wms.outbound.application.domain.Outbound;
 import com.example.wms.outbound.application.domain.OutboundPlan;
 import org.apache.ibatis.annotations.Mapper;
@@ -47,7 +49,7 @@ public interface OutboundLoadingMapper {
     void updateOutboundLoading(@Param("outboundId") Long outboundId, @Param("outboundLoadingDate") LocalDate outboundLoadingDate);
 
     // 출고 로딩 조회
-    List<Outbound> findOutboundLoadingFilteringWithPageNation(
+    List<OutboundLoadingResponseDto> findOutboundLoadingFilteringWithPageNation(
             @Param("outboundLoadingNumber") String outboundLoadingNumber,
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate,

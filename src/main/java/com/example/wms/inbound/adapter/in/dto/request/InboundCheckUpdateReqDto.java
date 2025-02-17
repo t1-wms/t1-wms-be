@@ -21,14 +21,6 @@ public class InboundCheckUpdateReqDto {
     @Schema(description = "입하 검사일", example = "2025-02-15")
     private String checkDate;
 
-    @Schema(description = "입하 검사 수정 항목들", example = "{\n" +
-            "checkDate(검사일): String\n" +
-            "productList(품목 리스트): [\n" +
-            "  {\n" +
-            "  productId: Long\n" +
-            "  defectiveLotCount(불합격 수량): Long\n" +
-            "  }, …\n" +
-            "]\n" +
-            "}")
+    @Schema(description = "입하 검사 수정 항목들")
     private List<InboundCheckedProductReqDto> checkedProductList;
 }
