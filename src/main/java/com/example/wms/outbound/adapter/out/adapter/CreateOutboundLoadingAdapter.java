@@ -2,6 +2,7 @@ package com.example.wms.outbound.adapter.out.adapter;
 
 import com.example.wms.infrastructure.mapper.OutboundLoadingMapper;
 import com.example.wms.outbound.application.domain.Outbound;
+import com.example.wms.outbound.application.domain.OutboundPlan;
 import com.example.wms.outbound.application.port.out.CreateOutboundLoadingPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -25,5 +26,10 @@ public class CreateOutboundLoadingAdapter implements CreateOutboundLoadingPort {
     @Override
     public String findMaxOutboundLoadingNumber() {
         return outboundLoadingMapper.findMaxOutboundLoadingNumber();
+    }
+
+    @Override
+    public void updateOutboundPlanStatus(OutboundPlan outboundPlan) {
+        outboundLoadingMapper.updateOutboundPlanStatus(outboundPlan.getOutboundPlanId(), "출하상차");
     }
 }

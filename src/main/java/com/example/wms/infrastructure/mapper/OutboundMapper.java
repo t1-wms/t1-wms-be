@@ -70,5 +70,10 @@ public interface OutboundMapper {
     """)
     Outbound findOutboundByPlanId(@Param("outboundPlanId") Long outboundPlanId);
 
-
+    @Update("""
+        UPDATE outbound_plan
+        SET status = #{status}
+        WHERE outbound_plan_id = #{outboundPlanId}
+    """)
+    void updateOutboundPlanStatus(@Param("outboundPlanId") Long outboundPlanId,@Param("status") String status);
 }

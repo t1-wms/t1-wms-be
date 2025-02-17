@@ -43,10 +43,6 @@ public interface OutboundPlanMapper {
         deleteById(outboundPlanId);
     }
 
-    // outboundPlan 조회하기
-    List<OutboundPlan> findOutboundPlanWithPageNation(@Param("pageable") Pageable pageable);
-    Integer countAllOutboundPlan();
-
     // 출고 계획 수정
     @Update("UPDATE outbound_plan SET outbound_schedule_date = #{outboundPlanRequestDto.outboundScheduleDate}, plan_date = #{outboundPlanRequestDto.planDate} WHERE outbound_plan_id = #{outboundPlanId}")
     void updateOutboundPlan(@Param("outboundPlanId") Long outboundPlanId, @Param ("outboundPlanRequestDto") OutboundPlanRequestDto outboundPlanRequestDto);
@@ -80,4 +76,11 @@ public interface OutboundPlanMapper {
         WHERE outbound_plan_id = #{outboundPlanId};
     """)
     Optional<Outbound> findOutboundByOutboundPlanId(@Param("outboundPlanId") Long outboundPlanId);
+
+    @Update("""
+        UPDATE outbound_plan
+        SET status = #{status}
+        WHERE outbound_plan_id = #{outboundPlanId}
+    """)
+    void updateOutboundPlanStatus(@Param("outboundPlanId") Long outboundPlanId,@Param("status") String status);
 }
