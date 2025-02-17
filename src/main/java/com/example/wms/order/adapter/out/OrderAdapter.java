@@ -38,6 +38,7 @@ public class OrderAdapter implements OrderPort {
                 .isReturnOrder(true)
                 .orderStatus("처리중")
                 .inboundDate(LocalDate.now())
+                //.inboundDate(LocalDate.now().plusDays(product.getLeadTime()))
                 .build();
 
         orderMapper.createOrder(order);
