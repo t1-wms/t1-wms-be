@@ -32,26 +32,22 @@
         p.product_name,
         opp.required_quantity as productCount
         FROM (
-        SELECT *
-        FROM outbound_plan
+        SELECT op.*
+        FROM outbound_plan op
+        LEFT JOIN outbound o ON op.outbound_plan_id = o.outbound_plan_id
         <where>
+            o.outbound_plan_id IS NULL
             <!-- 시작일 조건 (startDate) -->
             <if test="startDate != null">
-                outbound_schedule_date <![CDATA[>=]]> #{startDate}
+                AND op.outbound_schedule_date <![CDATA[>=]]> #{startDate}
             </if>
             <!-- 종료일 조건 (endDate) -->
             <if test="endDate != null">
-                <if test="startDate != null">
-                    AND
-                </if>
-                outbound_schedule_date <![CDATA[<=]]> #{endDate}
+                AND op.outbound_schedule_date <![CDATA[<=]]> #{endDate}
             </if>
             <!-- 번호 조건 (outboundScheduleNumber) -->
             <if test="outboundScheduleNumber != null and outboundScheduleNumber != ''">
-                <if test="startDate != null or endDate != null">
-                    AND
-                </if>
-                outbound_schedule_number LIKE CONCAT('%', #{outboundScheduleNumber}, '%')
+                AND op.outbound_schedule_number LIKE CONCAT('%', #{outboundScheduleNumber}, '%')
             </if>
         </where>
         <!-- 정렬 조건 -->
@@ -80,8 +76,10 @@
 
     <select id="countAllOutboundPlanFiltering" resultType="Integer">
         SELECT COUNT(*)
-        FROM outbound_plan
+        FROM outbound_plan op
+        LEFT JOIN outbound o ON op.outbound_plan_id = o.outbound_plan_id
         <where>
+            o.outbound_plan_id IS NULL
             <!-- 시작일 조건 (startDate) -->
             <if test="startDate != null">
                 outbound_schedule_date <![CDATA[>=]]> #{startDate}
