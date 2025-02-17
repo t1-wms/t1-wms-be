@@ -59,10 +59,30 @@
     </select>
 
     <select id="countAllOutboundPlanFiltering" resultType="Integer">
-        SELECT COUNT(*) FROM outbound_plan
-        WHERE
-        outbound_schedule_date BETWEEN #{startDate} AND #{endDate}
-        AND (#{outboundScheduleNumber} IS NULL OR outbound_schedule_number LIKE CONCAT('%', #{outboundScheduleNumber}, '%'))
+        SELECT COUNT(*)
+        FROM outbound_plan
+        <where>
+            <!-- 시작일 조건 (startDate) -->
+            <if test="startDate != null">
+                outbound_schedule_date <![CDATA[>=]]> #{startDate}
+            </if>
+
+            <!-- 종료일 조건 (endDate) -->
+            <if test="endDate != null">
+                <if test="startDate != null">
+                    AND
+                </if>
+                outbound_schedule_date <![CDATA[<=]]> #{endDate}
+            </if>
+
+            <!-- 번호 조건 (outboundScheduleNumber) -->
+            <if test="outboundScheduleNumber != null and outboundScheduleNumber != ''">
+                <if test="startDate != null or endDate != null">
+                    AND
+                </if>
+                outbound_schedule_number LIKE CONCAT('%', #{outboundScheduleNumber}, '%')
+            </if>
+        </where>
     </select>
 
 

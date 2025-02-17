@@ -12,4 +12,5 @@ public interface GetOutboundAssignPort {
     List<Outbound> findOutboundAssignFilteringWithPageNation(String outboundAssignNumber, LocalDate startDate, LocalDate endDate,Pageable pageable);
     List<ProductInfoDto> findProductInfoByOutboundPlanId(Long outboundPlanId);
     OutboundPlan findOutboundPlanByOutboundPlanId(Long outboundPlanId);
+    Integer countAssign(String outboundAssignNumber, LocalDate startDate, LocalDate endDate);
 }

@@ -55,4 +55,8 @@ public interface OutboundLoadingMapper {
 
     OutboundPlan findOutboundPlanByOutboundPlanId(@Param("outboundPlanId") Long outboundPlanId);
 
+    Integer countLoading(@Param("outboundLoadingNumber") String outboundLoadingNumber,
+                         @Param("startDate") LocalDate startDate,
+                         @Param("endDate") LocalDate endDate);
+
 }

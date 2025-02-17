@@ -19,4 +19,9 @@ public interface OutboundAssignMapper {
             @Param("pageable") Pageable pageable);
 
     OutboundPlan findOutboundPlanByOutboundPlanId(@Param("outboundPlanId") Long outboundPlanId);
+    Integer countAssign(
+            @Param("outboundAssignNumber") String outboundAssignNumber,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate
+    );
 }

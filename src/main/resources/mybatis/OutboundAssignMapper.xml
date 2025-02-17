@@ -48,4 +48,30 @@
         FROM outbound_plan
         WHERE outbound_plan_id = #{outboundPlanId}
     </select>
+
+    <select id="countAssign">
+        SELECT COUNT(*)
+        FROM outbound
+        <where>
+            outbound_assign_number IS NOT NULL
+            <!-- 시작일 조건 (startDate) -->
+            <if test="startDate != null">
+                AND
+                outbound_assign_date <![CDATA[>=]]> #{startDate}
+            </if>
+
+            <!-- 종료일 조건 (endDate) -->
+            <if test="endDate != null">
+                AND
+                outbound_assign_date <![CDATA[<=]]> #{endDate}
+            </if>
+
+            <!-- 번호 조건 (outboundAssignNumber) -->
+            <if test="outboundAssignNumber != null and outboundAssignNumber != ''">
+                AND
+                outbound_assign_number LIKE CONCAT('%', #{outboundAssignNumber}, '%')
+            </if>
+        </where>
+    </select>
+
 </mapper>

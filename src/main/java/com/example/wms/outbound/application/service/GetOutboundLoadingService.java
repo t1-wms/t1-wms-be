@@ -28,7 +28,8 @@ public class GetOutboundLoadingService implements GetOutboundLoadingUseCase {
     public Page<OutboundLoadingResponseDto> getFilteredOutboundLoadings(String outboundLoadingNumber, LocalDate startDate, LocalDate endDate, Pageable pageable) {
         Pageable safePageale = PageableUtils.convertToSafePageableStrict(pageable, Outbound.class);
         List<Outbound> outboundList = getOutboundLoadingPort.findOutboundLoadingFilteringWithPageNation(outboundLoadingNumber, startDate, endDate, safePageale);
-        return new PageImpl<>(covertToDtoList(outboundList), pageable, outboundList.size());
+        Integer count = getOutboundLoadingPort.countLoading(outboundLoadingNumber, startDate, endDate);
+        return new PageImpl<>(covertToDtoList(outboundList), pageable, count);
     }
 
     private List<OutboundLoadingResponseDto> covertToDtoList(List<Outbound> outboundList) {
@@ -50,10 +51,20 @@ public class GetOutboundLoadingService implements GetOutboundLoadingUseCase {
 
         OutboundPlan outboundPlan = getOutboundLoadingPort.findOutboundPlanByOutboundPlanId(outbound.getOutboundPlanId());
 
+        String process = "출고지시";
+
+        if(outbound.getOutboundPickingNumber() != null && outbound.getOutboundPackingNumber() != null && outbound.getOutboundLoadingNumber() != null) {
+            process = "출하상차 및 확정";
+        } else if(outbound.getOutboundPickingNumber() != null && outbound.getOutboundPackingNumber() != null) {
+            process = "출고패킹";
+        } else if(outbound.getOutboundPickingNumber() != null) {
+            process = "출고피킹";
+        }
+
         return OutboundLoadingResponseDto.builder()
                 .outboundId(outbound.getOutboundId())
                 .outboundPlanId(outbound.getOutboundPlanId())
-                .process("여기수정해야됨") //outbound테이블 보고 수정하기
+                .process(process) //outbound테이블 보고 수정하기
                 .outboundScheduleNumber(outboundPlan.getOutboundScheduleNumber())
                 .outboundAssignNumber(outbound.getOutboundAssignNumber())
                 .outboundPickingNumber(outbound.getOutboundPickingNumber())
