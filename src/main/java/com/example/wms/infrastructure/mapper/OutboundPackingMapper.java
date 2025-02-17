@@ -54,4 +54,8 @@ public interface OutboundPackingMapper {
 
     OutboundPlan findOutboundPlanByOutboundPlanId(@Param("outboundPlanId") Long outboundPlanId);
 
+    Integer countPacking(@Param("outboundPackingNumber") String outboundPackingNumber,
+                         @Param("startDate") LocalDate startDate,
+                         @Param("endDate") LocalDate endDate);
+
 }

@@ -12,4 +12,5 @@ public interface GetOutboundLoadingPort {
     List<Outbound> findOutboundLoadingFilteringWithPageNation(String outboundLoadingNumber, LocalDate startDate, LocalDate endDate, Pageable pageable);
     List<ProductInfoDto> findProductInfoByOutboundPlanId(Long outboundPlanId);
     OutboundPlan findOutboundPlanByOutboundPlanId(Long outboundPlanId);
+    Integer countLoading(String outboundLoadingNumber, LocalDate startDate, LocalDate endDate);
 }

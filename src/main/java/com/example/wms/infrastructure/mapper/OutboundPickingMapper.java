@@ -55,6 +55,11 @@ public interface OutboundPickingMapper {
 
     OutboundPlan findOutboundPlanByOutboundPlanId(@Param("outboundPlanId") Long outboundPlanId);
 
+    Integer countAllPicking(
+            @Param("outboundPickingNumber") String outboundPickingNumber,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate
+    );
 
 
 }
