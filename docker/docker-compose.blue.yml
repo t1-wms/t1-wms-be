@@ -15,22 +15,6 @@ services:
       - servernetwork
     restart: unless-stopped
 
-  nginx:
-    image: nginx:alpine
-    container_name: nginx
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./nginx/conf.d:/etc/nginx/conf.d:ro
-      - /etc/letsencrypt:/etc/letsencrypt:ro
-    depends_on:
-      - spring-wms-blue
-    networks:
-      - servernetwork
-    restart: unless-stopped
-
 networks:
   servernetwork:
     external: true
