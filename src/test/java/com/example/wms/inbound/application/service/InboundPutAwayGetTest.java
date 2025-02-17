@@ -4,6 +4,7 @@ import com.example.wms.inbound.adapter.in.dto.response.InboundProductDto;
 import com.example.wms.inbound.adapter.in.dto.response.InboundPutAwayResDto;
 import com.example.wms.inbound.application.port.out.InboundRetrievalPort;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -53,6 +54,7 @@ public class InboundPutAwayGetTest {
     }
 
     @Test
+    @DisplayName("입고 적치 목록 조회를 테스트합니다.")
     void testGetAllInboundPutAway() {
 
         // given

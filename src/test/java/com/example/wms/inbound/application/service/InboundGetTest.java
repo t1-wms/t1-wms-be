@@ -4,6 +4,7 @@ import com.example.wms.inbound.adapter.in.dto.response.InboundAllProductDto;
 import com.example.wms.inbound.adapter.in.dto.response.InboundResDto;
 import com.example.wms.inbound.application.port.out.InboundRetrievalPort;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -48,6 +49,7 @@ class InboundGetTest {
     }
 
     @Test
+    @DisplayName("입하 예정 목록을 조회합니다.")
     void testGetInboundPlans() {
         Pageable pageable = PageRequest.of(0,10);
         when(inboundRetrievalPort.findInboundProductListWithPagination(any(Pageable.class)))
@@ -65,7 +67,9 @@ class InboundGetTest {
     }
 
     @Test
+    @DisplayName("입하 예정 목록을 필터링하여 조회합니다.")
     void testGetFilteredInboundPlans() {
+
         // given
         String inboundScheduleNumber = "Schedule1";
         LocalDate startDate = LocalDate.of(2025, 2, 1);
