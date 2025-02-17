@@ -1,5 +1,6 @@
 package com.example.wms.infrastructure.mapper;
 
+import com.example.wms.outbound.adapter.in.dto.OutboundPackingResponseDto;
 import com.example.wms.outbound.application.domain.Outbound;
 import com.example.wms.outbound.application.domain.OutboundPlan;
 import org.apache.ibatis.annotations.Mapper;
@@ -46,7 +47,7 @@ public interface OutboundPackingMapper {
     void updateOutboundPacking(@Param("outboundId") Long outboundId, @Param("outboundPackingDate") LocalDate outboundPackingDate);
 
     // 출고 패킹 조회
-    List<Outbound> findOutboundPackingFilteringWithPageNation(
+    List<OutboundPackingResponseDto> findOutboundPackingFilteringWithPageNation(
             @Param("outboundPackingNumber") String outboundPackingNumber,
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate,
