@@ -13,7 +13,7 @@ public interface InboundRetrievalPort {
     Integer countAllInboundPlan();
     Integer countFilteredInboundPlan(String inboundScheduleNumber, LocalDate startDate, LocalDate endDate);
     Integer countFilteredInboundCheck(String inboundCheckNumber, LocalDate startDate, LocalDate endDate);
-    List<InboundPutAwayResDto> findFilteredInboundPutAway(String putAwayNumber, LocalDate startDate, LocalDate endDate, Pageable pageable);
+    List<InboundPutAwayResDto> findFilteredInboundPutAway(String inboundPutAwayNumber, LocalDate startDate, LocalDate endDate, Pageable pageable);
     Integer countFilteredPutAway(String putAwayNumber, LocalDate startDate, LocalDate endDate);
     List<ProductInboundResDto> findAllInboundByProductWithPagination(LocalDate startDate, LocalDate endDate, Pageable pageable);
     List<SupplierInboundResDto> findAllInboundBySupplierWithPagination(LocalDate startDate, LocalDate endDate, Pageable pageable);

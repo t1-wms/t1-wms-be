@@ -25,12 +25,6 @@ public class InboundCheckReqDto {
     @Schema(description = "입하예정등록번호", example = "IS202502100243")
     private String scheduleNumber;
 
-    @Schema(description = "한 입하 예정에 속한 입하검사 품목 리스트", example = "" +
-            "[\n" +
-            "{\n" +
-            "productId: Long\n" +
-            "defectiveLotCount: Long\n" +
-            "}, …\n" +
-            "]")
+    @Schema(description = "한 입하 예정에 속한 입하검사 품목 리스트")
     private List<InboundCheckedProductReqDto> checkedProductList;
 }

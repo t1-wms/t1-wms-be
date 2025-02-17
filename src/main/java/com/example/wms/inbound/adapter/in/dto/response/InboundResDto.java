@@ -21,7 +21,7 @@ public class InboundResDto {
     @Schema(description = "입고 id", example = "12")
     private Long inboundId;
 
-    @Schema(description = "입고 과정", example = "입하예정, 입하검사, 입고적치")
+    @Schema(description = "입고 과정", example = "입하예정")
     private String inboundStatus;
 
     @Schema(description = "생성 날짜", example = "2025-02-16")
@@ -54,13 +54,7 @@ public class InboundResDto {
     @Schema(description = "납품업체명", example = "hyundai tire")
     private String supplierName;
 
-    @Schema(description = "입고 품목 리스트", example = "  {\n" +
-            "  productId: Long\n" +
-            "  productCode: String\n" +
-            "  productName: String\n" +
-            "  productCount: Long\n" +
-            "  lotCount: Long\n" +
-            "  }, … ")
+    @Schema(description = "입고 품목 리스트")
     private List<InboundProductDto> productList;
 }
 

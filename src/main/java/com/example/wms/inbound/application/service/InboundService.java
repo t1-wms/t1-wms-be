@@ -179,7 +179,7 @@ public class InboundService implements InboundUseCase {
 
         for (InboundCheckedProductReqDto checkedProduct : inboundCheckReqDto.getCheckedProductList()) {
             Long productId = checkedProduct.getProductId();
-            Long defectiveLotCount = checkedProduct.getDefectiveLotCount();
+            Long defectiveLotCount = checkedProduct.getDefectiveCount();
 
             Product product = productPort.findById(productId);
 
@@ -240,7 +240,7 @@ public class InboundService implements InboundUseCase {
 
         for (InboundCheckedProductReqDto checkedProduct : updateReqDto.getCheckedProductList()) {
             Long productId = checkedProduct.getProductId();
-            Long updatedDefectiveCount = checkedProduct.getDefectiveLotCount();
+            Long updatedDefectiveCount = checkedProduct.getDefectiveCount();
 
             Product product = productPort.findById(productId);
 
@@ -263,11 +263,11 @@ public class InboundService implements InboundUseCase {
     }
 
     @Override
-    public Page<InboundPutAwayResDto> getFilteredPutAway(String putAwayNumber, LocalDate startDate, LocalDate endDate, Pageable pageable) {
+    public Page<InboundPutAwayResDto> getFilteredPutAway(String inboundPutAwayNumber, LocalDate startDate, LocalDate endDate, Pageable pageable) {
         Pageable safePageable = PageableUtils.convertToSafePageableStrict(pageable, Inbound.class);
 
-        List<InboundPutAwayResDto> inboundPutAwayList = inboundRetrievalPort.findFilteredInboundPutAway(putAwayNumber, startDate, endDate, safePageable);
-        Integer count = inboundRetrievalPort.countFilteredPutAway(putAwayNumber, startDate, endDate);
+        List<InboundPutAwayResDto> inboundPutAwayList = inboundRetrievalPort.findFilteredInboundPutAway(inboundPutAwayNumber, startDate, endDate, safePageable);
+        Integer count = inboundRetrievalPort.countFilteredPutAway(inboundPutAwayNumber, startDate, endDate);
 
         return new PageImpl<>(inboundPutAwayList, safePageable, count);
     }

@@ -154,11 +154,11 @@
                 put_away_date <![CDATA[<=]]> #{endDate}
             </if>
 
-            <if test="putAwayNumber != null and putAwayNumber != ''">
+            <if test="inboundPutAwayNumber != null and inboundPutAwayNumber != ''">
                 <if test="startDate != null or endDate != null">
                     AND
                 </if>
-                put_away_number LIKE CONCAT('%', #{putAwayNumber}, '%')
+                put_away_number LIKE CONCAT('%', #{inboundPutAwayNumber}, '%')
             </if>
         </where>
 
@@ -241,9 +241,34 @@
     </select>
 
     <select id="countAllInboundCheckFiltering" resultType="int">
-        SELECT COUNT(*) FROM inbound
-        WHERE check_number = #{checkNumber}
-        AND check_date BETWEEN #{startDate} AND #{endDate}
+        SELECT COUNT(*)
+        FROM inbound
+        <where>
+            <if test="inboundCheckNumber != null">
+                inbound_check_number = #{inboundCheckNumber}
+            </if>
+
+            <if test="startDate != null">
+                <if test="inboundCheckNumber != null">
+                    AND
+                </if>
+                check_date <![CDATA[>=]]> #{startDate}
+            </if>
+
+            <if test="endDate != null">
+                <if test="checkNumber != null or startDate != null">
+                    AND
+                </if>
+                check_date <![CDATA[<=]]> #{endDate}
+            </if>
+
+            <if test="inboundScheduleNumber != null and inboundScheduleNumber != ''">
+                <if test="inboundCheckNumber != null or startDate != null or endDate != null">
+                    AND
+                </if>
+                schedule_number LIKE CONCAT('%', #{inboundScheduleNumber}, '%')
+            </if>
+        </where>
     </select>
 
     <select id="findAllInboundBySupplierWithPagination" resultMap="SupplierInboundResultMap">

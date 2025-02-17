@@ -47,13 +47,13 @@ public class InboundRetrievalAdapter implements InboundRetrievalPort {
     }
 
     @Override
-    public List<InboundPutAwayResDto> findFilteredInboundPutAway(String putAwayNumber, LocalDate startDate, LocalDate endDate, Pageable pageable) {
-        return inboundRetrievalMapper.findInboundPutAwayFilteringWithPagination(putAwayNumber, startDate, endDate, pageable);
+    public List<InboundPutAwayResDto> findFilteredInboundPutAway(String inboundPutAwayNumber, LocalDate startDate, LocalDate endDate, Pageable pageable) {
+        return inboundRetrievalMapper.findInboundPutAwayFilteringWithPagination(inboundPutAwayNumber, startDate, endDate, pageable);
     }
 
     @Override
-    public Integer countFilteredPutAway(String putAwayNumber, LocalDate startDate, LocalDate endDate) {
-        return inboundRetrievalMapper.countFilteredPutAway(putAwayNumber, startDate, endDate);
+    public Integer countFilteredPutAway(String inboundPutAwayNumber, LocalDate startDate, LocalDate endDate) {
+        return inboundRetrievalMapper.countFilteredPutAway(inboundPutAwayNumber, startDate, endDate);
     }
 
     @Override
