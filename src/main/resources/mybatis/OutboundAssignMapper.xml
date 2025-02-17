@@ -17,11 +17,26 @@
             <id property="productId" column="product_id"/>
             <result property="productCode" column="product_code"/>
             <result property="productName" column="product_name"/>
-            <result property="productCount" column="product_count"/>
+            <result property="productCount" column="productCount"/>
         </collection>
     </resultMap>
 
     <select id="findOutboundAssignFilteringWithPageNation" resultMap="OutboundAssignResponseDtoResultMap">
+        SELECT
+        b.outbound_id,
+        b.outbound_plan_id,
+        b.process,
+        b.outbound_schedule_number,
+        b.outbound_assign_number,
+        b.outbound_assign_date,
+        b.production_plan_number,
+        b.plan_date,
+        -- Product 정보 컬럼
+        p.product_id,
+        p.product_code,
+        p.product_name,
+        opp.required_quantity AS productCount
+        FROM (
         SELECT
         o.outbound_id,
         op.outbound_plan_id,
@@ -30,37 +45,27 @@
         o.outbound_assign_number,
         o.outbound_assign_date,
         op.production_plan_number,
-        op.plan_date,
-        -- Product 정보 컬럼
-        p.product_id,
-        p.product_code,
-        p.product_name,
-        opp.required_quantity as productCount
+        op.plan_date
         FROM outbound o
         JOIN outbound_plan op ON o.outbound_plan_id = op.outbound_plan_id
-        LEFT JOIN outbound_plan_product opp ON o.outbound_plan_id = opp.outbound_plan_id
-        LEFT JOIN product p ON opp.product_id = p.product_id
         <where>
-            outbound_assign_number IS NOT NULL AND outbound_picking_number IS NULL AND outbound_packing_number IS NULL AND outbound_loading_number IS NULL
+            outbound_assign_number IS NOT NULL
+            AND outbound_picking_number IS NULL
+            AND outbound_packing_number IS NULL
+            AND outbound_loading_number IS NULL
             <!-- 시작일 조건 (startDate) -->
             <if test="startDate != null">
-                AND
-                outbound_assign_date <![CDATA[>=]]> #{startDate}
+                AND outbound_assign_date <![CDATA[>=]]> #{startDate}
             </if>
-
             <!-- 종료일 조건 (endDate) -->
             <if test="endDate != null">
-                AND
-                outbound_assign_date <![CDATA[<=]]> #{endDate}
+                AND outbound_assign_date <![CDATA[<=]]> #{endDate}
             </if>
-
             <!-- 번호 조건 (outboundAssignNumber) -->
             <if test="outboundAssignNumber != null and outboundAssignNumber != ''">
-                AND
-                outbound_assign_number LIKE CONCAT('%', #{outboundAssignNumber}, '%')
+                AND outbound_assign_number LIKE CONCAT('%', #{outboundAssignNumber}, '%')
             </if>
         </where>
-
         <!-- 정렬 조건 -->
         <if test="pageable.sort.sorted">
             <trim prefix="ORDER BY">
@@ -73,9 +78,11 @@
                 </foreach>
             </trim>
         </if>
-
         <!-- 페이징 조건 -->
         LIMIT #{pageable.pageSize} OFFSET #{pageable.offset}
+        ) b
+        LEFT JOIN outbound_plan_product opp ON b.outbound_plan_id = opp.outbound_plan_id
+        LEFT JOIN product p ON opp.product_id = p.product_id
     </select>
 
 
