@@ -33,19 +33,22 @@ public interface OutboundPlanMapper {
     @Delete("DELETE FROM outbound_plan_product WHERE outbound_plan_id = #{outboundPlanId}")
     void deleteOutboundPlanProductsByPlanId(@Param("outboundPlanId") Long outboundPlanId);
 
+    // outbound 삭제하기
+    @Delete("DELETE FROM outbound WHERE outbound_plan_id = #{outboundPlanId}")
+    void deleteOutboundById(@Param("outboundPlanId") Long outboundPlanId);
+
     // outboundPlan 삭제 시 outboundPlanProduct도 함께 삭제
     @Transactional
     default void deleteOutboundPlanAndProducts(Long outboundPlanId) {
         // outbound_plan_product 삭제
         deleteOutboundPlanProductsByPlanId(outboundPlanId);
 
+        // outbound 삭제
+        deleteOutboundById(outboundPlanId);
+
         // outbound_plan 삭제
         deleteById(outboundPlanId);
     }
-
-    // outboundPlan 조회하기
-    List<OutboundPlan> findOutboundPlanWithPageNation(@Param("pageable") Pageable pageable);
-    Integer countAllOutboundPlan();
 
     // 출고 계획 수정
     @Update("UPDATE outbound_plan SET outbound_schedule_date = #{outboundPlanRequestDto.outboundScheduleDate}, plan_date = #{outboundPlanRequestDto.planDate} WHERE outbound_plan_id = #{outboundPlanId}")
@@ -80,4 +83,11 @@ public interface OutboundPlanMapper {
         WHERE outbound_plan_id = #{outboundPlanId};
     """)
     Optional<Outbound> findOutboundByOutboundPlanId(@Param("outboundPlanId") Long outboundPlanId);
+
+    @Update("""
+        UPDATE outbound_plan
+        SET status = #{status}
+        WHERE outbound_plan_id = #{outboundPlanId}
+    """)
+    void updateOutboundPlanStatus(@Param("outboundPlanId") Long outboundPlanId,@Param("status") String status);
 }

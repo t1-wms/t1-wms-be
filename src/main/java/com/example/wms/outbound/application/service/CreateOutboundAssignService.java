@@ -4,8 +4,10 @@ import com.example.wms.infrastructure.exception.DuplicatedException;
 import com.example.wms.notification.application.domain.Notification;
 import com.example.wms.notification.application.port.out.NotificationPort;
 import com.example.wms.outbound.application.domain.Outbound;
+import com.example.wms.outbound.application.domain.OutboundPlan;
 import com.example.wms.outbound.application.port.in.CreateOutboundAssignUseCase;
 import com.example.wms.outbound.application.port.out.CreateOutboundAssignPort;
+import com.example.wms.outbound.application.port.out.GetOutboundAssignPort;
 import com.example.wms.user.application.domain.enums.UserRole;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +23,7 @@ public class CreateOutboundAssignService implements CreateOutboundAssignUseCase 
 
     private final CreateOutboundAssignPort createOutboundAssignPort;
     private final NotificationPort notificationPort;
+    private final GetOutboundAssignPort getOutboundAssignPort;
 
     @Override
     @Transactional
@@ -67,6 +70,10 @@ public class CreateOutboundAssignService implements CreateOutboundAssignUseCase 
 
             createOutboundAssignPort.save(outbound);
         }
+
+        // outboundPlan status 바꿔주기
+        OutboundPlan outboundPlan = getOutboundAssignPort.findOutboundPlanByOutboundPlanId(outboundPlanId);
+        createOutboundAssignPort.updateOutboundPlanStatus(outboundPlan);
 
         Notification notification = Notification.builder()
                 .content("출고 지시가 등록되었습니다.")

@@ -39,4 +39,9 @@ public class GetOutboundLoadingAdapter implements GetOutboundLoadingPort {
     public Integer countLoading(String outboundLoadingNumber, LocalDate startDate, LocalDate endDate) {
         return outboundLoadingMapper.countLoading(outboundLoadingNumber, startDate, endDate);
     }
+
+    @Override
+    public Outbound findOutboundByOutboundId(Long outboundId) {
+        return outboundLoadingMapper.findOutboundByOutboundId(outboundId);
+    }
 }

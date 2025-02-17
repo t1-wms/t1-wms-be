@@ -5,8 +5,10 @@ import com.example.wms.notification.application.domain.Notification;
 import com.example.wms.notification.application.port.in.NotificationUseCase;
 import com.example.wms.notification.application.port.out.NotificationPort;
 import com.example.wms.outbound.application.domain.Outbound;
+import com.example.wms.outbound.application.domain.OutboundPlan;
 import com.example.wms.outbound.application.port.in.CreateOutboundPackingUseCase;
 import com.example.wms.outbound.application.port.out.CreateOutboundPackingPort;
+import com.example.wms.outbound.application.port.out.GetOutboundPackingPort;
 import com.example.wms.user.application.domain.enums.UserRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,6 +20,7 @@ import java.time.LocalDate;
 public class CreateOutboundPackingService implements CreateOutboundPackingUseCase {
 
     private final CreateOutboundPackingPort createOutboundPackingPort;
+    private final GetOutboundPackingPort getOutboundPackingPort;
     private final NotificationPort notificationPort;
 
     @Override
@@ -46,6 +49,10 @@ public class CreateOutboundPackingService implements CreateOutboundPackingUseCas
         existingOutbound.setOutboundPackingDate(LocalDate.now());
 
         createOutboundPackingPort.createOutboundPacking(existingOutbound);
+
+        // outboundPlan status 바꿔주기
+        OutboundPlan outboundPlan = getOutboundPackingPort.findOutboundPlanByOutboundPlanId(outboundPlanId);
+        createOutboundPackingPort.updateOutboundPlanStatus(outboundPlan);
 
         Notification notification = Notification.builder()
                 .content("출고 패킹이 등록되었습니다.")
