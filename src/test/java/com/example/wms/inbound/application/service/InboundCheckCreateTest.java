@@ -49,7 +49,7 @@ public class InboundCheckCreateTest {
     private ProductPort productPort;
 
     @Test
-    @DisplayName("관리자가 입하 검사를 생성하면 InboundCheckPort의 update 메서드와 LotPort의 updateStatus가 호출되어야 한다.")
+    @DisplayName("관리자가 입하 검사를 생성하면 InboundCheckPort의 update 메서드가 호출되어야 한다.")
     public void testCreateInboundCheck() {
 
         // given
@@ -97,8 +97,6 @@ public class InboundCheckCreateTest {
 
         // then
         verify(inboundPort, times(1)).updateIC(eq(1L), any(LocalDate.class), any(String.class));
-        verify(lotPort, times(1)).updateStatus(1L);
-        verify(lotPort, times(1)).updateStatus(2L);
 
         verify(inboundCheckPort, times(2)).save(any(InboundCheck.class));
 

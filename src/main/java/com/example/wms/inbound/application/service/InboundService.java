@@ -196,8 +196,6 @@ public class InboundService implements InboundUseCase {
             inboundCheckList.add(inboundCheck);
             inboundCheckPort.save(inboundCheck);
 
-            lotPort.updateStatus(productId);
-
             if (defectiveLotCount > 0) {
                 orderPort.createOrder(product.getSupplierId(), defectiveLotCount);
             }
