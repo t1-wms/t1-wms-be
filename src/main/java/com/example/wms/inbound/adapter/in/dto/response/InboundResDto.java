@@ -33,6 +33,12 @@ public class InboundResDto {
     @Schema(description = "입하예정날짜", example = "2025-02-13")
     private LocalDate scheduleDate;
 
+    @Schema(description = "입하 검사 번호", example = "IC202502030001")
+    private String checkNumber;
+
+    @Schema(description = "입하예정날짜", example = "2025-02-13")
+    private LocalDate checkDate;
+
     @Schema(description = "발주Id", example = "13")
     private Long orderId;
 
