@@ -4,8 +4,10 @@ import com.example.wms.infrastructure.exception.DuplicatedException;
 import com.example.wms.notification.application.domain.Notification;
 import com.example.wms.notification.application.port.out.NotificationPort;
 import com.example.wms.outbound.application.domain.Outbound;
+import com.example.wms.outbound.application.domain.OutboundPlan;
 import com.example.wms.outbound.application.port.in.CreateOutboundPickingUseCase;
 import com.example.wms.outbound.application.port.out.CreateOutboundPickingPort;
+import com.example.wms.outbound.application.port.out.GetOutboundPickingPort;
 import com.example.wms.user.application.domain.enums.UserRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,6 +20,7 @@ public class CreateOutboundPickingService implements CreateOutboundPickingUseCas
 
     private final CreateOutboundPickingPort createOutboundPickingPort;
     private final NotificationPort notificationPort;
+    private final GetOutboundPickingPort getOutboundPickingPort;
 
     @Override
     public Notification createOutboundPicking(Long outboundPlanId) {
@@ -46,6 +49,10 @@ public class CreateOutboundPickingService implements CreateOutboundPickingUseCas
         existingOutbound.setOutboundPickingDate(LocalDate.now());
 
         createOutboundPickingPort.createOutboundPicking(existingOutbound);
+
+        // outboundPlan status 바꿔주기
+        OutboundPlan outboundPlan = getOutboundPickingPort.findOutboundPlanByOutboundPlanId(outboundPlanId);
+        createOutboundPickingPort.updateOutboundPlanStatus(outboundPlan);
 
         Notification notification = Notification.builder()
                 .content("출고 피킹이 등록되었습니다.")

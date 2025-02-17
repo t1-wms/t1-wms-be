@@ -13,4 +13,5 @@ public interface GetOutboundPackingPort {
     List<ProductInfoDto> findProductInfoByOutboundPlanId(Long outboundPlanId);
     OutboundPlan findOutboundPlanByOutboundPlanId(Long outboundPlanId);
     Integer countPacking(String outboundPackingNumber, LocalDate startDate, LocalDate endDate);
+    Outbound findOutboundByOutboundId(Long outboundId);
 }

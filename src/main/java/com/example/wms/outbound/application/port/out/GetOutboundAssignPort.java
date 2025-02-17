@@ -13,4 +13,5 @@ public interface GetOutboundAssignPort {
     List<ProductInfoDto> findProductInfoByOutboundPlanId(Long outboundPlanId);
     OutboundPlan findOutboundPlanByOutboundPlanId(Long outboundPlanId);
     Integer countAssign(String outboundAssignNumber, LocalDate startDate, LocalDate endDate);
+    Outbound findOutboundByOutboundId(Long outboundId);
 }

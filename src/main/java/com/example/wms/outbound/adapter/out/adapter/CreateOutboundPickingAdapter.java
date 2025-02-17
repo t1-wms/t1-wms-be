@@ -3,6 +3,7 @@ package com.example.wms.outbound.adapter.out.adapter;
 import com.example.wms.infrastructure.mapper.OutboundPickingMapper;
 import com.example.wms.notification.application.domain.Notification;
 import com.example.wms.outbound.application.domain.Outbound;
+import com.example.wms.outbound.application.domain.OutboundPlan;
 import com.example.wms.outbound.application.port.out.CreateOutboundPickingPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -26,5 +27,10 @@ public class CreateOutboundPickingAdapter implements CreateOutboundPickingPort {
     @Override
     public String findMaxOutboundPickingNumber() {
         return outboundPickingMapper.findMaxOutboundPickingNumber();
+    }
+
+    @Override
+    public void updateOutboundPlanStatus(OutboundPlan outboundPlan) {
+        outboundPickingMapper.updateOutboundPlanStatus(outboundPlan.getOutboundPlanId(), "출고피킹");
     }
 }
