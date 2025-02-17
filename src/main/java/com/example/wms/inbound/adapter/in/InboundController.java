@@ -1,6 +1,5 @@
 package com.example.wms.inbound.adapter.in;
 
-import com.example.wms.inbound.adapter.in.dto.request.InboundCheckReqDto;
 import com.example.wms.inbound.adapter.in.dto.request.InboundReqDto;
 import com.example.wms.inbound.adapter.in.dto.response.InboundResDto;
 import com.example.wms.inbound.application.port.in.InboundUseCase;
@@ -68,7 +67,4 @@ public class InboundController {
         inboundUseCase.deleteInboundPlan(inboundId);
         return ResponseEntity.noContent().build();
     }
-
-
-
 }
