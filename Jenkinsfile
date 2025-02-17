@@ -84,12 +84,12 @@ pipeline {
                                     removePrefix: "./",
                                     execCommand: """
                                         echo "===== Starting deployment process... ====="
-                                        echo "Current directory: $(pwd)"
+                                        echo "Current directory: \$(pwd)"
                                         echo "Using docker-compose file: ${composeFile}"
                                         docker-compose -f /home/ec2-user/backend/${composeFile} down
                                         docker-compose -f /home/ec2-user/backend/${composeFile} up -d
                                         docker ps -a
-                                        docker inspect $(docker ps -q)
+                                        docker inspect \$(docker ps -q)
                                         docker logs backend
                                     """
                                 )
