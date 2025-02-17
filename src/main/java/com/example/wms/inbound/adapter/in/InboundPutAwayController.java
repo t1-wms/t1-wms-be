@@ -32,10 +32,10 @@ public class InboundPutAwayController {
     @GetMapping
     @Operation(summary = "입고 적치 목록 조회하기" , description = "필터링 값이 없으면 전체 조회합니다.")
     public ResponseEntity<Page<InboundPutAwayResDto>> getInboundPutAway(
-            @RequestParam(value = "putAwayNumber", required = false) String putAwayNumber,
+            @RequestParam(value = "inboundPutAwayNumber", required = false) String inboundPutAwayNumber,
             @RequestParam(value = "startDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam(value = "endDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
             @ParameterObject Pageable pageable) {
-        return ResponseEntity.ok(inboundUseCase.getFilteredPutAway(putAwayNumber, startDate, endDate, pageable));
+        return ResponseEntity.ok(inboundUseCase.getFilteredPutAway(inboundPutAwayNumber, startDate, endDate, pageable));
     }
 }
