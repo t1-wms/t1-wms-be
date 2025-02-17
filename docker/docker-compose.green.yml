@@ -1,16 +1,18 @@
 version: '3'
+
 services:
   backend:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     ports:
-      - "8012:80"
+      - "8012:8012"
     container_name: spring-wms-green
     environment:
       - TZ=Asia/Seoul
     networks:
       - servernetwork
     volumes:
-      - ./app:/app
       - /var/run/docker.sock:/var/run/docker.sock
 
   nginx:
@@ -19,13 +21,12 @@ services:
     ports:
       - "80:80"
     volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf  # Nginx 설정 파일 마운트
+      - ./nginx.conf:/etc/nginx/nginx.conf
     networks:
-      - servernetwork  # Nginx를 동일한 네트워크에 연결
+      - servernetwork
     depends_on:
       - backend
 
 networks:
   servernetwork:
     external: true
-    driver: bridge

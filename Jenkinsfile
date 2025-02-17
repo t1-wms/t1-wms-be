@@ -9,6 +9,7 @@ pipeline {
     }
     environment {
         DOCKER_TAG = "backend:${BUILD_NUMBER}"
+        DEPLOY_PATH = "/home/ec2-user/backend"
     }
     tools {
         gradle 'gradle 8.11.1'
@@ -73,24 +74,26 @@ pipeline {
                 script {
                     def deployEnv = params.DEPLOY_ENV ?: 'blue'
                     def composeFile = "docker-compose.${deployEnv}.yml"
+                    def containerName = "spring-wms-${deployEnv}"
                     def sshServerName = 'BackendServer'
+
                     sshPublisher(publishers: [
                         sshPublisherDesc(
                             configName: sshServerName,
                             transfers: [
                                 sshTransfer(
-                                    sourceFiles: "build/libs/*.jar, ./docker/${composeFile}, ./docker/Dockerfile, ./scripts/deploy.sh",
+                                    sourceFiles: "build/libs/*.jar, docker/docker-compose.*.yml, docker/Dockerfile, scripts/deploy.sh",
                                     remoteDirectory: "",
-                                    removePrefix: "./",
+                                    removePrefix: "",
                                     execCommand: """
                                         echo "===== Starting deployment process... ====="
                                         echo "Current directory: \$(pwd)"
                                         echo "Using docker-compose file: ${composeFile}"
-                                        docker-compose -f /home/ec2-user/backend/${composeFile} down
-                                        docker-compose -f /home/ec2-user/backend/${composeFile} up -d
+                                        docker-compose -f ${composeFile} down
+                                        docker-compose -f ${composeFile} up -d
                                         docker ps -a
                                         docker inspect \$(docker ps -q)
-                                        docker logs backend
+                                        docker logs ${containerName}
                                     """
                                 )
                             ]
@@ -104,26 +107,10 @@ pipeline {
     post {
         success {
             echo ":white_check_mark: Deployment Successful"
-            // slackSend (
-            //     message: """
-            //         :white_check_mark: **배포 성공** :white_check_mark:
-            //         *Job*: ${env.JOB_NAME} [${env.BUILD_NUMBER}]
-            //         *빌드 URL*: <${env.BUILD_URL}|링크>
-            //         *최근 커밋 메시지*: ${env.GIT_COMMIT_MESSAGE}
-            //     """
-            // )
         }
 
         failure {
             echo ":x: Deployment Failed"
-            // slackSend (
-            //     message: """
-            //         :x: **배포 실패** :x:
-            //         *Job*: ${env.JOB_NAME} [${env.BUILD_NUMBER}]
-            //         *빌드 URL*: <${env.BUILD_URL}|링크>
-            //         *최근 커밋 메시지*: ${env.GIT_COMMIT_MESSAGE}
-            //     """
-            // )
         }
     }
 }
