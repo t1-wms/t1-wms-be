@@ -32,12 +32,12 @@ public class OrderAdapter implements OrderPort {
         Order order = Order.builder()
                 .supplierId(product.getSupplierId())
                 .orderNumber(orderNumber)
-                .orderDate(LocalDateTime.now())
-                .orderQuantity(Math.toIntExact(defectiveLotCount))
+                .orderDate(LocalDate.now())
+                //.orderQuantity(Math.toIntExact(defectiveLotCount))
                 .isApproved(true)
                 .isReturnOrder(true)
                 .orderStatus("처리중")
-                .inboundDate(LocalDateTime.now().plusDays(product.getLeadTime()))
+                .inboundDate(LocalDate.now().plusDays(product.getLeadTime()))
                 .build();
 
         orderMapper.createOrder(order);
@@ -49,7 +49,7 @@ public class OrderAdapter implements OrderPort {
 
         String lastOrderNumber = orderMapper.getLastOrderNumber();
 
-        int newNumber = 1;
+        int newNumber = 0;
 
         if (lastOrderNumber != null) {
             String lastNumberStr = lastOrderNumber.substring(10);

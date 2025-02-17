@@ -148,7 +148,7 @@ public class InboundService implements InboundUseCase {
         Inbound inboundPlan = Inbound.builder()
                 .inboundStatus("입하예정")
                 .scheduleNumber(makeNumber("IS"))
-                .scheduleDate(order.getInboundDate().toLocalDate())
+                .scheduleDate(order.getInboundDate())
                 .orderId(order.getOrderId())
                 .supplierId(order.getSupplierId())
                 .build();
