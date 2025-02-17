@@ -8,8 +8,8 @@ pipeline {
         )
     }
     environment {
-        DOCKER_IMAGE = 'wms:latest'
-        DOCKER_TAG = "wms:${BUILD_NUMBER}"
+        DOCKER_IMAGE = 'backend:latest'  // 컨테이너 이름을 backend로 수정
+        DOCKER_TAG = "backend:${BUILD_NUMBER}"
     }
     tools {
         gradle 'gradle 8.11.1'
@@ -62,8 +62,12 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
+                    echo "===== Building Docker Image ====="
                     sh "docker build -f ./docker/Dockerfile -t ${DOCKER_IMAGE} ."
                     sh "docker tag ${DOCKER_IMAGE} ${DOCKER_TAG}"
+
+                    // Docker 이미지 확인
+                    sh "docker images"
                 }
             }
         }
@@ -86,7 +90,7 @@ pipeline {
                                     remoteDirectory: "/home/ec2-user/backend",
                                     removePrefix: "./",
                                     execCommand: """
-                                        echo "Starting deployment process..."
+                                        echo "===== Starting deployment process... ====="
                                         # 기존 컨테이너 중지 및 제거
                                         docker-compose -f /home/ec2-user/backend/${composeFile} down
                                         echo "Stopped and removed old containers."
@@ -94,6 +98,14 @@ pipeline {
                                         # 새로 배포
                                         docker-compose -f /home/ec2-user/backend/${composeFile} up -d
                                         echo "Deployment completed!"
+
+                                        # 실행 중인 컨테이너 확인
+                                        echo "===== Docker containers running ====="
+                                        docker ps -a
+
+                                        # backend 컨테이너 로그 출력
+                                        echo "===== Backend container logs ====="
+                                        docker logs backend
                                     """
                                 )
                             ]
@@ -104,29 +116,29 @@ pipeline {
         }
     }
 
-    post { // 추가
-        success {
-            slackSend (
-                message: """
-                    :white_check_mark: **배포 성공** :white_check_mark:
-
-                    *Job*: ${env.JOB_NAME} [${env.BUILD_NUMBER}]
-                    *빌드 URL*: <${env.BUILD_URL}|링크>
-                    *최근 커밋 메시지*: ${env.GIT_COMMIT_MESSAGE}
-                """
-            )
-        }
-
-        failure {
-            slackSend (
-                message: """
-                    :x: **배포 실패** :x:
-
-                    *Job*: ${env.JOB_NAME} [${env.BUILD_NUMBER}]
-                    *빌드 URL*: <${env.BUILD_URL}|링크>
-                    *최근 커밋 메시지*: ${env.GIT_COMMIT_MESSAGE}
-                """
-            )
-        }
+//     post { // 추가
+//         success {
+//             slackSend (
+//                 message: """
+//                     :white_check_mark: **배포 성공** :white_check_mark:
+//
+//                     *Job*: ${env.JOB_NAME} [${env.BUILD_NUMBER}]
+//                     *빌드 URL*: <${env.BUILD_URL}|링크>
+//                     *최근 커밋 메시지*: ${env.GIT_COMMIT_MESSAGE}
+//                 """
+//             )
+//         }
+//
+//         failure {
+//             slackSend (
+//                 message: """
+//                     :x: **배포 실패** :x:
+//
+//                     *Job*: ${env.JOB_NAME} [${env.BUILD_NUMBER}]
+//                     *빌드 URL*: <${env.BUILD_URL}|링크>
+//                     *최근 커밋 메시지*: ${env.GIT_COMMIT_MESSAGE}
+//                 """
+//             )
+//         }
     }
 }
