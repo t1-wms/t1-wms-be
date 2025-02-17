@@ -23,7 +23,7 @@ public class InboundAllProductDto {
     private String checkNumber;
     private Long orderId;
     private String orderNumber;
-    private LocalDateTime orderDate;
+    private LocalDate orderDate;
     private Long supplierId;
     private String supplierName;
     private List<InboundProductDto> productList;

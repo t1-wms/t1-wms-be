@@ -46,7 +46,7 @@ public class InboundResDto {
     private String orderNumber;
 
     @Schema(description = "발주날짜시간", example = "2025-02-13T15:39:30")
-    private LocalDateTime orderDate;
+    private LocalDate orderDate;
 
     @Schema(description = "납품업체 Id", example = "13")
     private Long supplierId;
