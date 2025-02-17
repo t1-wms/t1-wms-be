@@ -11,5 +11,5 @@ public class InboundCheck {
     private Long inboundCheckId;
     private Long inboundId;
     private Long productId;
-    private Long defectiveLotCount;
+    private Long defectiveCount;
 }

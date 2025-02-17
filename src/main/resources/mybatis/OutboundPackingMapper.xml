@@ -47,8 +47,7 @@
         LEFT JOIN outbound_plan_product opp ON o.outbound_plan_id = opp.outbound_plan_id
         LEFT JOIN product p ON opp.product_id = p.product_id
         <where>
-            outbound_assign_number IS NOT NULL AND outbound_picking_number IS NOT NULL AND outbound_packing_number IS
-            NOT NULL
+            outbound_assign_number IS NOT NULL AND outbound_picking_number IS NOT NULL AND outbound_packing_number IS NOT NULL AND outbound_loading_number IS NULL
             <!-- 시작일 조건 (startDate) -->
             <if test="startDate != null">
                 AND
@@ -96,7 +95,7 @@
         SELECT COUNT(*)
         FROM outbound
         <where>
-            outbound_assign_number IS NOT NULL AND outbound_picking_number IS NOT NULL AND outbound_packing_number IS NOT NULL
+            outbound_assign_number IS NOT NULL AND outbound_picking_number IS NOT NULL AND outbound_packing_number IS NOT NULL AND outbound_loading_number IS NULL
             <!-- 시작일 조건 (startDate) -->
             <if test="startDate != null">
                 AND

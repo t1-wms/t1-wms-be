@@ -39,8 +39,8 @@ public class InboundPutAwayGetTest {
     void setUp() {
 
         List<InboundProductDto> productList = Arrays.asList(
-                new InboundProductDto(1001L, "A123", "Engine Part", 50, 5),
-                new InboundProductDto(1002L, "B456", "Brake Pad", 30, 3)
+                new InboundProductDto(1001L, "A123", "Engine Part", 50L, 5L,4L),
+                new InboundProductDto(1002L, "B456", "Brake Pad", 30L, 3L,4L)
         );
 
         mockInboundPutAwayList = Arrays.asList(

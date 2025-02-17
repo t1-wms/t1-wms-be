@@ -179,7 +179,7 @@ public class InboundService implements InboundUseCase {
 
         for (InboundCheckedProductReqDto checkedProduct : inboundCheckReqDto.getCheckedProductList()) {
             Long productId = checkedProduct.getProductId();
-            Long defectiveLotCount = checkedProduct.getDefectiveLotCount();
+            Long defectiveCount = checkedProduct.getDefectiveCount();
 
             Product product = productPort.findById(productId);
 
@@ -190,14 +190,14 @@ public class InboundService implements InboundUseCase {
             InboundCheck inboundCheck = InboundCheck.builder()
                     .inboundId(inbound.getInboundId())
                     .productId(productId)
-                    .defectiveLotCount(defectiveLotCount)
+                    .defectiveCount(defectiveCount)
                     .build();
 
             inboundCheckList.add(inboundCheck);
             inboundCheckPort.save(inboundCheck);
 
-            if (defectiveLotCount > 0) {
-                orderPort.createOrder(product.getSupplierId(), defectiveLotCount);
+            if (defectiveCount > 0) {
+                orderPort.createOrder(product.getSupplierId(), defectiveCount);
             }
         }
 
@@ -209,7 +209,7 @@ public class InboundService implements InboundUseCase {
     public Page<InboundResDto> getFilteredInboundCheck(String inboundCheckNumber, LocalDate startDate, LocalDate endDate, Pageable pageable) {
         Pageable safePageable = PageableUtils.convertToSafePageableStrict(pageable, Inbound.class);
 
-        List<InboundAllProductDto> inboundAllProductDtoList = inboundRetrievalPort.findInboundFilteringWithPagination(inboundCheckNumber, startDate, endDate, safePageable);
+        List<InboundAllProductDto> inboundAllProductDtoList = inboundRetrievalPort.findInboundCheckFilteringWithPagination(inboundCheckNumber, startDate, endDate, safePageable);
         Integer count = inboundRetrievalPort.countFilteredInboundCheck(inboundCheckNumber, startDate, endDate);
 
         List<InboundResDto> inboundResDtoList = convertToInboundResDto(inboundAllProductDtoList);
@@ -240,7 +240,7 @@ public class InboundService implements InboundUseCase {
 
         for (InboundCheckedProductReqDto checkedProduct : updateReqDto.getCheckedProductList()) {
             Long productId = checkedProduct.getProductId();
-            Long updatedDefectiveCount = checkedProduct.getDefectiveLotCount();
+            Long updatedDefectiveCount = checkedProduct.getDefectiveCount();
 
             Product product = productPort.findById(productId);
 
@@ -250,7 +250,7 @@ public class InboundService implements InboundUseCase {
 
             if (checkMap.containsKey(productId)) {
                 InboundCheck existingCheck = checkMap.get(productId);
-                existingCheck.setDefectiveLotCount(updatedDefectiveCount);
+                existingCheck.setDefectiveCount(updatedDefectiveCount);
                 updatedChecks.add(existingCheck);
             }
 
@@ -263,11 +263,11 @@ public class InboundService implements InboundUseCase {
     }
 
     @Override
-    public Page<InboundPutAwayResDto> getFilteredPutAway(String putAwayNumber, LocalDate startDate, LocalDate endDate, Pageable pageable) {
+    public Page<InboundPutAwayResDto> getFilteredPutAway(String inboundPutAwayNumber, LocalDate startDate, LocalDate endDate, Pageable pageable) {
         Pageable safePageable = PageableUtils.convertToSafePageableStrict(pageable, Inbound.class);
 
-        List<InboundPutAwayResDto> inboundPutAwayList = inboundRetrievalPort.findFilteredInboundPutAway(putAwayNumber, startDate, endDate, safePageable);
-        Integer count = inboundRetrievalPort.countFilteredPutAway(putAwayNumber, startDate, endDate);
+        List<InboundPutAwayResDto> inboundPutAwayList = inboundRetrievalPort.findFilteredInboundPutAway(inboundPutAwayNumber, startDate, endDate, safePageable);
+        Integer count = inboundRetrievalPort.countFilteredPutAway(inboundPutAwayNumber, startDate, endDate);
 
         return new PageImpl<>(inboundPutAwayList, safePageable, count);
     }

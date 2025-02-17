@@ -15,16 +15,17 @@ public interface InboundRetrievalMapper {
 
     List<InboundAllProductDto> findInboundFilteringWithPagination(@Param("inboundScheduleNumber") String inboundScheduleNumber, @Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate, @Param("pageable") Pageable pageable);
 
-    List<InboundPutAwayResDto> findInboundPutAwayFilteringWithPagination(@Param("putAwayNumber") String putAwayNumber, @Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate, @Param("pageable")Pageable pageable);
+    List<InboundPutAwayResDto> findInboundPutAwayFilteringWithPagination(@Param("inboundPutAwayNumber") String inboundPutAwayNumber, @Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate, @Param("pageable")Pageable pageable);
 
+    List<InboundAllProductDto> findInboundCheckFilteringWithPagination(@Param("inboundCheckNumber") String inboundCheckNumber, @Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate, @Param("pageable") Pageable pageable);
 
     Integer countAllInboundPlan();
 
-    Integer countFilteredPutAway(@Param("putAwayNumber") String putAwayNumber, @Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
+    Integer countFilteredPutAway(@Param("inboundPutAwayNumber") String inboundPutAwayNumber, @Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
 
-    Integer countAllInboundPlanFiltering(@Param("scheduleNumber") String scheduleNumber, @Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
+    Integer countAllInboundPlanFiltering(@Param("inboundScheduleNumber") String inboundScheduleNumber, @Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
 
-    Integer countAllInboundCheckFiltering(@Param("checkNumber") String checkNumber, @Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
+    Integer countAllInboundCheckFiltering(@Param("inboundCheckNumber") String inboundCheckNumber, @Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
 
     List<ProductInboundResDto> findAllInboundByProductWithPagination(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate, @Param("pageable")Pageable pageable);
     List<SupplierInboundResDto> findAllInboundBySupplierWithPagination(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate, @Param("pageable")Pageable pageable);
