@@ -131,11 +131,11 @@ pipeline {
 
                     sshPublisher(publishers: [
                         sshPublisherDesc(
-                            configName: sshServerName,
+                            configName: 'BackendServer',
                             transfers: [
                                 sshTransfer(
-                                    sourceFiles: "build/libs/*.jar, docker/docker-compose.*.yml, docker/Dockerfile, nginx/nginx.conf, scripts/deploy.sh",
-                                    remoteDirectory: "backend",
+                                    sourceFiles: "build/libs/*.jar, docker/docker-compose.*.yml, docker/Dockerfile, nginx/**/*.conf, scripts/deploy.sh",
+                                    remoteDirectory: "",
                                     removePrefix: "",
                                     execCommand: """
                                         cd /home/ec2-user/backend

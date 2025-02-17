@@ -1,31 +1,35 @@
 version: '3'
 
 services:
-  backend:
+  spring-wms-blue:
     build:
       context: .
       dockerfile: Dockerfile
+    container_name: spring-wms-blue
     ports:
       - "8011:8080"
-    container_name: spring-wms-blue
     environment:
       - TZ=Asia/Seoul
+      - SPRING_PROFILES_ACTIVE=prod
     networks:
       - servernetwork
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+    restart: unless-stopped
 
   nginx:
     image: nginx:alpine
     container_name: nginx
     ports:
       - "80:80"
+      - "443:443"
     volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - /etc/letsencrypt:/etc/letsencrypt
+    depends_on:
+      - spring-wms-blue
     networks:
       - servernetwork
-    depends_on:
-      - backend
+    restart: unless-stopped
 
 networks:
   servernetwork:

@@ -21,17 +21,19 @@ VOLUME /var/run/docker.sock
 # 사용자 추가 및 권한 설정
 RUN groupadd -g 998 docker && \
     useradd -u 1000 -g docker -m jenkins && \
-    usermod -aG docker jenkins
+    usermod -aG docker jenkins && \
+    usermod -aG sudo jenkins && \
+    echo "jenkins ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
 # Docker 명령어 실행을 위한 유저 설정
 USER jenkins
 
-# Docker 설치 확인
-RUN docker --version
+# 작업 디렉토리 설정
+WORKDIR /app
 
 # JAR 파일 복사
 ARG JAR_FILE=build/libs/*.jar
-COPY ${JAR_FILE} spring-prod.jar
+COPY ${JAR_FILE} app.jar
 
 # 실행 명령
-ENTRYPOINT ["java", "-jar", "/spring-prod.jar"]
+ENTRYPOINT ["java", "-jar", "app.jar"]
