@@ -2,6 +2,7 @@ package com.example.wms.outbound.adapter.out.adapter;
 
 import com.example.wms.infrastructure.mapper.OutboundPickingMapper;
 import com.example.wms.infrastructure.mapper.OutboundPlanProductMapper;
+import com.example.wms.outbound.adapter.in.dto.OutboundPickingResponseDto;
 import com.example.wms.outbound.adapter.in.dto.ProductInfoDto;
 import com.example.wms.outbound.application.domain.Outbound;
 import com.example.wms.outbound.application.domain.OutboundPlan;
@@ -21,7 +22,7 @@ public class GetOutboundPickingAdapter implements GetOutboundPickingPort {
     private final OutboundPlanProductMapper outboundPlanProductMapper;
 
     @Override
-    public List<Outbound> findOutboundPickingFilteringWithPageNation(String outboundPickingNumber, LocalDate startDate, LocalDate endDate, Pageable pageable) {
+    public List<OutboundPickingResponseDto> findOutboundPickingFilteringWithPageNation(String outboundPickingNumber, LocalDate startDate, LocalDate endDate, Pageable pageable) {
         return outboundPickingMapper.findOutboundPickingFilteringWithPageNation(outboundPickingNumber, startDate, endDate, pageable);
     }
 

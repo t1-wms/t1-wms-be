@@ -15,7 +15,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,6 +29,7 @@ public class GetOutboundPackingService implements GetOutboundPackingUseCase {
     @Override
     @Transactional
     public Page<OutboundPackingResponseDto> getFilteredOutboundPackings(String outboundPackingNumber, LocalDate startDate, LocalDate endDate, Pageable pageable) {
+
         Pageable safePageale = PageableUtils.convertToSafePageableStrict(pageable, OutboundPackingResponseDto.class);
         List<OutboundPackingResponseDto> outboundList = getOutboundPackingPort.findOutboundPackingFilteringWithPageNation(outboundPackingNumber, startDate, endDate, safePageale);
         Integer count = getOutboundPackingPort.countPacking(outboundPackingNumber, startDate, endDate);
