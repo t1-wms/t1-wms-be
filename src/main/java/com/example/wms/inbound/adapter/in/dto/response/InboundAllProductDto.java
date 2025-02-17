@@ -20,8 +20,8 @@ public class InboundAllProductDto {
     private String scheduleNumber;
     private LocalDate scheduleDate;
     private LocalDate checkDate;
-    private Long orderId;
     private String checkNumber;
+    private Long orderId;
     private String orderNumber;
     private LocalDateTime orderDate;
     private Long supplierId;
