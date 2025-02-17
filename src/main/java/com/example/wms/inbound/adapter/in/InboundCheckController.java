@@ -48,7 +48,7 @@ public class InboundCheckController {
     @Operation(summary = "입하 검사 조회하기" , description = "입하검사번호와 시작일, 종료일을 입력해 입하 검사 데이터를 검색 조건에 따라 조회합니다.")
     public ResponseEntity<Page<InboundResDto>> getInboundCheck(
             @Parameter(name = "inboundCheckNumber", in = ParameterIn.QUERY, description = "입하 검사 번호")
-            @RequestParam(value = "inboundCheckNumber", required = false) String inboundCheckNumber,
+            @RequestParam(value = "number", required = false) String inboundCheckNumber,
 
             @Parameter(name = "startDate", in = ParameterIn.QUERY, description = "시작 날짜")
             @RequestParam(value = "startDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
