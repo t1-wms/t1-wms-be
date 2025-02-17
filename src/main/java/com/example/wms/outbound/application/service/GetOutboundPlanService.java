@@ -14,7 +14,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,10 +27,12 @@ public class GetOutboundPlanService implements GetOutboundPlanUseCase {
 
     @Override
     public Page<OutboundPlanResponseDto> getFilteredOutboundPlans(String outboundScheduleNumber, LocalDate startDate, LocalDate endDate, Pageable pageable) {
-        Pageable safePageable = PageableUtils.convertToSafePageableStrict(pageable, OutboundPlan.class);
-        List<OutboundPlan> outboundPlanList = getOutboundPlanPort.findOutboundPlanFilteringWithPageNation(outboundScheduleNumber, startDate, endDate, safePageable);
+        Map<String, String> fieldMapping = new HashMap<>();
+        fieldMapping.put("process", "status");
+        Pageable safePageable = PageableUtils.convertToSafePageableStrict(pageable, OutboundPlanResponseDto.class, fieldMapping);
+        List<OutboundPlanResponseDto> outboundPlanList = getOutboundPlanPort.findOutboundPlanFilteringWithPageNation(outboundScheduleNumber, startDate, endDate, safePageable);
         Integer count = getOutboundPlanPort.countFilteredOutboundPlan(outboundScheduleNumber, startDate, endDate);
-        return new PageImpl<>(convertToDtoList(outboundPlanList), pageable, count);
+        return new PageImpl<>(outboundPlanList, pageable, count);
     }
 
     private List<OutboundPlanResponseDto> convertToDtoList(List<OutboundPlan> outboundPlanList) {
