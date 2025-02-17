@@ -9,7 +9,7 @@ import java.time.LocalDate;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-public class Order extends BaseEntity {
+public class Order {
     private Long orderId;
     private Long supplierId;
     private LocalDate orderDate; //주문 날짜
@@ -17,7 +17,6 @@ public class Order extends BaseEntity {
     private Boolean isApproved;
     private Boolean isDelayed;
     private String orderNumber;
-    private Integer orderQuantity;
     private String orderStatus;
     private Long dailyPlanId;
     private Boolean isReturnOrder;

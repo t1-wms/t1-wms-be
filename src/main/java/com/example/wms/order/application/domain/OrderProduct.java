@@ -8,11 +8,10 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-public class OrderProduct extends BaseEntity {
+public class OrderProduct {
     private Long orderProductId;
     private Long orderId;
+    private Integer productCount;
     private Long productId;
     private Boolean isDefective;
-    private Long binId;
-
 }

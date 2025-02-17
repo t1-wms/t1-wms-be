@@ -64,17 +64,14 @@ CREATE TABLE IF NOT EXISTS product (
 CREATE TABLE IF NOT EXISTS `order` (
                                        order_id BIGINT AUTO_INCREMENT PRIMARY KEY,
                                        supplier_id BIGINT NOT NULL,
-                                       order_date DATETIME NOT NULL,
+                                       order_date DATE NOT NULL,
                                        order_number VARCHAR(255) NOT NULL,
-                                       inbound_date DATETIME,
+                                       inbound_date DATE,
                                        is_approved BOOLEAN,
                                        is_delayed BOOLEAN,
                                        is_return_order BOOLEAN,
-                                       order_quantity INT,
                                        order_status VARCHAR(50),
                                        daily_plan_id VARCHAR(50),
-                                       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                                       updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                                        CONSTRAINT fk_supplier_order FOREIGN KEY (supplier_id) REFERENCES supplier(supplier_id)
 );
 
@@ -84,12 +81,9 @@ CREATE TABLE IF NOT EXISTS order_product (
                                              order_id BIGINT NOT NULL,
                                              product_id BIGINT NOT NULL,
                                              is_defective BOOLEAN,
-                                             bin_id BIGINT,
-                                             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                                             updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                                             product_count INT,
                                              CONSTRAINT fk_order FOREIGN KEY (order_id) REFERENCES `order`(order_id),
-                                             CONSTRAINT fk_product_order_product FOREIGN KEY (product_id) REFERENCES product(product_id),
-                                             CONSTRAINT fk_bin_order_product FOREIGN KEY (bin_id) REFERENCES bin(bin_id)
+                                             CONSTRAINT fk_product_order_product FOREIGN KEY (product_id) REFERENCES product(product_id)
 );
 
 -- account_book 테이블 생성

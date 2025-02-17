@@ -33,7 +33,7 @@ public class OrderAdapter implements OrderPort {
                 .supplierId(product.getSupplierId())
                 .orderNumber(orderNumber)
                 .orderDate(LocalDate.now())
-                .orderQuantity(Math.toIntExact(defectiveLotCount))
+                //.orderQuantity(Math.toIntExact(defectiveLotCount))
                 .isApproved(true)
                 .isReturnOrder(true)
                 .orderStatus("처리중")
