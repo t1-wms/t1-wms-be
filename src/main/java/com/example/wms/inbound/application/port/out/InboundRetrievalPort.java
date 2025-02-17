@@ -10,6 +10,7 @@ public interface InboundRetrievalPort {
     List<InboundProductDto>  findInboundProductListByOrderId(Long orderId);
     List<InboundAllProductDto> findInboundProductListWithPagination(Pageable pageable);
     List<InboundAllProductDto> findInboundFilteringWithPagination(String inboundScheduleNumber, LocalDate startDate, LocalDate endDate, Pageable pageable);
+    List<InboundAllProductDto> findInboundCheckFilteringWithPagination(String inboundCheckNumber, LocalDate startDate, LocalDate endDate, Pageable pageable);
     Integer countAllInboundPlan();
     Integer countFilteredInboundPlan(String inboundScheduleNumber, LocalDate startDate, LocalDate endDate);
     Integer countFilteredInboundCheck(String inboundCheckNumber, LocalDate startDate, LocalDate endDate);

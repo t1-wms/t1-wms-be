@@ -32,6 +32,11 @@ public class InboundRetrievalAdapter implements InboundRetrievalPort {
     }
 
     @Override
+    public List<InboundAllProductDto> findInboundCheckFilteringWithPagination(String inboundCheckNumber, LocalDate startDate, LocalDate endDate, Pageable pageable) {
+        return inboundRetrievalMapper.findInboundCheckFilteringWithPagination(inboundCheckNumber, startDate, endDate, pageable);
+    }
+
+    @Override
     public Integer countAllInboundPlan() {
         return inboundRetrievalMapper.countAllInboundPlan();
     }

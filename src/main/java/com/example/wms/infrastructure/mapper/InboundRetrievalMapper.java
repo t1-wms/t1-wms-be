@@ -17,6 +17,7 @@ public interface InboundRetrievalMapper {
 
     List<InboundPutAwayResDto> findInboundPutAwayFilteringWithPagination(@Param("inboundPutAwayNumber") String inboundPutAwayNumber, @Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate, @Param("pageable")Pageable pageable);
 
+    List<InboundAllProductDto> findInboundCheckFilteringWithPagination(@Param("inboundCheckNumber") String inboundCheckNumber, @Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate, @Param("pageable") Pageable pageable);
 
     Integer countAllInboundPlan();
 
