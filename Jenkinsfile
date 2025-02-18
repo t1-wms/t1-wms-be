@@ -39,7 +39,7 @@ pipeline {
                         docker-compose -f docker-compose.${newEnv}.yml down
                         DOCKER_TAG=${DOCKER_TAG} docker-compose -f docker-compose.${newEnv}.yml up -d
 
-                        # 새 환경 헬스 체크
+                        # Health check
                         for i in {1..30}; do
                             if curl -sSf http://localhost:${newPort}/actuator/health > /dev/null; then
                                 echo "New environment (${newEnv}) is ready"
@@ -48,14 +48,14 @@ pipeline {
                             sleep 5
                         done
 
-                        # Nginx 설정 변경
+                        # Update Nginx configuration
                         echo ${newPort} > /etc/nginx/deployment_port
                         sudo sed -i 's/proxy_pass http:\\/\\/localhost:[0-9]*/proxy_pass http:\\/\\/localhost:${newPort}/' /etc/nginx/conf.d/backend.conf
                         sudo systemctl reload nginx
 
-                        # 이전 환경 중지
-                        if [ ! -z "${currentPort}" ]; then
-                            docker-compose -f docker-compose.$([ "${currentPort}" == "${BLUE_PORT}" ] && echo "blue" || echo "green").yml down
+                        # Stop previous environment
+                        if [ ! -z "\${currentPort}" ]; then
+                            docker-compose -f docker-compose.\$([ "\${currentPort}" == "${BLUE_PORT}" ] && echo "blue" || echo "green").yml down
                         fi
 
                         echo "Deployment completed: ${newEnv} environment (port ${newPort})"
