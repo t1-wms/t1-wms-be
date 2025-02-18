@@ -10,4 +10,11 @@
                 (SELECT COUNT(*) FROM outbound_plan op join outbound o on op.outbound_plan_id = o.outbound_plan_id
                  WHERE op.status = '출하상차' AND DATE(o.outbound_loading_date) = CURDATE()) AS outboundLoading
     </select>
+
+    <select id="selectInboundStatusCounts" resultType="com.example.wms.dashboard.adapter.in.dto.InboundStatusResponseDto">
+        SELECT
+                (SELECT COUNT(*) FROM inbound WHERE inbound_status = '입하예정') AS inboundSchedule,
+                (SELECT COUNT(*) FROM inbound WHERE inbound_status = '입하검사') AS inboundCheck,
+                (SELECT COUNT(*) FROM inbound WHERE inbound_status = '입고적치' AND DATE(put_away_date) = CURDATE()) AS inboundPutAway
+    </select>
 </mapper>
