@@ -216,31 +216,31 @@ stage('Deploy to Backend Server') {
 
                                     # ... (기존 배포 로직 유지) ...
 
-                                    # 8. 확장된 최종 검증
-                                    echo "===== Extended Final Verification ====="
-                                    echo "Container Status:"
-                                    docker ps -a
-                                    docker network inspect servernetwork
+                                # 8. 확장된 최종 검증
+                                echo "===== Extended Final Verification ====="
+                                echo "Container Status:"
+                                docker ps -a
+                                docker network inspect servernetwork
 
-                                    echo "Application Logs:"
-                                    docker logs --tail 100 ${containerName}
+                                echo "Application Logs:"
+                                docker logs --tail 100 ${containerName}
 
-                                    echo "Nginx Status:"
-                                    sudo systemctl status nginx
-                                    sudo nginx -t
-                                    sudo cat /etc/nginx/deployment_env
-                                    sudo cat /etc/nginx/conf.d/backend.conf
+                                echo "Nginx Status:"
+                                sudo systemctl status nginx
+                                sudo nginx -t
+                                sudo cat /etc/nginx/deployment_env
+                                sudo cat /etc/nginx/conf.d/backend.conf
 
-                                    echo "Health Check:"
-                                    curl -I http://localhost:${port}/actuator/health
+                                echo "Health Check:"
+                                curl -I http://localhost:${port}/actuator/health
 
-                                    echo "Error Logs:"
-                                    sudo tail -n 100 /var/log/nginx/error.log
-                                    docker logs ${containerName} 2>&1 | tail -n 100
+                                echo "Error Logs:"
+                                sudo tail -n 100 /var/log/nginx/error.log
+                                docker logs ${containerName} 2>&1 | tail -n 100
 
-                                    echo "Network Status:"
-                                    sudo netstat -tulnp | grep -E '8011|8012|8080|6379'
-                                """
+                                echo "Network Status:"
+                                sudo netstat -tulnp | grep -E '8011|8012|8080|6379'
+                            """
                             )
                         ]
                     )
