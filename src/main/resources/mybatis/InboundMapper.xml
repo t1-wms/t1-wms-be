@@ -40,13 +40,6 @@
         WHERE inbound_id = #{inboundId}
     </update>
 
-    <insert id="insertOrUpdate" parameterType="InboundCheck">
-        INSERT INTO inbound_check (inbound_check_id, inbound_id, product_id, defective_lot_count)
-        VALUES (#{inboundCheckId}, #{inboundId}, #{productId}, #{defectiveLotCount})
-        ON DUPLICATE KEY UPDATE
-            defective_lot_count = VALUES(defective_lot_count);
-    </insert>
-
     <select id="findOrderIdByScheduleNumber" resultType="java.lang.Long">
         SELECT order_id
         FROM inbound
@@ -80,7 +73,23 @@
         GROUP BY l.product_id, b.bin_code
     </select>
 
+    <select id="findLotsByCheckNumber" resultMap="LotInfoResultMap">
+        SELECT
+            p.product_id,
+            (p.stock_lot_count * p.lot_unit) AS lotCount,
+            p.location_bin_code AS binCode
+        FROM inbound i
+        INNER JOIN lot l on i.inbound_id = l.inbound_id
+        INNER JOIN product p ON l.product_id = p.product_id
+        WHERE i.check_number = #{checkNumber}
+    </select>
+
     <select id="findById" parameterType="long" resultType="Inbound">
         SELECT * FROM inbound WHERE inbound_id = #{inboundId}
     </select>
+    <resultMap id="LotInfoResultMap" type="com.example.wms.product.adapter.in.dto.LotInfoDto">
+        <id property="productId" column="product_id" />
+        <result property="lotCount" column="lotCount" />
+        <result property="binCode" column="binCode" />
+    </resultMap>
 </mapper>

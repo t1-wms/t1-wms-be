@@ -2,10 +2,8 @@ package com.example.wms.inbound.application.service;
 
 import com.example.wms.inbound.adapter.in.dto.request.InboundCheckWorkerReqDto;
 import com.example.wms.inbound.application.port.out.AssignInboundNumberPort;
-import com.example.wms.inbound.application.port.out.InboundCheckPort;
 import com.example.wms.inbound.application.port.out.InboundPort;
 import com.example.wms.order.application.port.out.OrderPort;
-import com.example.wms.product.adapter.in.dto.LotInBinDto;
 import com.example.wms.product.application.port.out.LotPort;
 import com.example.wms.product.application.port.out.ProductPort;
 import org.junit.jupiter.api.DisplayName;
@@ -34,8 +32,6 @@ public class InboundCheckWorkerCreateTest {
     @Mock
     private LotPort lotPort;
 
-    @Mock
-    private InboundCheckPort inboundCheckPort;
 
     @Mock
     private OrderPort orderPort;

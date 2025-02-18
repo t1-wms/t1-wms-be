@@ -3,11 +3,11 @@ package com.example.wms.inbound.application.service;
 import com.example.wms.inbound.adapter.in.dto.request.InboundCheckUpdateReqDto;
 import com.example.wms.inbound.adapter.in.dto.request.InboundCheckedProductReqDto;
 import com.example.wms.inbound.application.domain.Inbound;
-import com.example.wms.inbound.application.domain.InboundCheck;
 import com.example.wms.inbound.application.port.out.AssignInboundNumberPort;
-import com.example.wms.inbound.application.port.out.InboundCheckPort;
 import com.example.wms.inbound.application.port.out.InboundPort;
+import com.example.wms.order.application.domain.OrderProduct;
 import com.example.wms.order.application.port.out.OrderPort;
+import com.example.wms.order.application.port.out.OrderProductPort;
 import com.example.wms.product.application.domain.Product;
 import com.example.wms.product.application.port.out.LotPort;
 import com.example.wms.product.application.port.out.ProductPort;
@@ -31,7 +31,7 @@ public class InboundCheckUpdateTest {
     private InboundService inboundService;
 
     @Mock
-    private InboundCheckPort inboundCheckPort;
+    private OrderProductPort orderProductPort;
 
     @Mock
     private InboundPort inboundPort;
@@ -54,27 +54,23 @@ public class InboundCheckUpdateTest {
 
         // given
         Long inboundId = 1L;
-        LocalDate updateCheckDate = LocalDate.of(2025,2,15);
+        LocalDate updateCheckDate = LocalDate.of(2025,2,18);
 
         List<InboundCheckedProductReqDto> updatedProductList = List.of(
                 new InboundCheckedProductReqDto(10L, 5L),
                 new InboundCheckedProductReqDto(20L, 2L)
         );
 
-        InboundCheckUpdateReqDto updateReqDto = new InboundCheckUpdateReqDto(inboundId, updateCheckDate.toString(), updatedProductList);
+        InboundCheckUpdateReqDto updateReqDto = new InboundCheckUpdateReqDto(updatedProductList);
 
         Inbound inbound = Inbound.builder()
                 .inboundId(inboundId)
                 .checkDate(LocalDate.parse("2025-02-10"))
                 .build();
 
-        List<InboundCheck> existingChecks = List.of(
-                InboundCheck.builder().inboundId(inboundId).productId(10L).defectiveLotCount(3L).build(),
-                InboundCheck.builder().inboundId(inboundId).productId(20L).defectiveLotCount(1L).build()
-        );
+
 
         when(inboundPort.findById(inboundId)).thenReturn(inbound);
-        when(inboundCheckPort.findByInboundId(inboundId)).thenReturn(existingChecks).thenReturn(existingChecks);
 
         for (InboundCheckedProductReqDto checkedProduct : updatedProductList) {
             Product product = Product.builder()
@@ -84,14 +80,15 @@ public class InboundCheckUpdateTest {
             when(productPort.findById(checkedProduct.getProductId())).thenReturn(product);
         }
 
+        when(orderProductPort.findByProductId(10L)).thenReturn(new OrderProduct(10L, 1L, 5,1L,true,5L));
+        when(orderProductPort.findByProductId(20L)).thenReturn(new OrderProduct(20L, 1L, 2,1L,true,2L));
+
         // when
         inboundService.updateInboundCheck(inboundId, updateReqDto);
 
         assertEquals(updateCheckDate, inbound.getCheckDate());
         verify(inboundPort, times(1)).updateIC(inboundId,updateCheckDate ,inbound.getCheckNumber());
-        verify(inboundCheckPort, times(1)).saveAll(any());
-        verify(orderPort, times(1)).createOrder(100L, 5L);
-        verify(orderPort, times(1)).createOrder(100L, 2L);
+
     }
 
 

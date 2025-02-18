@@ -19,6 +19,4 @@ public class InboundPutAwayReqDto {
     @Schema(description = "품목 별 lot 단위 개수", example = "3")
     private Integer lotCount;
 
-    @Schema(description = "품목 적치 위치", example = "A-01-01-01")
-    private Long binId;
 }

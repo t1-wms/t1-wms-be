@@ -18,6 +18,7 @@ public class InboundAdapter implements InboundPort {
 
     @Override
     public void save(Inbound inbound) {
+
         inboundMapper.insert(inbound);
     }
 
@@ -57,8 +58,12 @@ public class InboundAdapter implements InboundPort {
     }
 
     @Override
+    public List<LotInfoDto> getLotsByCheckNumber(String checkNumber) {
+        return inboundMapper.findLotsByCheckNumber(checkNumber);
+    }
+
+    @Override
     public void updatePA(Long inboundId, LocalDate putAwayDate, String putAwayNumber) {
         inboundMapper.updatePA(inboundId, putAwayDate, putAwayNumber);
     }
-
 }

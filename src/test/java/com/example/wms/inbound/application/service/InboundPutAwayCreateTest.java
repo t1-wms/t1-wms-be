@@ -56,7 +56,7 @@ public class InboundPutAwayCreateTest {
         Integer lotCount = 5;
         String locationBinCode = "A-01-01-01";
 
-        List<InboundPutAwayReqDto> putAwayRequests = List.of(new InboundPutAwayReqDto(productId, lotCount, binId));
+        List<InboundPutAwayReqDto> putAwayRequests = List.of(new InboundPutAwayReqDto(productId, lotCount));
 
         when(productPort.getLocationBinCode(productId)).thenReturn(locationBinCode);
 
@@ -79,7 +79,7 @@ public class InboundPutAwayCreateTest {
         Integer lotCount = 3;
         String locationBinCode = "A-01-01";
 
-        List<InboundPutAwayReqDto> putAwayRequests = List.of(new InboundPutAwayReqDto(productId, lotCount, binId));
+        List<InboundPutAwayReqDto> putAwayRequests = List.of(new InboundPutAwayReqDto(productId, lotCount));
 
         when(productPort.getLocationBinCode(productId)).thenReturn(locationBinCode);
         when(binPort.findAvailableBinIdInRow("A",1,1)).thenReturn(binId);
@@ -104,7 +104,7 @@ public class InboundPutAwayCreateTest {
         Integer lotCount = 4;
         String locationBinCode = "A-01";
 
-        List<InboundPutAwayReqDto> putAwayRequests = List.of(new InboundPutAwayReqDto(productId, lotCount, binId));
+        List<InboundPutAwayReqDto> putAwayRequests = List.of(new InboundPutAwayReqDto(productId, lotCount));
 
         when(productPort.getLocationBinCode(productId)).thenReturn(locationBinCode);
         doReturn(binId).when(binPort).findAvailableBinIdInAisle("A", 1);

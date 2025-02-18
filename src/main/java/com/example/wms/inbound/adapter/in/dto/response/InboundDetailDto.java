@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class InboundDetailDto {
+    private Long inboundId;
     private String scheduleNumber;
     private String checkNumber;
     private String putAwayNumber;
