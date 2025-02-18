@@ -129,19 +129,16 @@ pipeline {
                 }
             }
         }
+
         stage('Deploy to Backend Server') {
             steps {
                 script {
                     def currentEnv = sh(
                         script: """
                             ssh -o StrictHostKeyChecking=no ec2-user@api.stockholmes.store '
-                                if docker ps | grep -q "spring-wms-blue"; then
-                                    echo "blue"
-                                elif docker ps | grep -q "spring-wms-green"; then
-                                    echo "green"
-                                else
-                                    echo "none"
-                                fi
+                                docker ps | grep spring-wms-blue && echo "blue" || \
+                                docker ps | grep spring-wms-green && echo "green" || \
+                                echo "none"
                             '
                         """,
                         returnStdout: true
@@ -151,73 +148,42 @@ pipeline {
                     def port = deployEnv == 'blue' ? '8011' : '8012'
                     def containerName = "spring-wms-${deployEnv}"
 
-                    sshPublisher(publishers: [
-                        sshPublisherDesc(
-                            configName: 'BackendServer',
-                            transfers: [
-                                sshTransfer(
-                                    execCommand: """
-                                        # 1. 새 컨테이너 중지 및 삭제 (존재할 경우)
-                                        docker stop ${containerName} || true
-                                        docker rm ${containerName} || true
+                    sh """
+                        ssh -o StrictHostKeyChecking=no ec2-user@api.stockholmes.store '
+                            docker stop ${containerName} || true
+                            docker rm ${containerName} || true
 
-                                        # 2. 새 컨테이너 실행
-                                        docker run -d \
-                                            --name ${containerName} \
-                                            --network servernetwork \
-                                            -p ${port}:8080 \
-                                            -v /home/ec2-user/backend/logs:/logs \
-                                            backend:${BUILD_NUMBER}
+                            docker run -d \
+                                --name ${containerName} \
+                                --network servernetwork \
+                                -p ${port}:8080 \
+                                -v /home/ec2-user/backend/logs:/logs \
+                                backend:${BUILD_NUMBER}
 
-                                        # 3. Nginx 설정 업데이트
-                                        echo ${deployEnv} > /etc/nginx/deployment_env
-                                        sudo sed -i "s/proxy_pass http:\\/\\/localhost:[0-9]*/proxy_pass http:\\/\\/localhost:${port}/" /etc/nginx/conf.d/backend.conf
+                            echo ${deployEnv} > /etc/nginx/deployment_env
+                            sudo sed -i "s/proxy_pass http:\\/\\/localhost:[0-9]*/proxy_pass http:\\/\\/localhost:${port}/" /etc/nginx/conf.d/backend.conf
+                            sudo systemctl reload nginx
 
-                                        # 4. Nginx 재로드
-                                        sudo systemctl reload nginx
+                            if [ "${currentEnv}" != "none" ]; then
+                                docker stop spring-wms-${currentEnv} || true
+                                docker rm spring-wms-${currentEnv} || true
+                            fi
 
-                                        # 5. 이전 환경 컨테이너 정리
-                                        if [ "${currentEnv}" != "none" ]; then
-                                            docker stop spring-wms-${currentEnv} || true
-                                            docker rm spring-wms-${currentEnv} || true
-                                        fi
-
-                                        # 6. 헬스 체크
-                                        sleep 10
-                                        curl -f http://localhost:${port}/actuator/health || exit 1
-                                    """
-                                )
-                            ]
-                        )
-                    ])
+                            sleep 10
+                            curl -f http://localhost:${port}/actuator/health || exit 1
+                        '
+                    """
                 }
             }
         }
     }
 
-//     post {
-//         success {
-//             slackSend (
-//                 message: """
-//                     :white_check_mark: 배포 성공 ! :white_check_mark:
-//
-//                     *Job*: ${env.JOB_NAME} [${env.BUILD_NUMBER}]
-//                     *빌드 URL*: <${env.BUILD_URL}|링크>
-//                     *최근 커밋 메시지*: ${env.GIT_COMMIT_MESSAGE}
-//                 """
-//             )
-//         }
-//
-//         failure {
-//             slackSend (
-//                 message: """
-//                     :x: 배포 실패 :x:
-//
-//                     *Job*: ${env.JOB_NAME} [${env.BUILD_NUMBER}]
-//                     *빌드 URL*: <${env.BUILD_URL}|링크>
-//                     *최근 커밋 메시지*: ${env.GIT_COMMIT_MESSAGE}
-//                 """
-//             )
-//         }
-//     }
+    post {
+        success {
+            echo "배포 성공!"
+        }
+        failure {
+            echo "배포 실패!"
+        }
+    }
 }
