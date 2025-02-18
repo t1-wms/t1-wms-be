@@ -1,4 +1,5 @@
 #!/bin/bash
+
 set -x
 
 # 작업 디렉토리로 이동
@@ -11,67 +12,65 @@ mkdir -p $LOG_DIR
 # 로그 파일 설정
 LOG_FILE="$LOG_DIR/deploy.log"
 
-# 배포 환경 선택
-DEPLOY_ENV=$1  # blue 또는 green을 첫 번째 인자로 받음
-DOCKER_APP_NAME=spring-wms
+# 젠킨스에서 전달받은 배포 환경 (blue 또는 green)
+DEPLOY_ENV="${1:-blue}"
 
-# 배포 시작일자 기록
-echo "배포 시작일자 : $(date '+%Y-%m-%d %H:%M:%S')" >> $LOG_FILE
+# Docker Compose 프로젝트 이름
+DOCKER_APP_NAME="spring-wms"
 
-# 실행중인 blue 컨테이너 확인
-EXIST_BLUE=$(docker-compose -p "${DOCKER_APP_NAME}-blue" -f docker-compose.blue.yml ps | grep -E "Up|running" || true)
+# 배포 시작 로깅
+echo "[$(date '+%Y-%m-%d %H:%M:%S')] 배포 시작: ${DEPLOY_ENV} 환경" >> $LOG_FILE
 
-# 선택된 환경에 따라 배포 작업 수행
-if [ -z "$EXIST_BLUE" ]; then
-  # blue 배포 시작
-  echo "blue 배포 시작 : $(date '+%Y-%m-%d %H:%M:%S')" >> $LOG_FILE
-  docker-compose -p ${DOCKER_APP_NAME}-blue -f docker-compose.blue.yml up -d --build || {
-    echo "blue 배포 실패 : $(date '+%Y-%m-%d %H:%M:%S')" >> $LOG_FILE
-    exit 1
-  }
-
-  sleep 30
-
-  # green 중단
-  echo "green 중단 시작 : $(date '+%Y-%m-%d %H:%M:%S')" >> $LOG_FILE
-  docker-compose -p ${DOCKER_APP_NAME}-green -f docker-compose.green.yml down || {
-    echo "green 중단 실패 : $(date '+%Y-%m-%d %H:%M:%S')" >> $LOG_FILE
-    exit 1
-  }
-
-  # 사용하지 않는 이미지 삭제
-  docker image prune -af || {
-    echo "이미지 삭제 실패 : $(date '+%Y-%m-%d %H:%M:%S')" >> $LOG_FILE
-    exit 1
-  }
-
-  echo "green 중단 완료 : $(date '+%Y-%m-%d %H:%M:%S')" >> $LOG_FILE
-
+# 반대 환경 설정
+if [ "$DEPLOY_ENV" == "blue" ]; then
+    OPPOSITE_ENV="green"
+    DEPLOY_PORT="8011"
+    OPPOSITE_PORT="8012"
 else
-  # green 배포 시작
-  echo "green 배포 시작 : $(date '+%Y-%m-%d %H:%M:%S')" >> $LOG_FILE
-  docker-compose -p ${DOCKER_APP_NAME}-green -f docker-compose.green.yml up -d --build || {
-    echo "green 배포 실패 : $(date '+%Y-%m-%d %H:%M:%S')" >> $LOG_FILE
-    exit 1
-  }
-
-  sleep 30
-  # blue 중단
-  echo "blue 중단 시작 : $(date '+%Y-%m-%d %H:%M:%S')" >> $LOG_FILE
-  docker-compose -p ${DOCKER_APP_NAME}-blue -f docker-compose.blue.yml down || {
-    echo "blue 중단 실패 : $(date '+%Y-%m-%d %H:%M:%S')" >> $LOG_FILE
-    exit 1
-  }
-
-  # 사용하지 않는 이미지 삭제
-  docker image prune -af || {
-    echo "이미지 삭제 실패 : $(date '+%Y-%m-%d %H:%M:%S')" >> $LOG_FILE
-    exit 1
-  }
-
-  echo "blue 중단 완료 : $(date '+%Y-%m-%d %H:%M:%S')" >> $LOG_FILE
+    OPPOSITE_ENV="blue"
+    DEPLOY_PORT="8012"
+    OPPOSITE_PORT="8011"
 fi
 
-# 배포 종료 기록
-echo "배포 종료  : $(date '+%Y-%m-%d %H:%M:%S')" >> $LOG_FILE
+# 새 컨테이너 시작
+echo "[$(date '+%Y-%m-%d %H:%M:%S')] ${DEPLOY_ENV} 컨테이너 시작" >> $LOG_FILE
+docker-compose -p "${DOCKER_APP_NAME}-${DEPLOY_ENV}" -f "docker-compose.${DEPLOY_ENV}.yml" up -d --build || {
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] ${DEPLOY_ENV} 컨테이너 시작 실패" >> $LOG_FILE
+    exit 1
+}
+
+# 헬스 체크 (최대 60초 대기)
+HEALTH_CHECK_TIMEOUT=60
+for i in $(seq 1 $HEALTH_CHECK_TIMEOUT); do
+    if curl -f http://localhost:${DEPLOY_PORT}/health; then
+        echo "[$(date '+%Y-%m-%d %H:%M:%S')] ${DEPLOY_ENV} 헬스 체크 성공" >> $LOG_FILE
+        break
+    fi
+
+    if [ $i -eq $HEALTH_CHECK_TIMEOUT ]; then
+        echo "[$(date '+%Y-%m-%d %H:%M:%S')] ${DEPLOY_ENV} 헬스 체크 실패" >> $LOG_FILE
+        exit 1
+    fi
+
+    sleep 1
+done
+
+# Nginx upstream 변경
+echo "[$(date '+%Y-%m-%d %H:%M:%S')] Nginx upstream 변경" >> $LOG_FILE
+sudo sed -i "s/server localhost:${OPPOSITE_PORT}/server localhost:${DEPLOY_PORT}/g" /etc/nginx/nginx.conf
+
+# Nginx 리로드
+sudo nginx -s reload
+
+# 이전 컨테이너 중지
+echo "[$(date '+%Y-%m-%d %H:%M:%S')] ${OPPOSITE_ENV} 컨테이너 중지" >> $LOG_FILE
+docker-compose -p "${DOCKER_APP_NAME}-${OPPOSITE_ENV}" -f "docker-compose.${OPPOSITE_ENV}.yml" down || {
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] ${OPPOSITE_ENV} 컨테이너 중지 실패" >> $LOG_FILE
+}
+
+# 사용하지 않는 Docker 이미지 정리
+docker image prune -af
+
+# 배포 종료 로깅
+echo "[$(date '+%Y-%m-%d %H:%M:%S')] 배포 완료: ${DEPLOY_ENV} 환경" >> $LOG_FILE
 echo "===================== 배포 완료 =====================" >> $LOG_FILE

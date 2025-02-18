@@ -129,12 +129,12 @@ pipeline {
                 }
             }
         }
-
         stage('Deploy to Backend Server') {
             steps {
                 script {
                     echo "===== Stage: Deploy to Backend Server ====="
                     def deployEnv = params.DEPLOY_ENV ?: 'blue'
+                    def activeEnv = (deployEnv == 'blue') ? 'green' : 'blue'
                     def containerName = "spring-wms-${deployEnv}"
 
                     echo "Deployment Environment: ${deployEnv}"
@@ -182,25 +182,33 @@ pipeline {
                                         # Nginx 설정 테스트 및 재시작
                                         sudo nginx -t && sudo systemctl restart nginx
 
-                                        # 3. 이전 컨테이너 정리
-                                        echo "===== Cleaning up old containers ====="
-                                        docker-compose -f docker-compose.${deployEnv}.yml down || true
-                                        docker rm -f ${containerName} || true
-
-                                        # AWS 관련 환경 변수 설정
-                                        export CLOUD_AWS_REGION_STATIC=ap-northeast-2
-                                        export CLOUD_AWS_S3_BUCKET=wms
-
-                                        # 4. 컨테이너 실행
+                                        # 3. 새 컨테이너 시작
                                         echo "===== Starting new containers ====="
                                         docker-compose -f docker-compose.${deployEnv}.yml up -d --build
 
-                                        # 5. 상태 확인
+                                        # 4. 헬스 체크 (최대 60초 대기)
+                                        for i in {1..60}; do
+                                            if curl -f http://localhost:${deployEnv == 'blue' ? '8011' : '8012'}/health; then
+                                                echo "Health check passed"
+                                                break
+                                            fi
+                                            sleep 1
+                                        done
+
+                                        # 5. Nginx upstream 변경
+                                        sudo sed -i "s/server localhost:${activeEnv == 'blue' ? '8011' : '8012'}/server localhost:${deployEnv == 'blue' ? '8011' : '8012'}/g" /etc/nginx/nginx.conf
+
+                                        # Nginx 리로드
+                                        sudo nginx -s reload
+
+                                        # 6. 이전 컨테이너 중지
+                                        docker-compose -f docker-compose.${activeEnv}.yml down
+
+                                        # 7. 상태 확인
                                         echo "===== Checking deployment status ====="
                                         docker ps -a
                                         echo "===== Container Logs ====="
-                                        sleep 5
-                                        docker logs ${containerName} || true
+                                        docker logs spring-wms-${deployEnv} || true
 
                                         echo "===== Nginx Status ====="
                                         sudo systemctl status nginx
