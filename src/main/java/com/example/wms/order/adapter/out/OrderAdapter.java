@@ -10,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 @Component
@@ -33,12 +32,10 @@ public class OrderAdapter implements OrderPort {
                 .supplierId(product.getSupplierId())
                 .orderNumber(orderNumber)
                 .orderDate(LocalDate.now())
-                //.orderQuantity(Math.toIntExact(defectiveLotCount))
                 .isApproved(true)
                 .isReturnOrder(true)
                 .orderStatus("처리중")
                 .inboundDate(LocalDate.now())
-                //.inboundDate(LocalDate.now().plusDays(product.getLeadTime()))
                 .build();
 
         orderMapper.createOrder(order);
