@@ -39,7 +39,7 @@ public class OrderAdapter implements OrderPort {
 
         for(int i=0; i<defectiveCount; i++) {
             Order order = Order.builder()
-                    .dailyPlanId(orderMapper.findById(inboundMapper.findById(inboundId).getOrderId()).getDailyPlanId())
+                    .dailyPlanId(orderMapper.findOrderById(inboundMapper.findById(inboundId).getOrderId()).getDailyPlanId())
                     .supplierId(product.getSupplierId())
                     .orderNumber(orderNumber)
                     .orderDate(LocalDate.now())
