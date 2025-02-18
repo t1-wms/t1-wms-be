@@ -11,7 +11,7 @@ public interface OrderMapper {
 
     List<Order> findAll(@Param("limit") int limit, @Param("offset") int offset);
 
-    Order findById(@Param("orderId") Long orderId);
+    Order findOrderById(@Param("orderId") Long orderId);
 
     List<Order> findByIsApproved(@Param("isApproved") boolean isApproved);
 

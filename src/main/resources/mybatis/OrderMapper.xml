@@ -9,7 +9,7 @@
 
     <!-- 주문 하나 조회 -->
     <select id="findOrderById" parameterType="long" resultType="com.example.wms.order.application.domain.Order">
-        SELECT * FROM order WHERE order_id = #{orderId}
+        SELECT * FROM `order` WHERE `order_id` = #{orderId}
     </select>
 
     <!-- 승인된 주문 조회 -->
