@@ -1,5 +1,4 @@
 version: '3'
-
 services:
   spring-wms-green:
     build:
@@ -13,9 +12,10 @@ services:
       - SPRING_PROFILES_ACTIVE=prod
       - SPRING_DATA_REDIS_HOST=redis-container
       - SPRING_DATA_REDIS_PORT=6379
-      - SPRING_DATA_REDIS_PASSWORD=${secret.redis.password}
     networks:
       - servernetwork
+    depends_on:
+      - redis-container
     restart: unless-stopped
 
   redis-container:
@@ -23,6 +23,9 @@ services:
     container_name: redis-container
     ports:
       - "6379:6379"
+    command: redis-server --requirepass ${secret.redis.password}
+    environment:
+      - REDIS_PASSWORD=${secret.redis.password}
     networks:
       - servernetwork
     restart: unless-stopped

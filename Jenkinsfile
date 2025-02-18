@@ -129,16 +129,18 @@ pipeline {
                 }
             }
         }
+
         stage('Deploy to Backend Server') {
             steps {
                 script {
                     echo "===== Stage: Deploy to Backend Server ====="
                     def deployEnv = params.DEPLOY_ENV ?: 'blue'
-                    def activeEnv = (deployEnv == 'blue') ? 'green' : 'blue'
+                    def port = deployEnv == 'blue' ? '8011' : '8012'
                     def containerName = "spring-wms-${deployEnv}"
 
                     echo "Deployment Environment: ${deployEnv}"
                     echo "Container Name: ${containerName}"
+                    echo "Port: ${port}"
 
                     sshPublisher(publishers: [
                         sshPublisherDesc(
@@ -174,42 +176,48 @@ pipeline {
                                         sudo cp nginx/nginx.conf /etc/nginx/nginx.conf
                                         sudo cp nginx/backend.conf /etc/nginx/conf.d/
 
+                                        # 현재 배포 환경 설정 저장
+                                        echo "set \\\$target_env ${deployEnv};" | sudo tee /etc/nginx/deployment_env
+
                                         # 다른 파일들 이동
                                         cp docker/docker-compose.*.yml ./
                                         cp docker/Dockerfile ./
                                         cp build/libs/*.jar ./app.jar
-
-                                        # Nginx 설정 테스트 및 재시작
-                                        sudo nginx -t && sudo systemctl restart nginx
 
                                         # 3. 새 컨테이너 시작
                                         echo "===== Starting new containers ====="
                                         docker-compose -f docker-compose.${deployEnv}.yml up -d --build
 
                                         # 4. 헬스 체크 (최대 60초 대기)
+                                        echo "===== Health checking ====="
                                         for i in {1..60}; do
-                                            if curl -f http://localhost:${deployEnv == 'blue' ? '8011' : '8012'}/health; then
+                                            if curl -f http://localhost:${port}/health; then
                                                 echo "Health check passed"
                                                 break
                                             fi
+                                            if [ $i -eq 60 ]; then
+                                                echo "Health check failed"
+                                                exit 1
+                                            fi
+                                            echo "Waiting for health check... ($i/60)"
                                             sleep 1
                                         done
 
-                                        # 5. Nginx upstream 변경
-                                        sudo sed -i "s/server localhost:${activeEnv == 'blue' ? '8011' : '8012'}/server localhost:${deployEnv == 'blue' ? '8011' : '8012'}/g" /etc/nginx/nginx.conf
+                                        # 5. nginx 설정 테스트 및 재시작
+                                        echo "===== Restarting Nginx ====="
+                                        sudo nginx -t
+                                        sudo systemctl restart nginx
 
-                                        # Nginx 리로드
-                                        sudo nginx -s reload
+                                        # 6. 이전 환경 정리
+                                        echo "===== Cleaning up old environment ====="
+                                        other_env=\${deployEnv == 'blue' ? 'green' : 'blue'}
+                                        docker-compose -f docker-compose.\${other_env}.yml down || true
 
-                                        # 6. 이전 컨테이너 중지
-                                        docker-compose -f docker-compose.${activeEnv}.yml down
-
-                                        # 7. 상태 확인
-                                        echo "===== Checking deployment status ====="
+                                        # 7. 최종 상태 확인
+                                        echo "===== Final Status Check ====="
                                         docker ps -a
                                         echo "===== Container Logs ====="
-                                        docker logs spring-wms-${deployEnv} || true
-
+                                        docker logs ${containerName} || true
                                         echo "===== Nginx Status ====="
                                         sudo systemctl status nginx
                                         echo "===== Nginx Config Test ====="
