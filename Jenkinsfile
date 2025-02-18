@@ -132,9 +132,6 @@ pipeline {
         stage('Deploy to Backend Server') {
             steps {
                 script {
-                    echo "===== Stage: Deploy to Backend Server ====="
-
-                    // EC2에서 현재 환경 확인
                     def currentEnv = sh(
                         script: """
                             ssh -o StrictHostKeyChecking=no ec2-user@api.stockholmes.store '
@@ -150,92 +147,44 @@ pipeline {
                         returnStdout: true
                     ).trim()
 
-                    // 반대 환경으로 설정
                     def deployEnv = currentEnv == 'blue' ? 'green' : 'blue'
                     def port = deployEnv == 'blue' ? '8011' : '8012'
                     def containerName = "spring-wms-${deployEnv}"
-
-                    echo "Current Environment: ${currentEnv}"
-                    echo "Deploying to Environment: ${deployEnv}"
-                    echo "Using Port: ${port}"
-                    echo "Container Name: ${containerName}"
 
                     sshPublisher(publishers: [
                         sshPublisherDesc(
                             configName: 'BackendServer',
                             transfers: [
                                 sshTransfer(
-                                    sourceFiles: """
-                                        build/libs/*.jar,
-                                        docker/docker-compose.*.yml,
-                                        docker/Dockerfile,
-                                        nginx/nginx.conf,
-                                        nginx/backend.conf,
-                                        scripts/deploy.sh
-                                    """,
-                                    remoteDirectory: "",
-                                    removePrefix: "",
                                     execCommand: """
-                                        set -x
-                                        echo "===== Starting deployment process... ====="
-                                        cd /home/ec2-user/backend
+                                        # 1. 새 컨테이너 중지 및 삭제 (존재할 경우)
+                                        docker stop ${containerName} || true
+                                        docker rm ${containerName} || true
 
-                                        # 1. 환경 준비
-                                        echo "===== Preparing environment ====="
-                                        docker network create servernetwork || true
+                                        # 2. 새 컨테이너 실행
+                                        docker run -d \
+                                            --name ${containerName} \
+                                            --network servernetwork \
+                                            -p ${port}:8080 \
+                                            -v /home/ec2-user/backend/logs:/logs \
+                                            backend:${BUILD_NUMBER}
 
-                                        # 2. 파일 정리 및 이동
-                                        echo "===== Moving files ====="
+                                        # 3. Nginx 설정 업데이트
+                                        echo ${deployEnv} > /etc/nginx/deployment_env
+                                        sudo sed -i "s/proxy_pass http:\\/\\/localhost:[0-9]*/proxy_pass http:\\/\\/localhost:${port}/" /etc/nginx/conf.d/backend.conf
 
-                                        cp docker/docker-compose.*.yml ./
-                                        cp docker/Dockerfile ./
-                                        cp build/libs/*.jar ./app.jar
+                                        # 4. Nginx 재로드
+                                        sudo systemctl reload nginx
 
-                                        # 3. 이전 컨테이너 상태 확인
-                                        echo "===== Current containers status ====="
-                                        docker ps -a
-
-                                        # 4. 새 컨테이너 시작
-                                        echo "===== Starting new container: ${deployEnv} ====="
-                                        docker-compose -f docker-compose.${deployEnv}.yml up -d --build
-
-                                        # 5. 헬스 체크
-                                        echo "===== Health checking: ${port} ====="
-                                        for i in {1..60}; do
-                                            if curl -f http://localhost:${port}/health; then
-                                                echo "Health check passed"
-                                                break
-                                            fi
-                                            if [ \$i -eq 60 ]; then
-                                                echo "Health check failed"
-                                                exit 1
-                                            fi
-                                            echo "Waiting for health check... (\$i/60)"
-                                            sleep 1
-                                        done
-
-                                        # 6. nginx 설정 테스트 및 재시작
-                                        echo "===== Restarting Nginx ====="
-                                        sudo nginx -t
-                                        sudo systemctl restart nginx
-
-                                        # 7. 이전 환경 정리
+                                        # 5. 이전 환경 컨테이너 정리
                                         if [ "${currentEnv}" != "none" ]; then
-                                            echo "===== Cleaning up old environment: ${currentEnv} ====="
-                                            docker-compose -f docker-compose.${currentEnv}.yml down || true
+                                            docker stop spring-wms-${currentEnv} || true
+                                            docker rm spring-wms-${currentEnv} || true
                                         fi
 
-                                        # 8. 최종 상태 확인
-                                        echo "===== Final Status Check ====="
-                                        docker ps -a
-                                        echo "===== Container Logs ====="
-                                        docker logs ${containerName} || true
-                                        echo "===== Nginx Status ====="
-                                        sudo systemctl status nginx
-                                        echo "===== Nginx Config Test ====="
-                                        sudo nginx -t
-                                        echo "===== Nginx Error Log ====="
-                                        sudo tail -n 50 /var/log/nginx/error.log
+                                        # 6. 헬스 체크
+                                        sleep 10
+                                        curl -f http://localhost:${port}/actuator/health || exit 1
                                     """
                                 )
                             ]
@@ -246,29 +195,29 @@ pipeline {
         }
     }
 
-    post {
-        success {
-            slackSend (
-                message: """
-                    :white_check_mark: 배포 성공 :white_check_mark:
-
-                    *Job*: ${env.JOB_NAME} [${env.BUILD_NUMBER}]
-                    *빌드 URL*: <${env.BUILD_URL}|링크>
-                    *최근 커밋 메시지*: ${env.GIT_COMMIT_MESSAGE}
-                """
-            )
-        }
-
-        failure {
-            slackSend (
-                message: """
-                    :x: 배포 실패 :x:
-
-                    *Job*: ${env.JOB_NAME} [${env.BUILD_NUMBER}]
-                    *빌드 URL*: <${env.BUILD_URL}|링크>
-                    *최근 커밋 메시지*: ${env.GIT_COMMIT_MESSAGE}
-                """
-            )
-        }
-    }
+//     post {
+//         success {
+//             slackSend (
+//                 message: """
+//                     :white_check_mark: 배포 성공 ! :white_check_mark:
+//
+//                     *Job*: ${env.JOB_NAME} [${env.BUILD_NUMBER}]
+//                     *빌드 URL*: <${env.BUILD_URL}|링크>
+//                     *최근 커밋 메시지*: ${env.GIT_COMMIT_MESSAGE}
+//                 """
+//             )
+//         }
+//
+//         failure {
+//             slackSend (
+//                 message: """
+//                     :x: 배포 실패 :x:
+//
+//                     *Job*: ${env.JOB_NAME} [${env.BUILD_NUMBER}]
+//                     *빌드 URL*: <${env.BUILD_URL}|링크>
+//                     *최근 커밋 메시지*: ${env.GIT_COMMIT_MESSAGE}
+//                 """
+//             )
+//         }
+//     }
 }
