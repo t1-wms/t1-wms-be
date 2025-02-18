@@ -15,5 +15,6 @@ public interface InboundPort {
     void updateInboundCheck(String scheduleNumber, String checkNumber);
     void updateOrderProduct(Long orderId, Long productId, Boolean isDefective);
     List<LotInfoDto> getLotsByScheduleNumber(String scheduleNumber);
+    List<LotInfoDto> getLotsByCheckNumber(String checkNumber);
     void updatePA(Long inboundId, LocalDate putAwayDate, String putAwayNumber);
 }

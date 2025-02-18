@@ -16,6 +16,6 @@ public class InboundCheckedProductReqDto {
     @Schema(description = "품목 id", example = "101")
     private Long productId;
 
-    @Schema(description = "품목별 불합격 로트 수량", example = "50")
-    private Long defectiveLotCount;
+    @Schema(description = "품목별 불합격 수량", example = "50")
+    private Long defectiveCount;
 }

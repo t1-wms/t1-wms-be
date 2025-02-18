@@ -24,5 +24,5 @@ public class InboundPutAwayResDto {
     private String orderDate;
     private Long supplierId;
     private String supplierName;
-    private List<InboundProductDto> productList;
+    private List<LotResDto> lotList;
 }

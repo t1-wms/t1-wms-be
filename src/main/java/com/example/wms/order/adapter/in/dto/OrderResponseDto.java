@@ -23,7 +23,7 @@ public class OrderResponseDto {
 
     private Long supplierId;
 
-    private LocalDate orderTime;
+    private LocalDate orderDate;
 
     private Boolean isApproved;
 

@@ -39,12 +39,12 @@ public class InboundProductPaginationTest {
     @BeforeEach
     void setUp() {
         List<InboundDetailDto> inboundDetails1 = Arrays.asList(
-                new InboundDetailDto("IS202502010001", "IC202502150001", "PA202502150001", "2025-02-15", "2025-02-16", "2025-02-17"),
-                new InboundDetailDto("IS202502010002", "IC202502150002", "PA202502150002", "2025-02-15", "2025-02-16", "2025-02-17")
+                 new InboundDetailDto(1L,"IS202502010001", "IC202502150001", "PA202502150001", "2025-02-15", "2025-02-16", "2025-02-17"),
+                new InboundDetailDto(1L,"IS202502010002", "IC202502150002", "PA202502150002", "2025-02-15", "2025-02-16", "2025-02-17")
         );
 
         List<InboundDetailDto> inboundDetails2 = Arrays.asList(
-                new InboundDetailDto("IS202502010001", "IC202502160001", "PA202502160001", "2025-02-16", "2025-02-17", "2025-02-18")
+                new InboundDetailDto(1L,"IS202502010001", "IC202502160001", "PA202502160001", "2025-02-16", "2025-02-17", "2025-02-18")
         );
 
         mockProductInboundList = Arrays.asList(
