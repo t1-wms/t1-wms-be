@@ -2,6 +2,7 @@ package com.example.wms.infrastructure.mapper;
 
 import com.example.wms.order.application.domain.Order;
 import org.apache.ibatis.annotations.*;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -36,4 +37,22 @@ public interface OrderMapper {
         SELECT order_number FROM `order` ORDER BY order_number DESC LIMIT 1;
     """)
     String findMaxOutboundOrderNumber();
+
+    @Delete("""
+        DELETE FROM `order` WHERE `order_id` = #{orderId};
+    """)
+    void deleteOrder(@Param("orderId") Long orderId);
+
+    @Delete("""
+        DELETE FROM `order_product` WHERE `order_id` = #{orderId};
+    """)
+    void deleteOrderProduct(@Param("orderId") Long orderId);
+
+    @Transactional
+    default void deleteOrderOrderProduct(@Param("orderId") Long orderId){
+        deleteOrderProduct(orderId);
+
+        deleteOrder(orderId);
+    }
+
 }
