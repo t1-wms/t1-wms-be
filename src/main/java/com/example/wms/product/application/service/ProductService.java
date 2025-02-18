@@ -2,6 +2,7 @@ package com.example.wms.product.application.service;
 
 import com.example.wms.infrastructure.pagination.util.PageableUtils;
 import com.example.wms.product.adapter.in.dto.ProductOverviewDto;
+import com.example.wms.product.adapter.in.dto.ProductResponseDto;
 import com.example.wms.product.application.domain.Product;
 import com.example.wms.product.application.port.in.ProductUseCase;
 import com.example.wms.product.application.port.out.ProductPort;
@@ -130,13 +131,13 @@ public class ProductService implements ProductUseCase {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<Product> getAllProducts(String productCode, Pageable pageable) {
+    public Page<ProductResponseDto> getAllProducts(String productCode, Pageable pageable) {
         // 외부에서 받은 Pageable을 안전하게 변환 (유효하지 않은 정렬 조건이 있으면 예외 발생)
         Pageable safePageable = PageableUtils.convertToSafePageableStrict(pageable, Product.class);
 
         // safePageable을 Mapper에 전달해서 DB 쿼리를 실행
         // (여기서는 Mapper의 반환타입이나 사용법에 따라 적절히 변환)
-        List<Product> productList = productPort.findProductWithPagination(productCode, safePageable);
+        List<ProductResponseDto> productList = productPort.findProductWithPagination(productCode, safePageable);
         long count = productPort.countAllProducts(productCode);
 
         // PageImpl을 사용하여 Page 객체로 감싸서 반환하는 예시

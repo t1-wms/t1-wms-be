@@ -27,6 +27,7 @@ public class RegisterOrderProductService implements RegisterOrderProductUseCase 
                         .orderId(orderId)
                         .productId(dto.getProductId())
                         .productCount(dto.getProductCount())
+                        .productName(dto.getProductName())
                         .isDefective(null)
                         .build())
                 .collect(Collectors.toList());

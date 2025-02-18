@@ -13,6 +13,7 @@ public class OrderProduct {
     private Long orderId;
     private Integer productCount;
     private Long productId;
+    private String productName;
     private Boolean isDefective;
     private Long defectiveCount;
 }

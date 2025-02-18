@@ -82,6 +82,7 @@ CREATE TABLE IF NOT EXISTS order_product (
                                              product_id BIGINT NOT NULL,
                                              is_defective BOOLEAN,
                                              product_count INT,
+                                             product_name VARCHAR(50),
                                              defective_count BIGINT,
                                              CONSTRAINT fk_order FOREIGN KEY (order_id) REFERENCES `order`(order_id),
                                              CONSTRAINT fk_product_order_product FOREIGN KEY (product_id) REFERENCES product(product_id)

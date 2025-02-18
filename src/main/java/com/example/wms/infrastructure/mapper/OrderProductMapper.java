@@ -15,10 +15,10 @@ public interface OrderProductMapper {
     @Insert("""
         <script>
             INSERT INTO order_product
-            (order_id, product_count, product_id, is_defective)
+            (order_id, product_count, product_id, is_defective, product_name)
             VALUES
             <foreach collection="products" item="product" separator=",">
-                (#{product.orderId}, #{product.productCount}, #{product.productId}, #{product.isDefective})
+                (#{product.orderId}, #{product.productCount}, #{product.productId}, #{product.isDefective}, #{product.productName})
             </foreach>
         </script>
     """)
