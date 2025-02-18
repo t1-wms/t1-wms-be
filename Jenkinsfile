@@ -134,13 +134,28 @@ pipeline {
             steps {
                 script {
                     echo "===== Stage: Deploy to Backend Server ====="
-                    def deployEnv = params.DEPLOY_ENV ?: 'blue'
+                    def currentEnv = sh(
+                        script: """
+                            if netstat -tulpn | grep -q ':8011'; then
+                                echo "blue"
+                            elif netstat -tulpn | grep -q ':8012'; then
+                                echo "green"
+                            else
+                                echo "none"
+                            fi
+                        """,
+                        returnStdout: true
+                    ).trim()
+
+                    // 반대 환경으로 설정
+                    def deployEnv = currentEnv == 'blue' ? 'green' : 'blue'
                     def port = deployEnv == 'blue' ? '8011' : '8012'
                     def containerName = "spring-wms-${deployEnv}"
 
-                    echo "Deployment Environment: ${deployEnv}"
+                    echo "Current Environment(Port): ${currentEnv}"
+                    echo "Deploying to Environment: ${deployEnv}"
+                    echo "Using Port: ${port}"
                     echo "Container Name: ${containerName}"
-                    echo "Port: ${port}"
 
                     sshPublisher(publishers: [
                         sshPublisherDesc(
