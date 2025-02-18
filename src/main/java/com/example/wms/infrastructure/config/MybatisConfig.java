@@ -15,8 +15,8 @@ import javax.sql.DataSource;
 
 @Configuration
 @MapperScan(
-        basePackages = "com.example.wms.infrastructure.mapper",  // Mapper 경로 설정
-        sqlSessionTemplateRef = "sqlSessionTemplate"  // sqlSessionTemplate만 지정
+        basePackages = "com.example.wms.infrastructure.mapper",
+        sqlSessionTemplateRef = "sqlSessionTemplate"
 )
 @Slf4j
 public class MybatisConfig {
