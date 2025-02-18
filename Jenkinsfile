@@ -216,7 +216,7 @@ stage('Deploy to Backend Server') {
 
                                     # ... (기존 배포 로직 유지) ...
 
-                                # 8. 확장된 최종 검증
+                                # 8. 확장 최종 검증
                                 echo "===== Extended Final Verification ====="
                                 echo "Container Status:"
                                 docker ps -a
