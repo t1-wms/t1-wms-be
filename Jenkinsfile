@@ -219,22 +219,28 @@ pipeline {
     }
 
     post {
-        always {
-            echo "===== Pipeline Completed ====="
-            echo "Build Result: ${currentBuild.result}"
-            echo "Build Number: ${env.BUILD_NUMBER}"
-            echo "Build URL: ${env.BUILD_URL}"
-        }
         success {
-            echo ":white_check_mark: Deployment Successful"
-            echo "===== Deployment Success Details ====="
-            sh 'docker ps -a'
+            slackSend (
+                message: """
+                    :white_check_mark: **배포 성공** :white_check_mark:
+
+                    *Job*: ${env.JOB_NAME} [${env.BUILD_NUMBER}]
+                    *빌드 URL*: <${env.BUILD_URL}|링크>
+                    *최근 커밋 메시지*: ${env.GIT_COMMIT_MESSAGE}
+                """
+            )
         }
+
         failure {
-            echo ":x: Deployment Failed"
-            echo "===== Deployment Failure Details ====="
-            sh 'docker ps -a'
-            sh 'docker logs $(docker ps -aq) || true'
+            slackSend (
+                message: """
+                    :x: **배포 실패** :x:
+
+                    *Job*: ${env.JOB_NAME} [${env.BUILD_NUMBER}]
+                    *빌드 URL*: <${env.BUILD_URL}|링크>
+                    *최근 커밋 메시지*: ${env.GIT_COMMIT_MESSAGE}
+                """
+            )
         }
     }
 }

@@ -94,15 +94,13 @@ springdoc:
 
 cloud:
   aws:
+    region:
+      static: ap-northeast-2
     credentials:
       accessKey: ${secret.cloud.accessKey}
       secretKey: ${secret.cloud.secretKey}
     s3:
       bucket: wms
-    region:
-      static: ap-northeast-2
-    stack:
-      auto: false
 
 jwt:
   refresh-expired-in: '1296000000'  # Refresh Token 만료 시간 (15일)
