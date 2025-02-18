@@ -4,27 +4,27 @@
 
     <!-- 주문 전체 조회 -->
     <select id="findAllOrders" resultType="com.example.wms.order.application.domain.Order">
-        SELECT * FROM order
+        SELECT * FROM orders
     </select>
 
     <!-- 주문 하나 조회 -->
     <select id="findOrderById" parameterType="long" resultType="com.example.wms.order.application.domain.Order">
-        SELECT * FROM order WHERE order_id = #{orderId}
+        SELECT * FROM orders WHERE order_id = #{orderId}
     </select>
 
     <!-- 승인된 주문 조회 -->
     <select id="findByIsApproved" resultType="com.example.wms.order.application.domain.Order">
-        SELECT * FROM order WHERE is_approved = true
+        SELECT * FROM orders WHERE is_approved = true
     </select>
 
     <!-- 지연된 주문 조회 -->
     <select id="findByIsDelayed" resultType="com.example.wms.order.application.domain.Order">
-        SELECT * FROM order WHERE is_delayed = true
+        SELECT * FROM orders WHERE is_delayed = true
     </select>
 
     <!-- 승인된 & 지연되지 않은 주문 조회 -->
     <select id="findApprovedNotDelayedOrders" resultType="com.example.wms.order.application.domain.Order">
-        SELECT * FROM order WHERE is_approved = true AND is_delayed = false
+        SELECT * FROM orders WHERE is_approved = true AND is_delayed = false
     </select>
 
 </mapper>

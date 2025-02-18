@@ -37,7 +37,7 @@ spring:
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://wms-database.cbgii0wwoaik.ap-northeast-2.rds.amazonaws.com:3306/wms
+    url: jdbc:mysql://wms.cbgii0wwoaik.ap-northeast-2.rds.amazonaws.com:3306/wms
     username: admin
     password: ${secret.mysql.password}
 
@@ -109,8 +109,8 @@ jwt:
   secret: ${secret-jwt.secret}
 
 mybatis:
-  mapper-locations: classpath:/mybatis/**/*.xml
-  type-aliases-package: com.example.wms
+  mapper-locations: classpath:mybatis/**/*.xml
+  type-aliases-package: com.example.wms.**.domain
   configuration:
     default-statement-timeout: 30
     map-underscore-to-camel-case: true
