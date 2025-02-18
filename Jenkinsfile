@@ -130,93 +130,93 @@ pipeline {
             }
         }
 
-    stage('Deploy to Backend Server') {
-        steps {
-            script {
-                echo "===== Stage: Deploy to Backend Server ====="
-                def deployEnv = params.DEPLOY_ENV ?: 'blue'
-                def containerName = "spring-wms-${deployEnv}"
+        stage('Deploy to Backend Server') {
+            steps {
+                script {
+                    echo "===== Stage: Deploy to Backend Server ====="
+                    def deployEnv = params.DEPLOY_ENV ?: 'blue'
+                    def containerName = "spring-wms-${deployEnv}"
 
-                echo "Deployment Environment: ${deployEnv}"
-                echo "Container Name: ${containerName}"
+                    echo "Deployment Environment: ${deployEnv}"
+                    echo "Container Name: ${containerName}"
 
-                sshPublisher(publishers: [
-                    sshPublisherDesc(
-                        configName: 'BackendServer',
-                        transfers: [
-                            sshTransfer(
-                                sourceFiles: """
-                                    build/libs/*.jar,
-                                    docker/docker-compose.*.yml,
-                                    docker/Dockerfile,
-                                    nginx/nginx.conf,
-                                    nginx/backend.conf,
-                                    scripts/deploy.sh
-                                """,
-                                remoteDirectory: "",
-                                removePrefix: "",
-                                execCommand: """
-                                    set -x
-                                    echo "===== Starting deployment process... ====="
-                                    cd /home/ec2-user/backend
+                    sshPublisher(publishers: [
+                        sshPublisherDesc(
+                            configName: 'BackendServer',
+                            transfers: [
+                                sshTransfer(
+                                    sourceFiles: """
+                                        build/libs/*.jar,
+                                        docker/docker-compose.*.yml,
+                                        docker/Dockerfile,
+                                        nginx/nginx.conf,
+                                        nginx/backend.conf,
+                                        scripts/deploy.sh
+                                    """,
+                                    remoteDirectory: "",
+                                    removePrefix: "",
+                                    execCommand: """
+                                        set -x
+                                        echo "===== Starting deployment process... ====="
+                                        cd /home/ec2-user/backend
 
-                                    # 1. 환경 준비
-                                    echo "===== Preparing environment ====="
-                                    docker network create servernetwork || true
-                                    mkdir -p nginx/conf.d
+                                        # 1. 환경 준비
+                                        echo "===== Preparing environment ====="
+                                        docker network create servernetwork || true
+                                        mkdir -p nginx/conf.d
 
-                                    # 2. 파일 정리 및 이동
-                                    echo "===== Moving files ====="
-                                    rm -f *.jar *.yml Dockerfile
-                                    rm -rf nginx/*.conf nginx/conf.d/*
+                                        # 2. 파일 정리 및 이동
+                                        echo "===== Moving files ====="
+                                        rm -f *.jar *.yml Dockerfile
+                                        rm -rf nginx/*.conf nginx/conf.d/*
 
-                                    # nginx 설정 파일 이동
-                                    sudo cp nginx/nginx.conf /etc/nginx/nginx.conf
-                                    sudo cp nginx/backend.conf /etc/nginx/conf.d/
+                                        # nginx 설정 파일 이동
+                                        sudo cp nginx/nginx.conf /etc/nginx/nginx.conf
+                                        sudo cp nginx/backend.conf /etc/nginx/conf.d/
 
-                                    # 다른 파일들 이동
-                                    cp docker/docker-compose.*.yml ./
-                                    cp docker/Dockerfile ./
-                                    cp build/libs/*.jar ./app.jar
+                                        # 다른 파일들 이동
+                                        cp docker/docker-compose.*.yml ./
+                                        cp docker/Dockerfile ./
+                                        cp build/libs/*.jar ./app.jar
 
-                                    # Nginx 설정 테스트 및 재시작
-                                    sudo nginx -t && sudo systemctl restart nginx
+                                        # Nginx 설정 테스트 및 재시작
+                                        sudo nginx -t && sudo systemctl restart nginx
 
-                                    # 3. 이전 컨테이너 정리
-                                    echo "===== Cleaning up old containers ====="
-                                    docker-compose -f docker-compose.${deployEnv}.yml down || true
-                                    docker rm -f ${containerName} || true
+                                        # 3. 이전 컨테이너 정리
+                                        echo "===== Cleaning up old containers ====="
+                                        docker-compose -f docker-compose.${deployEnv}.yml down || true
+                                        docker rm -f ${containerName} || true
 
-                                    # AWS 관련 환경 변수 설정
-                                    export CLOUD_AWS_REGION_STATIC=ap-northeast-2
-                                    export CLOUD_AWS_S3_BUCKET=wms
+                                        # AWS 관련 환경 변수 설정
+                                        export CLOUD_AWS_REGION_STATIC=ap-northeast-2
+                                        export CLOUD_AWS_S3_BUCKET=wms
 
-                                    # 4. 컨테이너 실행
-                                    echo "===== Starting new containers ====="
-                                    docker-compose -f docker-compose.${deployEnv}.yml up -d --build
+                                        # 4. 컨테이너 실행
+                                        echo "===== Starting new containers ====="
+                                        docker-compose -f docker-compose.${deployEnv}.yml up -d --build
 
-                                    # 5. 상태 확인
-                                    echo "===== Checking deployment status ====="
-                                    docker ps -a
-                                    echo "===== Container Logs ====="
-                                    sleep 5
-                                    docker logs ${containerName} || true
+                                        # 5. 상태 확인
+                                        echo "===== Checking deployment status ====="
+                                        docker ps -a
+                                        echo "===== Container Logs ====="
+                                        sleep 5
+                                        docker logs ${containerName} || true
 
-                                    echo "===== Nginx Status ====="
-                                    sudo systemctl status nginx
-                                    echo "===== Nginx Config Test ====="
-                                    sudo nginx -t
-                                    echo "===== Nginx Error Log ====="
-                                    sudo tail -n 50 /var/log/nginx/error.log
-                                """
-                            )
-                        ]
-                    )
-                ])
+                                        echo "===== Nginx Status ====="
+                                        sudo systemctl status nginx
+                                        echo "===== Nginx Config Test ====="
+                                        sudo nginx -t
+                                        echo "===== Nginx Error Log ====="
+                                        sudo tail -n 50 /var/log/nginx/error.log
+                                    """
+                                )
+                            ]
+                        )
+                    ])
+                }
             }
         }
     }
-
 
     post {
         always {
