@@ -54,6 +54,8 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
      * 허용 URL 경로 배열
      */
     private static final String[] PERMIT_URLS = {
+            "/api/test",
+            "/api/health",
             "/api/auth/register",
             "/api/auth/login",
             "/api/user/reissue-token",

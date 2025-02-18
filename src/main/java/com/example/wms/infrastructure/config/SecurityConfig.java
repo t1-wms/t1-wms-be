@@ -40,11 +40,28 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(authz -> authz.anyRequest().permitAll())
-                .exceptionHandling(exceptionHandling ->
-                        exceptionHandling
-                                .accessDeniedHandler(new CustomAccessDeniedHandler(objectMapper))
-                                .authenticationEntryPoint(new CustomAuthenticationEntryPoint(objectMapper))
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(
+                                "/api/auth/register",
+                                "/api/auth/login",
+                                "/api/user/reissue-token",
+                                "/api/user",
+                                "/api/user/list",
+                                "/api/upload",
+                                "/api/outbound",
+                                "/api/bin",
+                                "/api/swagger-ui/**",
+                                "/api/v3/api-docs/**",
+                                "/api/product",
+                                "/api/sse",
+                                "/health-check",
+                                "/test/**"
+                        ).permitAll()
+                        .anyRequest().authenticated()
+                )
+                .exceptionHandling(exceptionHandling -> exceptionHandling
+                        .accessDeniedHandler(new CustomAccessDeniedHandler(objectMapper))
+                        .authenticationEntryPoint(new CustomAuthenticationEntryPoint(objectMapper))
                 )
                 .addFilterBefore(
                         new CustomAuthenticationFilter(
