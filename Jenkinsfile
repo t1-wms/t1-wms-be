@@ -190,8 +190,12 @@ pipeline {
                                         rm -f *.jar *.yml Dockerfile
                                         rm -rf nginx/*.conf nginx/conf.d/*
 
+                                        # nginx 설정 파일 이동
+                                        sudo cp nginx/nginx.conf /etc/nginx/nginx.conf
+                                        sudo cp nginx/backend.conf /etc/nginx/conf.d/
+
                                         # 현재 배포 환경 설정 저장
-                                        echo "set \\\$target_env ${deployEnv};" | sudo tee /etc/nginx/deployment_env
+                                        echo "set \\\$target_env ${deployEnv};" | sudo tee /etc/nginx/backend
 
                                         # 다른 파일들 이동
                                         cp docker/docker-compose.*.yml ./
