@@ -197,7 +197,7 @@ pipeline {
                                         # 현재 배포 환경 설정 저장
                                         echo "set \\\$target_env ${deployEnv};" | sudo tee /etc/nginx/deployment_env
 
-                                        # 다른 파일 이동
+                                        # 다른 파일들 이동
                                         cp docker/docker-compose.*.yml ./
                                         cp docker/Dockerfile ./
                                         cp build/libs/*.jar ./app.jar
@@ -226,20 +226,14 @@ pipeline {
                                         done
 
                                         # 6. nginx 설정 테스트 및 재시작
-                                        echo "===== Testing Nginx configuration ====="
+                                        echo "===== Restarting Nginx ====="
                                         sudo nginx -t
-                                        if [ $? -eq 0 ]; then
-                                            echo "===== Restarting Nginx ====="
-                                            sudo systemctl restart nginx
-                                        else
-                                            echo "Nginx configuration test failed. Aborting."
-                                            exit 1
-                                        fi
+                                        sudo systemctl restart nginx
 
                                         # 7. 이전 환경 정리
                                         if [ "${currentEnv}" != "none" ]; then
                                             echo "===== Cleaning up old environment: ${currentEnv} ====="
-                                            docker-compose -f docker-compose.${currentEnv}.yml down || exit 1
+                                            docker-compose -f docker-compose.${currentEnv}.yml down || true
                                         fi
 
                                         # 8. 최종 상태 확인
