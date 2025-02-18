@@ -129,20 +129,23 @@ pipeline {
                 }
             }
         }
-
         stage('Deploy to Backend Server') {
             steps {
                 script {
                     echo "===== Stage: Deploy to Backend Server ====="
+
+                    // EC2에서 현재 환경 확인
                     def currentEnv = sh(
                         script: """
-                            if netstat -tulpn | grep -q ':8011'; then
-                                echo "blue"
-                            elif netstat -tulpn | grep -q ':8012'; then
-                                echo "green"
-                            else
-                                echo "none"
-                            fi
+                            ssh -o StrictHostKeyChecking=no ec2-user@api.stockholmes.store '
+                                if docker ps | grep -q "spring-wms-blue"; then
+                                    echo "blue"
+                                elif docker ps | grep -q "spring-wms-green"; then
+                                    echo "green"
+                                else
+                                    echo "none"
+                                fi
+                            '
                         """,
                         returnStdout: true
                     ).trim()
@@ -152,7 +155,7 @@ pipeline {
                     def port = deployEnv == 'blue' ? '8011' : '8012'
                     def containerName = "spring-wms-${deployEnv}"
 
-                    echo "Current Environment(Port): ${currentEnv}"
+                    echo "Current Environment: ${currentEnv}"
                     echo "Deploying to Environment: ${deployEnv}"
                     echo "Using Port: ${port}"
                     echo "Container Name: ${containerName}"
@@ -199,36 +202,41 @@ pipeline {
                                         cp docker/Dockerfile ./
                                         cp build/libs/*.jar ./app.jar
 
-                                        # 3. 새 컨테이너 시작
-                                        echo "===== Starting new containers ====="
+                                        # 3. 이전 컨테이너 상태 확인
+                                        echo "===== Current containers status ====="
+                                        docker ps -a
+
+                                        # 4. 새 컨테이너 시작
+                                        echo "===== Starting new container: ${deployEnv} ====="
                                         docker-compose -f docker-compose.${deployEnv}.yml up -d --build
 
-                                        # 4. 헬스 체크 (최대 60초 대기)
-                                        echo "===== Health checking ====="
+                                        # 5. 헬스 체크
+                                        echo "===== Health checking: ${port} ====="
                                         for i in {1..60}; do
                                             if curl -f http://localhost:${port}/health; then
                                                 echo "Health check passed"
                                                 break
                                             fi
-                                            if [ $i -eq 60 ]; then
+                                            if [ \$i -eq 60 ]; then
                                                 echo "Health check failed"
                                                 exit 1
                                             fi
-                                            echo "Waiting for health check... ($i/60)"
+                                            echo "Waiting for health check... (\$i/60)"
                                             sleep 1
                                         done
 
-                                        # 5. nginx 설정 테스트 및 재시작
+                                        # 6. nginx 설정 테스트 및 재시작
                                         echo "===== Restarting Nginx ====="
                                         sudo nginx -t
                                         sudo systemctl restart nginx
 
-                                        # 6. 이전 환경 정리
-                                        echo "===== Cleaning up old environment ====="
-                                        other_env=\${deployEnv == 'blue' ? 'green' : 'blue'}
-                                        docker-compose -f docker-compose.\${other_env}.yml down || true
+                                        # 7. 이전 환경 정리
+                                        if [ "${currentEnv}" != "none" ]; then
+                                            echo "===== Cleaning up old environment: ${currentEnv} ====="
+                                            docker-compose -f docker-compose.${currentEnv}.yml down || true
+                                        fi
 
-                                        # 7. 최종 상태 확인
+                                        # 8. 최종 상태 확인
                                         echo "===== Final Status Check ====="
                                         docker ps -a
                                         echo "===== Container Logs ====="
