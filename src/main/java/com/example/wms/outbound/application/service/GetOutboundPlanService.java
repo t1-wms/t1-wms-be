@@ -12,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -26,6 +27,7 @@ public class GetOutboundPlanService implements GetOutboundPlanUseCase {
     private final GetOutboundPlanPort getOutboundPlanPort;
 
     @Override
+    @Transactional(readOnly = true)
     public Page<OutboundPlanResponseDto> getFilteredOutboundPlans(String outboundScheduleNumber, LocalDate startDate, LocalDate endDate, Pageable pageable) {
         Map<String, String> fieldMapping = new HashMap<>();
         fieldMapping.put("process", "status");

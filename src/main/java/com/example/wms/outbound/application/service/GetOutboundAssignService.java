@@ -13,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -25,6 +26,7 @@ public class GetOutboundAssignService implements GetOutboundAssignUseCase {
     private final GetOutboundAssignPort getOutboundAssignPort;
 
     @Override
+    @Transactional(readOnly = true)
     public Page<OutboundAssignResponseDto> getFilteredOutboundAssings(String outboundAssignNumber, LocalDate startDate, LocalDate endDate, Pageable pageable) {
         Pageable safePageable = PageableUtils.convertToSafePageableStrict(pageable, OutboundAssignResponseDto.class);
         List<OutboundAssignResponseDto> outboundList = getOutboundAssignPort.findOutboundAssignFilteringWithPageNation(outboundAssignNumber, startDate, endDate, safePageable);

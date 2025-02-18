@@ -12,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -24,6 +25,7 @@ public class GetOutboundPickingService implements GetOutboundPickingUseCase {
     private final GetOutboundPickingPort getOutboundPickingPort;
 
     @Override
+    @Transactional(readOnly = true)
     public Page<OutboundPickingResponseDto> getFilteredOutboundPickings(String outboundPickingNumber, LocalDate startDate, LocalDate endDate, Pageable pageable) {
         Pageable safePageale = PageableUtils.convertToSafePageableStrict(pageable, OutboundPickingResponseDto.class);
         List<OutboundPickingResponseDto> outboundList = getOutboundPickingPort.findOutboundPickingFilteringWithPageNation(outboundPickingNumber, startDate, endDate, safePageale);
