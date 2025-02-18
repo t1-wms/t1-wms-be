@@ -17,4 +17,11 @@
                 (SELECT COUNT(*) FROM inbound WHERE inbound_status = '입하검사') AS inboundCheck,
                 (SELECT COUNT(*) FROM inbound WHERE inbound_status = '입고적치' AND DATE(put_away_date) = CURDATE()) AS inboundPutAway
     </select>
+
+    <select id="selectOrderStatusCounts" resultType="com.example.wms.dashboard.adapter.in.dto.OrderStatusResponseDto">
+        SELECT
+                (SELECT COUNT(*) FROM `order` WHERE is_approved = true) AS approved,
+                (SELECT COUNT(*) FROM `order` WHERE is_approved = false) AS notApproved
+    </select>
+
 </mapper>
