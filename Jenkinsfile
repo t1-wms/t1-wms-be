@@ -183,18 +183,10 @@ pipeline {
                                         # 1. 환경 준비
                                         echo "===== Preparing environment ====="
                                         docker network create servernetwork || true
-                                        mkdir -p nginx/conf.d
 
                                         # 2. 파일 정리 및 이동
                                         echo "===== Moving files ====="
-                                        rm -f *.jar *.yml Dockerfile
-                                        rm -rf nginx/*.conf nginx/conf.d/*
 
-                                        # nginx 설정 파일 이동
-                                        sudo cp nginx/nginx.conf /etc/nginx/nginx.conf
-                                        sudo cp nginx/backend.conf /etc/nginx/conf.d/
-
-                                        # 다른 파일들 이동
                                         cp docker/docker-compose.*.yml ./
                                         cp docker/Dockerfile ./
                                         cp build/libs/*.jar ./app.jar
