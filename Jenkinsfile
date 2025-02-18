@@ -261,7 +261,7 @@ pipeline {
         success {
             slackSend (
                 message: """
-                    :white_check_mark: **배포 성공** :white_check_mark:
+                    :white_check_mark: 배포 성공 :white_check_mark:
 
                     *Job*: ${env.JOB_NAME} [${env.BUILD_NUMBER}]
                     *빌드 URL*: <${env.BUILD_URL}|링크>
@@ -273,7 +273,7 @@ pipeline {
         failure {
             slackSend (
                 message: """
-                    :x: **배포 실패** :x:
+                    :x: 배포 실패 :x:
 
                     *Job*: ${env.JOB_NAME} [${env.BUILD_NUMBER}]
                     *빌드 URL*: <${env.BUILD_URL}|링크>
