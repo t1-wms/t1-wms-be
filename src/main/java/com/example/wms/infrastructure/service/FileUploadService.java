@@ -17,7 +17,7 @@ public class FileUploadService {
 
     private final AmazonS3 amazonS3;
 
-    // InputStream, 파일 이름, 파일 크기를 받음
+    // InputStream, 파일 이름, 파일 크기 받음
     public String upload(InputStream inputStream, String originalFilename, long fileSize) throws IOException {
         // S3에 저장할 파일 이름 생성
         String s3FileName = UUID.randomUUID() + "-" + originalFilename;
