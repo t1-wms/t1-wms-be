@@ -2,6 +2,7 @@ package com.example.wms.inbound.application.service;
 
 import com.example.wms.inbound.adapter.in.dto.response.InboundProductDto;
 import com.example.wms.inbound.adapter.in.dto.response.InboundPutAwayResDto;
+import com.example.wms.inbound.adapter.in.dto.response.LotResDto;
 import com.example.wms.inbound.application.port.out.InboundRetrievalPort;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -38,9 +39,9 @@ public class InboundPutAwayGetTest {
     @BeforeEach
     void setUp() {
 
-        List<InboundProductDto> productList = Arrays.asList(
-                new InboundProductDto(1001L, "A123", "Engine Part", 50L, 5L,4L),
-                new InboundProductDto(1002L, "B456", "Brake Pad", 30L, 3L,4L)
+        List<LotResDto> productList = Arrays.asList(
+                new LotResDto(1001L, "A123", "Engine Part", 5L,"A-01-01-03"),
+                new LotResDto(1002L, "B456", "Brake Pad", 30L, "A-01-01-03")
         );
 
         mockInboundPutAwayList = Arrays.asList(

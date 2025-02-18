@@ -80,9 +80,9 @@ public class InboundCheckUpdateTest {
             when(productPort.findById(checkedProduct.getProductId())).thenReturn(product);
         }
 
-        when(orderProductPort.findByProductId(10L)).thenReturn(new OrderProduct(10L, 1L, 5,1L,true,5L));
-        when(orderProductPort.findByProductId(20L)).thenReturn(new OrderProduct(20L, 1L, 2,1L,true,2L));
-
+        when(orderProductPort.findByProductId(10L)).thenReturn(new OrderProduct(10L, 1L, 5,1L,"he",true,5L));
+        when(orderProductPort.findByProductId(20L)).thenReturn(new OrderProduct(20L, 1L, 2,1L,"df",false,5L));
+  
         // when
         inboundService.updateInboundCheck(inboundId, updateReqDto);
 
