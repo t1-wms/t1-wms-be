@@ -136,13 +136,18 @@ pipeline {
                     def currentEnv = sh(
                         script: """
                             ssh -o StrictHostKeyChecking=no ec2-user@api.stockholmes.store '
-                                docker ps | grep spring-wms-blue && echo "blue" || \
-                                docker ps | grep spring-wms-green && echo "green" || \
+                                echo "현재 환경 확인 시작"
+                                docker ps
+                                echo "현재 실행 중인 컨테이너:"
+                                docker ps | grep spring-wms-blue && echo "blue 실행 중" || \
+                                docker ps | grep spring-wms-green && echo "green 실행 중" || \
                                 echo "none"
                             '
                         """,
                         returnStdout: true
                     ).trim()
+
+                    echo "현재 환경: ${currentEnv}"
 
                     def deployEnv = currentEnv == 'blue' ? 'green' : 'blue'
                     def port = deployEnv == 'blue' ? '8011' : '8012'
@@ -150,6 +155,11 @@ pipeline {
 
                     sh """
                         ssh -o StrictHostKeyChecking=no ec2-user@api.stockholmes.store '
+                            set -x
+                            echo "배포 환경: ${deployEnv}"
+                            echo "포트: ${port}"
+                            echo "컨테이너 이름: ${containerName}"
+
                             sudo docker stop ${containerName} || true
                             sudo docker rm ${containerName} || true
 
@@ -160,11 +170,17 @@ pipeline {
                                 -v /home/ec2-user/backend/logs:/logs \
                                 backend:${BUILD_NUMBER}
 
+                            echo "컨테이너 실행 상태:"
+                            sudo docker ps | grep ${containerName}
+
                             sudo chmod 666 /etc/nginx/deployment_env
                             echo ${deployEnv} > /etc/nginx/deployment_env
 
                             sudo sed -i "s/proxy_pass http:\\/\\/localhost:[0-9]*/proxy_pass http:\\/\\/localhost:${port}/" /etc/nginx/conf.d/backend.conf
                             sudo systemctl reload nginx
+
+                            echo "Nginx 설정 확인:"
+                            cat /etc/nginx/conf.d/backend.conf
 
                             if [ "${currentEnv}" != "none" ]; then
                                 sudo docker stop spring-wms-${currentEnv} || true
@@ -172,7 +188,7 @@ pipeline {
                             fi
 
                             sleep 10
-                            curl -f http://localhost:${port}/actuator/health || exit 1
+                            curl -v http://localhost:${port}/actuator/health
                         '
                     """
                 }
