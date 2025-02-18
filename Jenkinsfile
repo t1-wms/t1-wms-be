@@ -199,7 +199,7 @@ pipeline {
 //         success {
 //             slackSend (
 //                 message: """
-//                     :white_check_mark: 배포 성공 :white_check_mark:
+//                     :white_check_mark: 배포 성공 ! :white_check_mark:
 //
 //                     *Job*: ${env.JOB_NAME} [${env.BUILD_NUMBER}]
 //                     *빌드 URL*: <${env.BUILD_URL}|링크>
