@@ -168,10 +168,7 @@ pipeline {
                                     sourceFiles: """
                                         build/libs/*.jar,
                                         docker/docker-compose.*.yml,
-                                        docker/Dockerfile,
-                                        nginx/nginx.conf,
-                                        nginx/backend.conf,
-                                        scripts/deploy.sh
+                                        docker/Dockerfile
                                     """,
                                     remoteDirectory: "",
                                     removePrefix: "",
@@ -180,66 +177,69 @@ pipeline {
                                         echo "===== Starting deployment process... ====="
                                         cd /home/ec2-user/backend
 
-                                        # 1. 환경 준비
+                                        # 1. 시스템 상태 확인
+                                        echo "===== System Status Check ====="
+                                        df -h
+                                        docker system df
+                                        free -m
+
+                                        # 2. 환경 준비
                                         echo "===== Preparing environment ====="
                                         docker network create servernetwork || true
 
-                                        # 2. 파일 정리 및 이동
+                                        # 3. 파일 정리 및 이동
                                         echo "===== Moving files ====="
                                         rm -f *.jar *.yml Dockerfile
 
-                                        # 현재 배포 환경 설정 저장
+                                        # 환경 설정 업데이트
                                         echo "set \\\$target_env ${deployEnv};" | sudo tee /etc/nginx/deployment_env
 
-                                        # 다른 파일들 이동
+                                        # 파일 이동
                                         cp docker/docker-compose.*.yml ./
                                         cp docker/Dockerfile ./
                                         cp build/libs/*.jar ./app.jar
 
-                                        # 3. 이전 컨테이너 상태 확인
-                                        echo "===== Current containers status ====="
+                                        # 4. 컨테이너 상태 확인 및 새 컨테이너 시작
+                                        echo "===== Container Status & Deployment ====="
                                         docker ps -a
-
-                                        # 4. 새 컨테이너 시작
-                                        echo "===== Starting new container: ${deployEnv} ====="
                                         docker-compose -f docker-compose.${deployEnv}.yml up -d --build
 
                                         # 5. 헬스 체크
                                         echo "===== Health checking: ${port} ====="
-                                        for i in {1..60}; do
-                                            if curl -f http://localhost:${port}/health; then
+                                        for i in {1..30}; do
+                                            if curl -f http://localhost:${port}/actuator/health; then
                                                 echo "Health check passed"
                                                 break
                                             fi
-                                            if [ \$i -eq 60 ]; then
+                                            if [ \$i -eq 30 ]; then
                                                 echo "Health check failed"
                                                 exit 1
                                             fi
-                                            echo "Waiting for health check... (\$i/60)"
-                                            sleep 1
+                                            echo "Waiting for health check... (\$i/30)"
+                                            sleep 2
                                         done
 
-                                        # 6. nginx 설정 테스트 및 재시작
-                                        echo "===== Restarting Nginx ====="
-                                        sudo nginx -t
-                                        sudo systemctl restart nginx
+                                        # 6. nginx 재시작
+                                        if sudo nginx -t; then
+                                            sudo systemctl restart nginx
+                                        else
+                                            echo "Nginx configuration test failed"
+                                            exit 1
+                                        fi
 
                                         # 7. 이전 환경 정리
-                                        if [ "${currentEnv}" != "none" ]; then
+                                        if [ "${currentEnv}" != "none" ] && [ "${currentEnv}" != "${deployEnv}" ]; then
                                             echo "===== Cleaning up old environment: ${currentEnv} ====="
                                             docker-compose -f docker-compose.${currentEnv}.yml down || true
                                         fi
 
-                                        # 8. 최종 상태 확인
-                                        echo "===== Final Status Check ====="
+                                        # 8. 최종 검증
+                                        echo "===== Final Verification ====="
                                         docker ps -a
-                                        echo "===== Container Logs ====="
-                                        docker logs ${containerName} || true
-                                        echo "===== Nginx Status ====="
+                                        docker logs --tail 50 ${containerName}
                                         sudo systemctl status nginx
-                                        echo "===== Nginx Config Test ====="
                                         sudo nginx -t
-                                        echo "===== Nginx Error Log ====="
+                                        curl -I http://localhost:${port}/actuator/health
                                         sudo tail -n 50 /var/log/nginx/error.log
                                     """
                                 )
