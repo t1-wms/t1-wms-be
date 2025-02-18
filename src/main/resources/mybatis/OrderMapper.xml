@@ -4,31 +4,32 @@
 
     <!-- 주문 전체 조회 -->
     <select id="findAllOrders" resultType="com.example.wms.order.application.domain.Order">
-        SELECT * FROM order
+        SELECT * FROM `order`
     </select>
 
     <!-- 주문 하나 조회 -->
-    <select id="findOrderById" parameterType="long" resultType="com.example.wms.order.application.domain.Order">
-        SELECT * FROM `order` WHERE `order_id` = #{orderId}
+    <select id="findById" parameterType="long" resultType="com.example.wms.order.application.domain.Order">
+        SELECT * FROM `order`
+        WHERE order_id = #{orderId}
     </select>
 
     <!-- 승인된 주문 조회 -->
     <select id="findByIsApproved" resultType="com.example.wms.order.application.domain.Order">
-        SELECT * FROM order WHERE is_approved = true
+        SELECT * FROM `order` WHERE is_approved = true
     </select>
 
     <!-- 지연된 주문 조회 -->
     <select id="findByIsDelayed" resultType="com.example.wms.order.application.domain.Order">
-        SELECT * FROM order WHERE is_delayed = true
+        SELECT * FROM `order` WHERE is_delayed = true
     </select>
 
     <!-- 승인된 & 지연되지 않은 주문 조회 -->
     <select id="findApprovedNotDelayedOrders" resultType="com.example.wms.order.application.domain.Order">
-        SELECT * FROM order WHERE is_approved = true AND is_delayed = false
+        SELECT * FROM `order` WHERE is_approved = true AND is_delayed = false
     </select>
 
     <insert id="saveOrder" parameterType="com.example.wms.order.application.domain.Order">
-        INSERT INTO order (order_id, order_date, is_approved, is_delayed, product_id, quantity, customer_id)
+        INSERT INTO `order` (order_id, order_date, is_approved, is_delayed, product_id, quantity, customer_id)
         VALUES (#{orderId}, #{orderDate}, #{isApproved}, #{isDelayed}, #{productId}, #{quantity}, #{customerId})
     </insert>
 
@@ -66,5 +67,86 @@
             )
         </foreach>
     </insert>
+
+    <select id="findOrderFilteringWithPageNation" resultMap="orderResultMap">
+        SELECT
+        o.order_id,
+        o.order_number,
+        o.order_status,
+        s.supplier_name,
+        o.supplier_id,
+        o.order_date,
+        o.is_approved,
+        o.is_return_order,
+        o.order_date AS delivery_deadline,
+        -- Product 정보 컬럼
+        op.product_id,
+        op.product_name,
+        op.product_count
+        FROM (
+        SELECT o.*
+        FROM `order` o
+        WHERE 1=1
+        -- 여기에 필요한 WHERE 조건들 추가
+        ) o
+        JOIN supplier s ON o.supplier_id = s.supplier_id
+        LEFT JOIN order_product op ON o.order_id = op.order_id
+        WHERE 1=1
+
+        <if test="orderNumber != null and orderNumber != ''">
+            AND o.order_number LIKE CONCAT('%', #{orderNumber}, '%')
+        </if>
+
+        <if test="startDate != null">
+            AND o.order_date <![CDATA[>=]]> #{startDate}
+        </if>
+
+        <if test="endDate != null">
+            AND o.order_date <![CDATA[<=]]> #{endDate}
+        </if>
+
+        ORDER BY
+        <if test="pageable.sort != null and pageable.sort.toString().contains('ORDER BY')">
+            ${pageable.sort.toString().replace('ORDER BY', '')},
+        </if>
+        o.order_date DESC
+
+        LIMIT #{pageable.pageSize} OFFSET #{pageable.offset}
+    </select>
+
+
+    <select id="countAllOrder">
+        SELECT COUNT(*)
+        FROM `order`
+        <where>
+            order_number IS NOT NULL
+            <!-- 시작일 조건 (startDate) -->
+            <if test="startDate != null">
+                AND
+                order_date <![CDATA[>=]]> #{startDate}
+            </if>
+
+            <!-- 종료일 조건 (endDate) -->
+            <if test="endDate != null">
+                AND
+                order_date <![CDATA[<=]]> #{endDate}
+            </if>
+
+            <!-- 번호 조건 (OrderNumber) -->
+            <if test="orderNumber != null and orderNumber != ''">
+                AND
+                order_date LIKE CONCAT('%', #{outboundOrderNumber}, '%')
+            </if>
+        </where>
+    </select>
+
+    <select id="findProductListByOrderId">
+        SELECT
+            o.product_id AS product_id,
+            o.product_name AS product_name,
+            o.product_count AS product_count
+        FROM order_product o
+        WHERE `order_id` = #{orderId}
+    </select>
 
 </mapper>

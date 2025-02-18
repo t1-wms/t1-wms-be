@@ -1,10 +1,14 @@
 package com.example.wms.infrastructure.mapper;
 
+import com.example.wms.order.adapter.in.dto.OrderResponseDto;
 import com.example.wms.order.adapter.in.dto.ProductListDto;
 import com.example.wms.order.application.domain.Order;
+import com.example.wms.outbound.adapter.in.dto.OutboundPickingResponseDto;
 import org.apache.ibatis.annotations.*;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Mapper
@@ -60,5 +64,19 @@ public interface OrderMapper {
 
     // 발주 수정하기
     void upDateOrderProducts(@Param("orderId") Long orderId, @Param("productList") List<ProductListDto> productList);
+
+    List<OrderResponseDto> findOrderFilteringWithPageNation(
+            @Param("orderNumber") String orderNumber,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate,
+            @Param("pageable") Pageable pageable);
+
+    Integer countAllOrder(
+            @Param("orderNumber") String orderNumber,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate
+    );
+
+    List<ProductListDto> findProductListByOrderId(Long orderId);
 
 }

@@ -18,14 +18,6 @@ public class InboundWorkerCheckResDto {
     @Schema(description = "입하검사 번호", example = "IC202502170021")
     private String checkNumber;
 
-    @Schema(description = "입하 검사 완료한 항목들", example = "{\n" +
-            "checkDate: String\n" +
-            "productList: [\n" +
-            "  {\n" +
-            "  productId: Long\n" +
-            "  defectiveLotCount: Long\n" +
-            "  }, …\n" +
-            "]\n" +
-            "}")
+    @Schema(description = "입하 검사 완료한 항목들")
     private List<LotInfoDto> lots;
 }

@@ -11,9 +11,13 @@ import com.example.wms.user.application.domain.enums.UserRole;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Pageable;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -66,10 +70,12 @@ public class OrderController {
 
     @GetMapping
     @Operation(summary = "발주 조회하기")
-    public ResponseEntity<?> getProductList() {
-        return null;
+    public ResponseEntity<?> getProductList(
+            @RequestParam(value = "number", required = false) String orderNumber,
+            @RequestParam(value = "startDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(value = "endDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @ParameterObject Pageable pageable
+    ) {
+        return ResponseEntity.ok(getOrderUseCase.getFilteredOrder(orderNumber, startDate, endDate, pageable));
     }
-
-
-
 }

@@ -79,13 +79,7 @@ public class InboundCheckController {
 
     @PostMapping("/check")
     @Operation(summary="입하 검사 작업자가 등록하기", description = "InboundCheckWorkerReqDto를 입하 검사를 등록합니다.")
-    public ResponseEntity<InboundWorkerCheckResDto> checkInbound(
-            @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    description = "입하 검사 생성 요청 DTO",
-                    required = true,
-                    content = @Content(schema = @Schema(implementation = InboundCheckWorkerReqDto.class))
-            )
-            @RequestBody List<InboundCheckWorkerReqDto> checkRequests) {
+    public ResponseEntity<InboundWorkerCheckResDto> checkInbound(@RequestBody List<InboundCheckWorkerReqDto> checkRequests) {
         InboundWorkerCheckResDto response = inboundUseCase.createInboundCheckByWorker(checkRequests);
         return ResponseEntity.ok(response);
     }
