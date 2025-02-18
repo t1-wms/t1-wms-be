@@ -12,14 +12,15 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
 
 import javax.sql.DataSource;
+
 @Configuration
 @MapperScan(
-        basePackages = "com.example.wms.infrastructure.mapper",
-        sqlSessionFactoryRef = "sqlSessionFactory",
-        sqlSessionTemplateRef = "sqlSessionTemplate"
+        basePackages = "com.example.wms.infrastructure.mapper",  // Mapper 경로 설정
+        sqlSessionTemplateRef = "sqlSessionTemplate"  // sqlSessionTemplate만 지정
 )
 @Slf4j
 public class MybatisConfig {
+
     @Bean(name = "sqlSessionFactory")
     public SqlSessionFactory sqlSessionFactory(DataSource dataSource, ApplicationContext applicationContext) throws Exception {
         SqlSessionFactoryBean factoryBean = new SqlSessionFactoryBean();
