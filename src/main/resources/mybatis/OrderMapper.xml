@@ -46,4 +46,25 @@
         #{orderStatus}, #{inboundDate})
     </insert>
 
+
+    <insert id="upDateOrderProducts">
+        INSERT INTO order_product (
+        order_id,
+        product_id,
+        product_name,
+        product_count,
+        is_defective
+        )
+        VALUES
+        <foreach collection="productList" item="product" separator=",">
+            (
+            #{orderId},
+            #{product.productId},
+            #{product.productName},
+            #{product.productCount},
+            null
+            )
+        </foreach>
+    </insert>
+
 </mapper>
