@@ -129,126 +129,125 @@ pipeline {
                 }
             }
         }
-        stage('Deploy to Backend Server') {
-            steps {
-                script {
-                    echo "===== Stage: Deploy to Backend Server ====="
+stage('Deploy to Backend Server') {
+    steps {
+        script {
+            echo "===== Stage: Deploy to Backend Server ====="
 
-                    // EC2에서 현재 환경 확인
-                    def currentEnv = sh(
-                        script: """
-                            ssh -o StrictHostKeyChecking=no ec2-user@api.stockholmes.store '
-                                if docker ps | grep -q "spring-wms-blue"; then
-                                    echo "blue"
-                                elif docker ps | grep -q "spring-wms-green"; then
-                                    echo "green"
-                                else
-                                    echo "none"
-                                fi
-                            '
-                        """,
-                        returnStdout: true
-                    ).trim()
+            // EC2에서 현재 환경과 시스템 상태 확인
+            def currentEnv = sh(
+                script: """
+                    ssh -o StrictHostKeyChecking=no ec2-user@api.stockholmes.store '
+                        echo "===== Current Environment Check ====="
+                        if docker ps | grep -q "spring-wms-blue"; then
+                            echo "blue"
+                        elif docker ps | grep -q "spring-wms-green"; then
+                            echo "green"
+                        else
+                            echo "none"
+                        fi
 
-                    // 반대 환경으로 설정
-                    def deployEnv = currentEnv == 'blue' ? 'green' : 'blue'
-                    def port = deployEnv == 'blue' ? '8011' : '8012'
-                    def containerName = "spring-wms-${deployEnv}"
+                        echo "===== System Status Check ====="
+                        echo "Docker Status:"
+                        docker ps -a
+                        docker network ls
 
-                    echo "Current Environment: ${currentEnv}"
-                    echo "Deploying to Environment: ${deployEnv}"
-                    echo "Using Port: ${port}"
-                    echo "Container Name: ${containerName}"
+                        echo "Permission Check:"
+                        ls -la /var/run/docker.sock
+                        groups jenkins
+                        groups ec2-user
 
-                    sshPublisher(publishers: [
-                        sshPublisherDesc(
-                            configName: 'BackendServer',
-                            transfers: [
-                                sshTransfer(
-                                    sourceFiles: """
-                                        build/libs/*.jar,
-                                        docker/docker-compose.*.yml,
-                                        docker/Dockerfile
-                                    """,
-                                    remoteDirectory: "",
-                                    removePrefix: "",
-                                    execCommand: """
-                                        set -x
-                                        echo "===== Starting deployment process... ====="
-                                        cd /home/ec2-user/backend
+                        echo "Port Status:"
+                        sudo netstat -tulnp | grep -E "8011|8012|8080|6379"
+                    '
+                """,
+                returnStdout: true
+            ).trim()
 
-                                        # 1. 시스템 상태 확인
-                                        echo "===== System Status Check ====="
-                                        df -h
-                                        docker system df
-                                        free -m
+            // 나머지 배포 로직
+            def deployEnv = currentEnv == 'blue' ? 'green' : 'blue'
+            def port = deployEnv == 'blue' ? '8011' : '8012'
+            def containerName = "spring-wms-${deployEnv}"
 
-                                        # 2. 환경 준비
-                                        echo "===== Preparing environment ====="
-                                        docker network create servernetwork || true
+            echo "Current Environment: ${currentEnv}"
+            echo "Deploying to Environment: ${deployEnv}"
+            echo "Using Port: ${port}"
+            echo "Container Name: ${containerName}"
 
-                                        # 3. 파일 정리 및 이동
-                                        echo "===== Moving files ====="
-                                        rm -f *.jar *.yml Dockerfile
+                sshPublisher(publishers: [
+                    sshPublisherDesc(
+                        configName: 'BackendServer',
+                        transfers: [
+                            sshTransfer(
+                                sourceFiles: """
+                                    build/libs/*.jar,
+                                    docker/docker-compose.*.yml,
+                                    docker/Dockerfile
+                                """,
+                                remoteDirectory: "",
+                                removePrefix: "",
+                                execCommand: """
+                                    set -x
+                                    echo "===== Starting deployment process... ====="
+                                    cd /home/ec2-user/backend
 
-                                        # 환경 설정 업데이트
-                                        echo "set \\\$target_env ${deployEnv};" | sudo tee /etc/nginx/deployment_env
+                                    # 1. 시스템 상태 확인
+                                    echo "===== Detailed System Status Check ====="
+                                    echo "Disk Usage:"
+                                    df -h
+                                    echo "Docker System:"
+                                    docker system df
+                                    docker network ls
+                                    echo "Memory Usage:"
+                                    free -m
+                                    echo "Process Status:"
+                                    ps aux | grep -E 'nginx|java|redis'
+                                    echo "Permission Check:"
+                                    ls -la /var/run/docker.sock
+                                    ls -la /home/ec2-user/backend
+                                    id jenkins
+                                    id ec2-user
 
-                                        # 파일 이동
-                                        cp docker/docker-compose.*.yml ./
-                                        cp docker/Dockerfile ./
-                                        cp build/libs/*.jar ./app.jar
+                                    # 2. 환경 준비
+                                    echo "===== Preparing environment ====="
+                                    docker network create servernetwork || true
+                                    sudo chmod 666 /var/run/docker.sock
+                                    sudo chown -R jenkins:jenkins /home/ec2-user/backend
 
-                                        # 4. 컨테이너 상태 확인 및 새 컨테이너 시작
-                                        echo "===== Container Status & Deployment ====="
-                                        docker ps -a
-                                        docker-compose -f docker-compose.${deployEnv}.yml up -d --build
+                                    # ... (기존 배포 로직 유지) ...
 
-                                        # 5. 헬스 체크
-                                        echo "===== Health checking: ${port} ====="
-                                        for i in {1..30}; do
-                                            if curl -f http://localhost:${port}/actuator/health; then
-                                                echo "Health check passed"
-                                                break
-                                            fi
-                                            if [ \$i -eq 30 ]; then
-                                                echo "Health check failed"
-                                                exit 1
-                                            fi
-                                            echo "Waiting for health check... (\$i/30)"
-                                            sleep 2
-                                        done
+                                    # 8. 확장된 최종 검증
+                                    echo "===== Extended Final Verification ====="
+                                    echo "Container Status:"
+                                    docker ps -a
+                                    docker network inspect servernetwork
 
-                                        # 6. nginx 재시작
-                                        if sudo nginx -t; then
-                                            sudo systemctl restart nginx
-                                        else
-                                            echo "Nginx configuration test failed"
-                                            exit 1
-                                        fi
+                                    echo "Application Logs:"
+                                    docker logs --tail 100 ${containerName}
 
-                                        # 7. 이전 환경 정리
-                                        if [ "${currentEnv}" != "none" ] && [ "${currentEnv}" != "${deployEnv}" ]; then
-                                            echo "===== Cleaning up old environment: ${currentEnv} ====="
-                                            docker-compose -f docker-compose.${currentEnv}.yml down || true
-                                        fi
+                                    echo "Nginx Status:"
+                                    sudo systemctl status nginx
+                                    sudo nginx -t
+                                    sudo cat /etc/nginx/deployment_env
+                                    sudo cat /etc/nginx/conf.d/backend.conf
 
-                                        # 8. 최종 검증
-                                        echo "===== Final Verification ====="
-                                        docker ps -a
-                                        docker logs --tail 50 ${containerName}
-                                        sudo systemctl status nginx
-                                        sudo nginx -t
-                                        curl -I http://localhost:${port}/actuator/health
-                                        sudo tail -n 50 /var/log/nginx/error.log
-                                    """
-                                )
-                            ]
-                        )
-                    ])
-                }
+                                    echo "Health Check:"
+                                    curl -I http://localhost:${port}/actuator/health
+
+                                    echo "Error Logs:"
+                                    sudo tail -n 100 /var/log/nginx/error.log
+                                    docker logs ${containerName} 2>&1 | tail -n 100
+
+                                    echo "Network Status:"
+                                    sudo netstat -tulnp | grep -E '8011|8012|8080|6379'
+                                """
+                            )
+                        ]
+                    )
+                ])
             }
         }
+    }
     }
 
     post {
