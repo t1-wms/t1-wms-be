@@ -2,6 +2,7 @@ package com.example.wms.product.adapter.out;
 
 import com.example.wms.infrastructure.mapper.ProductMapper;
 import com.example.wms.product.adapter.in.dto.ProductOverviewDto;
+import com.example.wms.product.adapter.in.dto.ProductResponseDto;
 import com.example.wms.product.application.domain.Product;
 import com.example.wms.product.application.port.out.ProductPort;
 import lombok.RequiredArgsConstructor;
@@ -34,7 +35,7 @@ public class ProductAdapter implements ProductPort {
     }
 
     @Override
-    public List<Product> findProductWithPagination(String productCode, Pageable pageable) {
+    public List<ProductResponseDto> findProductWithPagination(String productCode, Pageable pageable) {
         return productMapper.findProductWithPagination(productCode, pageable);
     }
 
