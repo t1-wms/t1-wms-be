@@ -1,5 +1,6 @@
 package com.example.wms.infrastructure.mapper;
 
+import com.example.wms.order.adapter.in.dto.ProductListDto;
 import com.example.wms.order.application.domain.Order;
 import org.apache.ibatis.annotations.*;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +25,7 @@ public interface OrderMapper {
 
     void createOrder(Order order);
 
+    // 발주 등록하기
     @Insert("""
         INSERT INTO `order`
         (supplier_id, order_date, is_approved, is_delayed, order_number, order_status, daily_plan_id, is_return_order, inbound_date)
@@ -38,6 +40,7 @@ public interface OrderMapper {
     """)
     String findMaxOutboundOrderNumber();
 
+    // 발주 삭제하기
     @Delete("""
         DELETE FROM `order` WHERE `order_id` = #{orderId};
     """)
@@ -54,5 +57,8 @@ public interface OrderMapper {
 
         deleteOrder(orderId);
     }
+
+    // 발주 수정하기
+    void upDateOrderProducts(@Param("orderId") Long orderId, @Param("productList") List<ProductListDto> productList);
 
 }
