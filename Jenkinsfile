@@ -1,14 +1,9 @@
 pipeline {
     agent any
-    parameters {
-        choice(
-            name: 'DEPLOY_ENV',
-            choices: ['blue', 'green'],
-            description: '배포 환경 선택'
-        )
-    }
     environment {
         DOCKER_TAG = "backend:${BUILD_NUMBER}"
+        BLUE_PORT = "8011"
+        GREEN_PORT = "8012"
     }
     tools {
         gradle 'gradle 8.11.1'
@@ -123,8 +118,6 @@ pipeline {
                         docker build -f ./docker/Dockerfile -t ${DOCKER_TAG} .
                         echo "===== Docker Images ====="
                         docker images
-                        echo "===== Docker Processes ====="
-                        docker ps -a
                     """
                 }
             }
@@ -133,36 +126,39 @@ pipeline {
         stage('Deploy to Backend Server') {
             steps {
                 script {
-                    def currentEnv = sh(script: "cat /etc/nginx/deployment_env", returnStdout: true).trim()
-                    def newEnv = currentEnv == 'blue' ? 'green' : 'blue'
-                    def currentPort = currentEnv == 'blue' ? '8011' : '8012'
-                    def newPort = newEnv == 'blue' ? '8011' : '8012'
+                    def currentPort = sh(script: "docker ps --filter 'name=spring-wms-' --format '{{.Ports}}' | grep -oP '\\d+(?=->8080)'", returnStdout: true).trim()
+                    def newPort = currentPort == BLUE_PORT ? GREEN_PORT : BLUE_PORT
+                    def newEnv = newPort == BLUE_PORT ? "blue" : "green"
 
-                    // 새 환경에 배포
+                    echo "Current running port: ${currentPort}"
+                    echo "New deployment port: ${newPort}"
+
+                    // 새 환경 배포
                     sh """
-                        echo "현재 환경: ${currentEnv}, 새 환경: ${newEnv}"
-                        sudo docker stop spring-wms-${newEnv} || true
-                        sudo docker rm spring-wms-${newEnv} || true
-                        sudo docker run -d --name spring-wms-${newEnv} --network servernetwork -p ${newPort}:8080 -v /home/ec2-user/backend/logs:/logs backend:${env.BUILD_NUMBER}
+                        echo "Deploying to ${newEnv} environment on port ${newPort}"
+                        docker-compose -f docker-compose.${newEnv}.yml down
+                        docker-compose -f docker-compose.${newEnv}.yml up -d
 
                         # 새 환경 헬스 체크
                         for i in {1..30}; do
                             if curl -sSf http://localhost:${newPort}/actuator/health > /dev/null; then
-                                echo "새 환경(${newEnv}) 준비 완료"
+                                echo "New environment (${newEnv}) is ready"
                                 break
                             fi
                             sleep 5
                         done
 
                         # Nginx 설정 변경
-                        echo ${newEnv} > /etc/nginx/deployment_env
+                        echo ${newPort} > /etc/nginx/deployment_port
+                        sudo sed -i 's/proxy_pass http:\\/\\/localhost:[0-9]*/proxy_pass http:\\/\\/localhost:${newPort}/' /etc/nginx/conf.d/backend.conf
                         sudo systemctl reload nginx
 
-                        # 이전 환경 중지
-                        sudo docker stop spring-wms-${currentEnv} || true
-                        sudo docker rm spring-wms-${currentEnv} || true
+                        # 이전 환경 중지 (선택적)
+                        if [ ! -z "${currentPort}" ]; then
+                            docker-compose -f docker-compose.$([ "${currentPort}" == "${BLUE_PORT}" ] && echo "blue" || echo "green").yml down
+                        fi
 
-                        echo "배포 완료: ${newEnv} 환경(포트 ${newPort})"
+                        echo "Deployment completed: ${newEnv} environment (port ${newPort})"
                     """
                 }
             }
