@@ -197,7 +197,7 @@ pipeline {
                                         # 현재 배포 환경 설정 저장
                                         echo "set \\\$target_env ${deployEnv};" | sudo tee /etc/nginx/deployment_env
 
-                                        # 다른 파일들 이동
+                                        # 다른 파일 이동
                                         cp docker/docker-compose.*.yml ./
                                         cp docker/Dockerfile ./
                                         cp build/libs/*.jar ./app.jar
