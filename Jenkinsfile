@@ -153,7 +153,7 @@ pipeline {
                         sudo sed -i 's/proxy_pass http:\\/\\/localhost:[0-9]*/proxy_pass http:\\/\\/localhost:${newPort}/' /etc/nginx/conf.d/backend.conf
                         sudo systemctl reload nginx
 
-                        # 이전 환경 중지 (선택적)
+                        # 이전 환경 중지
                         if [ ! -z "${currentPort}" ]; then
                             docker-compose -f docker-compose.$([ "${currentPort}" == "${BLUE_PORT}" ] && echo "blue" || echo "green").yml down
                         fi
