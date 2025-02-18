@@ -1,6 +1,8 @@
 package com.example.wms.pdf.application.service;
 
+import com.example.wms.outbound.application.port.out.GetOutboundAssignPort;
 import com.example.wms.pdf.application.port.in.PdfUseCase;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import com.itextpdf.io.font.PdfEncodings;
@@ -19,7 +21,11 @@ import java.io.IOException;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class PdfService implements PdfUseCase{
+
+    private final GetOutboundAssignPort getOutboundAssignPort;
+
     @Override
     public byte[] generateOutboundReport() throws IOException {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();

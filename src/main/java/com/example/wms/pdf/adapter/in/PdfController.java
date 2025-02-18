@@ -27,7 +27,7 @@ public class PdfController {
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_PDF);
-            headers.setContentDispositionFormData("filename", "outbound_report.pdf");
+            headers.setContentDispositionFormData("filename", "출고지시서.pdf");
 
             return ResponseEntity.ok()
                     .headers(headers)
