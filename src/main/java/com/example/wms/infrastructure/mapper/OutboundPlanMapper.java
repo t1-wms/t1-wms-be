@@ -52,7 +52,7 @@ public interface OutboundPlanMapper {
     }
 
     // 출고 계획 수정
-    @Update("UPDATE outbound_plan SET outbound_schedule_date = #{outboundPlanRequestDto.outboundScheduleDate}, plan_date = #{outboundPlanRequestDto.planDate} WHERE outbound_plan_id = #{outboundPlanId}")
+    @Update("UPDATE outbound_plan SET outbound_schedule_date = #{outboundPlanRequestDto.outboundScheduleDate}, plan_date = #{outboundPlanRequestDto.planDate}, production_plan_number = #{outboundPlanRequestDto.productionPlanNumber} WHERE outbound_plan_id = #{outboundPlanId}")
     void updateOutboundPlan(@Param("outboundPlanId") Long outboundPlanId, @Param ("outboundPlanRequestDto") OutboundPlanRequestDto outboundPlanRequestDto);
 
     // 출고 계획 제품 수정
