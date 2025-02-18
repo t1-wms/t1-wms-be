@@ -1,7 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.example.wms.infrastructure.mapper.OrderMapper">
-
+    <resultMap id="orderResultMap" type="com.example.wms.order.adapter.in.dto.OrderResponseDto">
+        <id property="orderId" column="order_id"/>
+        <result property="orderNumber" column="order_number"/>
+        <result property="orderStatus" column="order_status"/>
+        <result property="supplierName" column="supplier_name"/>
+        <result property="supplierId" column="supplier_id"/>
+        <result property="orderDate" column="order_date"/>
+        <result property="isApproved" column="is_approved"/>
+        <result property="isReturnOrder" column="is_return_order"/>
+        <result property="deliveryDeadline" column="delivery_deadline"/>
+        <collection property="productList" ofType="com.example.wms.order.adapter.in.dto.ProductListDto">
+            <result property="productId" column="product_id"/>
+            <result property="productName" column="product_name"/>
+            <result property="productCount" column="product_count"/>
+        </collection>
+    </resultMap>
     <!-- 주문 전체 조회 -->
     <select id="findAllOrders" resultType="com.example.wms.order.application.domain.Order">
         SELECT * FROM `order`
@@ -20,16 +35,16 @@
 
     <!-- 지연된 주문 조회 -->
     <select id="findByIsDelayed" resultType="com.example.wms.order.application.domain.Order">
-        SELECT * FROM `order` WHERE is_delayed = true
+        SELECT * FROM order WHERE is_delayed = true
     </select>
 
     <!-- 승인된 & 지연되지 않은 주문 조회 -->
     <select id="findApprovedNotDelayedOrders" resultType="com.example.wms.order.application.domain.Order">
-        SELECT * FROM `order` WHERE is_approved = true AND is_delayed = false
+        SELECT * FROM order WHERE is_approved = true AND is_delayed = false
     </select>
 
     <insert id="saveOrder" parameterType="com.example.wms.order.application.domain.Order">
-        INSERT INTO `order` (order_id, order_date, is_approved, is_delayed, product_id, quantity, customer_id)
+        INSERT INTO order (order_id, order_date, is_approved, is_delayed, product_id, quantity, customer_id)
         VALUES (#{orderId}, #{orderDate}, #{isApproved}, #{isDelayed}, #{productId}, #{quantity}, #{customerId})
     </insert>
 
@@ -79,7 +94,6 @@
         o.is_approved,
         o.is_return_order,
         o.order_date AS delivery_deadline,
-        -- Product 정보 컬럼
         op.product_id,
         op.product_name,
         op.product_count
@@ -87,7 +101,6 @@
         SELECT o.*
         FROM `order` o
         WHERE 1=1
-        -- 여기에 필요한 WHERE 조건들 추가
         ) o
         JOIN supplier s ON o.supplier_id = s.supplier_id
         LEFT JOIN order_product op ON o.order_id = op.order_id
