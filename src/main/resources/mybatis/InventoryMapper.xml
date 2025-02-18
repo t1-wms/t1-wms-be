@@ -40,7 +40,7 @@
         p.product_code,
         p.product_name,
         i.available_quantity AS productCount,
-        p.threshold AS productThreshold
+        p.threshold
         FROM product p
         JOIN inventory i ON p.product_id = i.product_id
         <if test="productCode != null and productCode != ''">
