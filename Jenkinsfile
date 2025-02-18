@@ -129,125 +129,70 @@ pipeline {
                 }
             }
         }
-stage('Deploy to Backend Server') {
-    steps {
-        script {
-            echo "===== Stage: Deploy to Backend Server ====="
+        stage('Deploy to Backend Server') {
+            steps {
+                script {
+                    def currentEnv = sh(
+                        script: """
+                            ssh -o StrictHostKeyChecking=no ec2-user@api.stockholmes.store '
+                                if docker ps | grep -q "spring-wms-blue"; then
+                                    echo "blue"
+                                elif docker ps | grep -q "spring-wms-green"; then
+                                    echo "green"
+                                else
+                                    echo "none"
+                                fi
+                            '
+                        """,
+                        returnStdout: true
+                    ).trim()
 
-            // EC2에서 현재 환경과 시스템 상태 확인
-            def currentEnv = sh(
-                script: """
-                    ssh -o StrictHostKeyChecking=no ec2-user@api.stockholmes.store '
-                        echo "===== Current Environment Check ====="
-                        if docker ps | grep -q "spring-wms-blue"; then
-                            echo "blue"
-                        elif docker ps | grep -q "spring-wms-green"; then
-                            echo "green"
-                        else
-                            echo "none"
-                        fi
+                    def deployEnv = currentEnv == 'blue' ? 'green' : 'blue'
+                    def port = deployEnv == 'blue' ? '8011' : '8012'
+                    def containerName = "spring-wms-${deployEnv}"
 
-                        echo "===== System Status Check ====="
-                        echo "Docker Status:"
-                        docker ps -a
-                        docker network ls
+                    sshPublisher(publishers: [
+                        sshPublisherDesc(
+                            configName: 'BackendServer',
+                            transfers: [
+                                sshTransfer(
+                                    execCommand: """
+                                        # 1. 새 컨테이너 중지 및 삭제 (존재할 경우)
+                                        docker stop ${containerName} || true
+                                        docker rm ${containerName} || true
 
-                        echo "Permission Check:"
-                        ls -la /var/run/docker.sock
-                        groups jenkins
-                        groups ec2-user
+                                        # 2. 새 컨테이너 실행
+                                        docker run -d \
+                                            --name ${containerName} \
+                                            --network servernetwork \
+                                            -p ${port}:8080 \
+                                            -v /home/ec2-user/backend/logs:/logs \
+                                            backend:${BUILD_NUMBER}
 
-                        echo "Port Status:"
-                        sudo netstat -tulnp | grep -E "8011|8012|8080|6379"
-                    '
-                """,
-                returnStdout: true
-            ).trim()
+                                        # 3. Nginx 설정 업데이트
+                                        echo ${deployEnv} > /etc/nginx/deployment_env
+                                        sudo sed -i "s/proxy_pass http:\\/\\/localhost:[0-9]*/proxy_pass http:\\/\\/localhost:${port}/" /etc/nginx/conf.d/backend.conf
 
-            // 나머지 배포 로직
-            def deployEnv = currentEnv == 'blue' ? 'green' : 'blue'
-            def port = deployEnv == 'blue' ? '8011' : '8012'
-            def containerName = "spring-wms-${deployEnv}"
+                                        # 4. Nginx 재로드
+                                        sudo systemctl reload nginx
 
-            echo "Current Environment: ${currentEnv}"
-            echo "Deploying to Environment: ${deployEnv}"
-            echo "Using Port: ${port}"
-            echo "Container Name: ${containerName}"
+                                        # 5. 이전 환경 컨테이너 정리
+                                        if [ "${currentEnv}" != "none" ]; then
+                                            docker stop spring-wms-${currentEnv} || true
+                                            docker rm spring-wms-${currentEnv} || true
+                                        fi
 
-                sshPublisher(publishers: [
-                    sshPublisherDesc(
-                        configName: 'BackendServer',
-                        transfers: [
-                            sshTransfer(
-                                sourceFiles: """
-                                    build/libs/*.jar,
-                                    docker/docker-compose.*.yml,
-                                    docker/Dockerfile
-                                """,
-                                remoteDirectory: "",
-                                removePrefix: "",
-                                execCommand: """
-                                    set -x
-                                    echo "===== Starting deployment process... ====="
-                                    cd /home/ec2-user/backend
-
-                                    # 1. 시스템 상태 확인
-                                    echo "===== Detailed System Status Check ====="
-                                    echo "Disk Usage:"
-                                    df -h
-                                    echo "Docker System:"
-                                    docker system df
-                                    docker network ls
-                                    echo "Memory Usage:"
-                                    free -m
-                                    echo "Process Status:"
-                                    ps aux | grep -E 'nginx|java|redis'
-                                    echo "Permission Check:"
-                                    ls -la /var/run/docker.sock
-                                    ls -la /home/ec2-user/backend
-                                    id jenkins
-                                    id ec2-user
-
-                                    # 2. 환경 준비
-                                    echo "===== Preparing environment ====="
-                                    docker network create servernetwork || true
-                                    sudo chmod 666 /var/run/docker.sock
-                                    sudo chown -R jenkins:jenkins /home/ec2-user/backend
-
-                                    # ... (기존 배포 로직 유지) ...
-
-                                # 8. 확장 최종 검증
-                                echo "===== Extended Final Verification ====="
-                                echo "Container Status:"
-                                docker ps -a
-                                docker network inspect servernetwork
-
-                                echo "Application Logs:"
-                                docker logs --tail 100 ${containerName}
-
-                                echo "Nginx Status:"
-                                sudo systemctl status nginx
-                                sudo nginx -t
-                                sudo cat /etc/nginx/deployment_env
-                                sudo cat /etc/nginx/conf.d/backend.conf
-
-                                echo "Health Check:"
-                                curl -I http://localhost:${port}/actuator/health
-
-                                echo "Error Logs:"
-                                sudo tail -n 100 /var/log/nginx/error.log
-                                docker logs ${containerName} 2>&1 | tail -n 100
-
-                                echo "Network Status:"
-                                sudo netstat -tulnp | grep -E '8011|8012|8080|6379'
-                            """
-                            )
-                        ]
-                    )
-                ])
+                                        # 6. 헬스 체크
+                                        sleep 10
+                                        curl -f http://localhost:${port}/actuator/health || exit 1
+                                    """
+                                )
+                            ]
+                        )
+                    ])
+                }
             }
         }
-    }
     }
 
 //     post {
