@@ -150,23 +150,25 @@ pipeline {
 
                     sh """
                         ssh -o StrictHostKeyChecking=no ec2-user@api.stockholmes.store '
-                            docker stop ${containerName} || true
-                            docker rm ${containerName} || true
+                            sudo docker stop ${containerName} || true
+                            sudo docker rm ${containerName} || true
 
-                            docker run -d \
+                            sudo docker run -d \
                                 --name ${containerName} \
                                 --network servernetwork \
                                 -p ${port}:8080 \
                                 -v /home/ec2-user/backend/logs:/logs \
                                 backend:${BUILD_NUMBER}
 
+                            sudo chmod 666 /etc/nginx/deployment_env
                             echo ${deployEnv} > /etc/nginx/deployment_env
+
                             sudo sed -i "s/proxy_pass http:\\/\\/localhost:[0-9]*/proxy_pass http:\\/\\/localhost:${port}/" /etc/nginx/conf.d/backend.conf
                             sudo systemctl reload nginx
 
                             if [ "${currentEnv}" != "none" ]; then
-                                docker stop spring-wms-${currentEnv} || true
-                                docker rm spring-wms-${currentEnv} || true
+                                sudo docker stop spring-wms-${currentEnv} || true
+                                sudo docker rm spring-wms-${currentEnv} || true
                             fi
 
                             sleep 10
@@ -176,7 +178,6 @@ pipeline {
                 }
             }
         }
-    }
 
     post {
         success {
