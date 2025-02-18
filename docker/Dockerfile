@@ -18,7 +18,7 @@ RUN apt-get update && apt-get install -y \
 # Docker 소켓 마운트 설정
 VOLUME /var/run/docker.sock
 
-# 사용자 추가 및 권한 설정
+# 사용자 추가 & 권한 설정
 RUN groupadd -g 998 docker && \
     useradd -u 1000 -g docker -m jenkins && \
     usermod -aG docker jenkins && \
