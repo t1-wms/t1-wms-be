@@ -4,7 +4,7 @@ package com.example.wms.order.application.domain;
 import com.example.wms.infrastructure.entity.BaseEntity;
 import lombok.*;
 
-@Getter
+@Data
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
@@ -14,4 +14,5 @@ public class OrderProduct {
     private Integer productCount;
     private Long productId;
     private Boolean isDefective;
+    private Long defectiveCount;
 }

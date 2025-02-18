@@ -59,6 +59,7 @@ public class ProductService implements ProductUseCase {
         }
     }
 
+
     @Override
     public void assignLocationBinCode() {
         List<Product> products = productPort.getAllProducts();

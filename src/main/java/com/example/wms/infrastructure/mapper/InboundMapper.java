@@ -20,4 +20,5 @@ public interface InboundMapper {
     void updateInboundWorkerCheck(String scheduleNumber, String checkNumber);
     void updateOrderProduct(Long orderId, Long productId, boolean isDefective);
     List<LotInfoDto> findLotsByScheduleNumber(String scheduleNumber);
+    List<LotInfoDto> findLotsByCheckNumber(String checkNumber);
 }

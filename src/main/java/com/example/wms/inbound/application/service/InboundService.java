@@ -3,10 +3,8 @@ package com.example.wms.inbound.application.service;
 import com.example.wms.inbound.adapter.in.dto.request.*;
 import com.example.wms.inbound.adapter.in.dto.response.*;
 import com.example.wms.inbound.application.domain.Inbound;
-import com.example.wms.inbound.application.domain.InboundCheck;
 import com.example.wms.inbound.application.port.in.InboundUseCase;
 import com.example.wms.inbound.application.port.out.AssignInboundNumberPort;
-import com.example.wms.inbound.application.port.out.InboundCheckPort;
 import com.example.wms.inbound.application.port.out.InboundPort;
 import com.example.wms.inbound.application.port.out.InboundRetrievalPort;
 import com.example.wms.infrastructure.exception.NotFoundException;
@@ -15,6 +13,7 @@ import com.example.wms.inventory.application.port.out.InventoryPort;
 import com.example.wms.order.application.domain.Order;
 import com.example.wms.order.application.domain.OrderProduct;
 import com.example.wms.order.application.port.out.OrderPort;
+import com.example.wms.order.application.port.out.OrderProductPort;
 import com.example.wms.product.adapter.in.dto.LotInfoDto;
 import com.example.wms.product.application.domain.Lot;
 import com.example.wms.product.application.domain.Product;
@@ -30,8 +29,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -40,12 +37,13 @@ public class InboundService implements InboundUseCase {
     private final AssignInboundNumberPort assignInboundNumberPort;
     private final InboundPort inboundPort;
     private final ProductPort productPort;
-    private final InboundCheckPort inboundCheckPort;
     private final InboundRetrievalPort inboundRetrievalPort;
     private final LotPort lotPort;
     private final OrderPort orderPort;
     private final BinPort binPort;
+    private final OrderProductPort orderProductPort;
     private final InventoryPort inventoryPort;
+
 
     @Transactional
     @Override
@@ -167,19 +165,20 @@ public class InboundService implements InboundUseCase {
     public void createInboundCheck(Long inboundId, InboundCheckReqDto inboundCheckReqDto) {
 
         Inbound inbound = inboundPort.findById(inboundId);
+
         if (inbound == null) {
-            throw new NotFoundException("inbound not found with id " + inboundCheckReqDto.getInboundId());
+            throw new NotFoundException("inbound not found with id " + inboundId);
         }
 
-        inbound.setInboundStatus("입하검사완료"); // 수정 필요
-        inbound.setCheckDate(inboundCheckReqDto.getCheckDate());
+        // 해당 inbound 에 입하검사 관련 정보 업데이트
+        inbound.setInboundStatus("입하검사");
+        inbound.setCheckDate(LocalDate.now());
         inbound.setCheckNumber(makeNumber("IC"));
 
-        List<InboundCheck> inboundCheckList = new ArrayList<>();
-
         for (InboundCheckedProductReqDto checkedProduct : inboundCheckReqDto.getCheckedProductList()) {
+
             Long productId = checkedProduct.getProductId();
-            Long defectiveCount = checkedProduct.getDefectiveLotCount();
+            Long defectiveCount = checkedProduct.getDefectiveCount();
 
             Product product = productPort.findById(productId);
 
@@ -187,29 +186,26 @@ public class InboundService implements InboundUseCase {
                 throw new NotFoundException("product not found with id :" + productId);
             }
 
-            InboundCheck inboundCheck = InboundCheck.builder()
-                    .inboundId(inbound.getInboundId())
-                    .productId(productId)
-                    .defectiveLotCount(defectiveCount)
-                    .build();
+            OrderProduct orderProduct = orderProductPort.findByProductId(productId);
+            orderProduct.setDefectiveCount(defectiveCount);
 
-            inboundCheckList.add(inboundCheck);
-            inboundCheckPort.save(inboundCheck);
-
+            // 재발주
             if (defectiveCount > 0) {
-                orderPort.createOrder(product.getSupplierId(), defectiveCount);
+                orderPort.createOrder(orderProduct.getProductId(), inboundId, defectiveCount);
             }
         }
 
+        // 해당 inbound 에 입하 검사 업데이트 완료
         inboundPort.updateIC(inbound.getInboundId(), inbound.getCheckDate(), inbound.getScheduleNumber());
-
     }
 
     @Override
     public Page<InboundResDto> getFilteredInboundCheck(String inboundCheckNumber, LocalDate startDate, LocalDate endDate, Pageable pageable) {
+
         Pageable safePageable = PageableUtils.convertToSafePageableStrict(pageable, Inbound.class);
 
         List<InboundAllProductDto> inboundAllProductDtoList = inboundRetrievalPort.findInboundCheckFilteringWithPagination(inboundCheckNumber, startDate, endDate, safePageable);
+
         Integer count = inboundRetrievalPort.countFilteredInboundCheck(inboundCheckNumber, startDate, endDate);
 
         List<InboundResDto> inboundResDtoList = convertToInboundResDto(inboundAllProductDtoList);
@@ -220,46 +216,45 @@ public class InboundService implements InboundUseCase {
     @Transactional
     @Override
     public void updateInboundCheck(Long inboundId, InboundCheckUpdateReqDto updateReqDto) {
+
         Inbound inbound = inboundPort.findById(inboundId);
 
         if (inbound == null) {
-            throw new NotFoundException("Inbound not found with id " + updateReqDto.getInboundId());
+            throw new NotFoundException("Inbound not found with id " + inboundId);
         }
 
-        inbound.setCheckDate(LocalDate.parse(updateReqDto.getCheckDate()));
+        inbound.setCheckDate(LocalDate.now());
         inbound.setCheckNumber(makeNumber("IC"));
+        inboundPort.updateIC(inbound.getInboundId(), inbound.getCheckDate(), inbound.getCheckNumber()); // 관련 inbound 테이블에 업데이트
 
-        inboundPort.updateIC(inbound.getInboundId(), inbound.getCheckDate(), inbound.getCheckNumber());
+        for (InboundCheckedProductReqDto checkedProduct : updateReqDto.getCheckedProductList()) { // 품목별 defectiveCount
+            OrderProduct orderProduct = orderProductPort.findByProductId(checkedProduct.getProductId());
 
-        List<InboundCheck> existingChecks = inboundCheckPort.findByInboundId(updateReqDto.getInboundId());
+            if (orderProduct == null) {
+                throw new NotFoundException("OrderProduct not found with productId : " + checkedProduct.getProductId());
+            }
 
-        Map<Long, InboundCheck> checkMap = existingChecks.stream()
-                .collect(Collectors.toMap(InboundCheck::getProductId, Function.identity()));
+            Long beforeDefectiveCount = orderProduct.getDefectiveCount(); // 기존 defectiveCount
 
-        List<InboundCheck> updatedChecks = new ArrayList<>();
-
-        for (InboundCheckedProductReqDto checkedProduct : updateReqDto.getCheckedProductList()) {
             Long productId = checkedProduct.getProductId();
-            Long updatedDefectiveCount = checkedProduct.getDefectiveLotCount();
+
+            Long updatedDefectiveCount = checkedProduct.getDefectiveCount(); // 수정한 defectiveCount
 
             Product product = productPort.findById(productId);
+
 
             if (product == null) {
                 throw new NotFoundException("Product not found with id : " + productId);
             }
 
-            if (checkMap.containsKey(productId)) {
-                InboundCheck existingCheck = checkMap.get(productId);
-                existingCheck.setDefectiveLotCount(updatedDefectiveCount);
-                updatedChecks.add(existingCheck);
+            if (beforeDefectiveCount - updatedDefectiveCount < 0) {
+                orderPort.createOrder(productId, inboundId, updatedDefectiveCount-beforeDefectiveCount); // 재발주
+            } else if (beforeDefectiveCount - updatedDefectiveCount > 0) {
+                // 발주 수정 메서드 추가
             }
-
-            if (updatedDefectiveCount > 0) {
-                orderPort.createOrder(product.getSupplierId(), updatedDefectiveCount);
-            }
+            orderProduct.setDefectiveCount(updatedDefectiveCount); // 발주 품목 별 불량품 개수 업데이트
         }
 
-        inboundCheckPort.saveAll(updatedChecks);
     }
 
     @Override
@@ -308,7 +303,7 @@ public class InboundService implements InboundUseCase {
         String checkNumber = makeNumber("IC");
         inboundPort.updateInboundCheck(scheduleNumber, checkNumber);
 
-        List<LotInfoDto> lots = inboundPort.getLotsByScheduleNumber(scheduleNumber);
+        List<LotInfoDto> lots = inboundPort.getLotsByCheckNumber(checkNumber);
 
         return new InboundWorkerCheckResDto(checkNumber, lots);
     }
@@ -323,7 +318,8 @@ public class InboundService implements InboundUseCase {
         for (InboundPutAwayReqDto request : putAwayRequests) {
             Long productId = request.getProductId();
             Integer lotCount = request.getLotCount();
-
+            Product product = productPort.findById(productId);
+            Integer lotUnit = product.getLotUnit();
             String locationBinCode = productPort.getLocationBinCode(productId);
 
             Long binId = findExactBinId(locationBinCode);
@@ -336,6 +332,7 @@ public class InboundService implements InboundUseCase {
                 Lot lot = Lot.builder()
                         .productId(productId)
                         .binId(binId)
+                        .lotNumber(locationBinCode)
                         .status("입고완료")
                         .inboundId(inboundId)
                         .build();
@@ -343,8 +340,8 @@ public class InboundService implements InboundUseCase {
             }
 
             binPort.incrementBinAmount(binId, lotCount);
-
-            inventoryPort.updateInventory(productId, lotCount);
+            Integer totalCount = lotCount * lotUnit;
+            inventoryPort.updateInventory(productId, totalCount);
         }
     }
 

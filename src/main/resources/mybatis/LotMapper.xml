@@ -4,7 +4,7 @@
 <mapper namespace="com.example.wms.infrastructure.mapper.LotMapper">
     <update id="updateStatus">
         UPDATE lot
-        SET status = '불합격'
+        SET status = '입고'
         WHERE lot_id = #{lotId}
     </update>
 
