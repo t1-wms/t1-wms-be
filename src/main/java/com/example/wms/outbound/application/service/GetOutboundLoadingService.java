@@ -13,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -25,6 +26,7 @@ public class GetOutboundLoadingService implements GetOutboundLoadingUseCase {
     private final GetOutboundLoadingPort getOutboundLoadingPort;
 
     @Override
+    @Transactional(readOnly = true)
     public Page<OutboundLoadingResponseDto> getFilteredOutboundLoadings(String outboundLoadingNumber, LocalDate startDate, LocalDate endDate, Pageable pageable) {
         Pageable safePageale = PageableUtils.convertToSafePageableStrict(pageable, OutboundLoadingResponseDto.class);
         List<OutboundLoadingResponseDto> outboundList = getOutboundLoadingPort.findOutboundLoadingFilteringWithPageNation(outboundLoadingNumber, startDate, endDate, safePageale);
