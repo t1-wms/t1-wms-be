@@ -226,14 +226,20 @@ pipeline {
                                         done
 
                                         # 6. nginx 설정 테스트 및 재시작
-                                        echo "===== Restarting Nginx ====="
+                                        echo "===== Testing Nginx configuration ====="
                                         sudo nginx -t
-                                        sudo systemctl restart nginx
+                                        if [ $? -eq 0 ]; then
+                                            echo "===== Restarting Nginx ====="
+                                            sudo systemctl restart nginx
+                                        else
+                                            echo "Nginx configuration test failed. Aborting."
+                                            exit 1
+                                        fi
 
                                         # 7. 이전 환경 정리
                                         if [ "${currentEnv}" != "none" ]; then
                                             echo "===== Cleaning up old environment: ${currentEnv} ====="
-                                            docker-compose -f docker-compose.${currentEnv}.yml down || true
+                                            docker-compose -f docker-compose.${currentEnv}.yml down || exit 1
                                         fi
 
                                         # 8. 최종 상태 확인
