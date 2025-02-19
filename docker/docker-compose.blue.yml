@@ -1,4 +1,3 @@
-# docker-compose.blue.yml
 version: '3'
 services:
   spring-wms-blue:
@@ -16,9 +15,8 @@ services:
       - servernetwork
     extra_hosts:
       - "host.docker.internal:host-gateway"
+      - "redis:172.19.0.3"
+
 networks:
   servernetwork:
-    external: true
-
-
-
+    driver: bridge

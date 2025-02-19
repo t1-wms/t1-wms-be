@@ -8,6 +8,9 @@ RUN apt-get update && apt-get install -y \
     gnupg \
     lsb-release \
     sudo \
+    iputils-ping \
+    net-tools \
+    dnsutils \
     && curl -fsSL https://download.docker.com/linux/debian/gpg | tee /etc/apt/trusted.gpg.d/docker.asc \
     && echo "deb [arch=amd64] https://download.docker.com/linux/debian $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list \
     && apt-get update \
@@ -19,11 +22,14 @@ RUN apt-get update && apt-get install -y \
 VOLUME /var/run/docker.sock
 
 # 사용자 추가 & 권한 설정
-RUN groupadd -g 998 docker && \
-    useradd -u 1000 -g docker -m jenkins && \
-    usermod -aG docker jenkins && \
-    usermod -aG sudo jenkins && \
-    echo "jenkins ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+RUN groupadd -g 998 docker \
+    && useradd -u 1000 -g docker -m jenkins \
+    && usermod -aG docker jenkins \
+    && usermod -aG sudo jenkins \
+    && echo "jenkins ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+
+# hosts 파일 수정
+RUN echo "172.19.0.3 redis" >> /etc/hosts
 
 # Docker 명령어 실행을 위한 유저 설정
 USER jenkins
