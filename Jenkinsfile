@@ -163,9 +163,6 @@ pipeline {
                                         sudo chown -R jenkins:jenkins /home/ec2-user/backend/logs
                                         sudo chmod -R 755 /home/ec2-user/backend/logs
 
-                                        # Redis 비밀번호 설정 (환경변수에서 가져오기)
-                                        export REDIS_PASSWORD=\${REDIS_PASSWORD}
-
                                         # 1. 새 컨테이너 중지 및 삭제 (존재할 경우)
                                         docker stop ${containerName} || true
                                         docker rm ${containerName} || true
