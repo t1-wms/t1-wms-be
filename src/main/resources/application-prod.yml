@@ -53,7 +53,7 @@ logging:
       spring.web: DEBUG
       apache.tiles: INFO
       spring.mail: DEBUG
-    root: INFO
+    root: DEBUG
 
 server:
   error:

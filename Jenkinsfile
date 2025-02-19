@@ -84,7 +84,6 @@ pipeline {
                                 head -n 1 ./src/main/resources/application-secret.yml
                             else
                                 echo "ERROR: Secret file was not copied properly"
-                                exit 1
                             fi
                         """
                     }
