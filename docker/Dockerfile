@@ -28,9 +28,6 @@ RUN groupadd -g 998 docker \
     && usermod -aG sudo jenkins \
     && echo "jenkins ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
-# hosts 파일 수정
-RUN echo "172.19.0.3 redis" >> /etc/hosts
-
 # Docker 명령어 실행을 위한 유저 설정
 USER jenkins
 
