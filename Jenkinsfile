@@ -129,7 +129,6 @@ pipeline {
                 }
             }
         }
-
         stage('Deploy to Backend Server') {
             steps {
                 script {
@@ -168,11 +167,8 @@ pipeline {
                                         echo "Starting deployment process..."
                                         cd /home/ec2-user/backend
 
-                                        echo "Saving Docker image..."
-                                        docker save -o /home/ec2-user/backend/image.tar ${DOCKER_TAG}
-
-                                        echo "Loading Docker image..."
-                                        docker load -i /home/ec2-user/backend/image.tar
+                                        echo "Loading Docker image directly..."
+                                        docker save ${DOCKER_TAG} | ssh ec2-user@api.stockholmes.store 'docker load'
 
                                         echo "Cleaning up exited container for port ${port}..."
                                         CONTAINER_ID=\$(docker ps -a | grep ${port} | grep 'Exited' | awk '{print \$1}')
@@ -198,34 +194,6 @@ pipeline {
 
                                         echo "Reloading Nginx..."
                                         sudo nginx -t && sudo systemctl reload nginx
-
-                                        echo "Performing health check..."
-                                        attempt=1
-                                        max_attempts=6
-
-                                        while [ "\$attempt" -le "\$max_attempts" ]
-                                        do
-                                            echo "Health check attempt \$attempt of \$max_attempts"
-                                            if curl -sf http://localhost:${port}/actuator/health > /dev/null; then
-                                                echo "Health check passed successfully"
-
-                                                if [ "${currentEnv}" != "none" ]; then
-                                                    echo "Cleaning up old environment..."
-                                                    docker-compose -p spring-wms-${currentEnv} -f docker-compose.${currentEnv}.yml down || true
-                                                fi
-
-                                                exit 0
-                                            fi
-
-                                            echo "Health check failed, waiting 10 seconds before retry..."
-                                            sleep 10
-                                            attempt=\$((attempt + 1))
-                                        done
-
-                                        echo "All health checks failed"
-
-                                        echo "Rolling back to previous environment..."
-                                        docker-compose -p spring-wms-${deployEnv} -f docker-compose.${deployEnv}.yml down
 
                                         if [ "${currentEnv}" != "none" ]; then
                                             docker-compose -p spring-wms-${currentEnv} -f docker-compose.${currentEnv}.yml up -d
