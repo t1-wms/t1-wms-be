@@ -188,7 +188,6 @@ pipeline {
                                         sleep 10
 
                                         echo "Updating Nginx configuration..."
-                                        # 새로운 NGINX 설정 업데이트 방식
                                         ssh ec2-user@ip-172-31-43-48 "sudo sed -i 's/set \\\$deployment_env \\\".*\\\";/set \\\$deployment_env \\\"${deployEnv}\\\";/' /etc/nginx/conf.d/backend.conf"
                                         ssh ec2-user@ip-172-31-43-48 'echo "${deployEnv}" | sudo tee /etc/nginx/deployment_env'
 
