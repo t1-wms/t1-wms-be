@@ -4,6 +4,7 @@ import com.example.wms.inbound.adapter.in.dto.request.InboundCheckReqDto;
 import com.example.wms.inbound.adapter.in.dto.request.InboundCheckUpdateReqDto;
 import com.example.wms.inbound.adapter.in.dto.request.InboundCheckWorkerReqDto;
 import com.example.wms.inbound.adapter.in.dto.response.InboundAllProductDto;
+import com.example.wms.inbound.adapter.in.dto.response.InboundProductDto;
 import com.example.wms.inbound.adapter.in.dto.response.InboundResDto;
 import com.example.wms.inbound.adapter.in.dto.response.InboundWorkerCheckResDto;
 import com.example.wms.inbound.application.port.in.InboundUseCase;
@@ -47,14 +48,10 @@ public class InboundCheckController {
 
     @GetMapping
     @Operation(summary = "입하 검사 조회하기" , description = "입하검사번호와 시작일, 종료일을 입력해 입하 검사 데이터를 검색 조건에 따라 조회합니다.")
-    public ResponseEntity<Page<InboundAllProductDto>> getInboundCheck(
-            @Parameter(name = "inboundCheckNumber", in = ParameterIn.QUERY, description = "입하 검사 번호")
-            @RequestParam(value = "number", required = false) String inboundCheckNumber,
-
-            @Parameter(name = "startDate", in = ParameterIn.QUERY, description = "시작 날짜")
+    public ResponseEntity<Page<InboundResDto>> getInboundCheck(
+            @RequestParam(value = "number", required = false)
+            String inboundCheckNumber,
             @RequestParam(value = "startDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-
-            @Parameter(name = "endDate", in = ParameterIn.QUERY, description = "종료 날짜")
             @RequestParam(value = "endDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
             @ParameterObject Pageable pageable) {
         return ResponseEntity.ok(inboundUseCase.getFilteredInboundCheck(inboundCheckNumber, startDate, endDate, pageable));

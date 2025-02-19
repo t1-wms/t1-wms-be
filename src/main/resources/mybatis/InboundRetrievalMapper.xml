@@ -54,68 +54,9 @@
         LIMIT #{pageable.pageSize} OFFSET #{pageable.offset}
     </select>
 
+
+
     <select id="findInboundFilteringWithPagination" resultMap="InboundAllProductResultMap">
-        SELECT
-            i.inbound_id,
-            i.inbound_status,
-            i.created_at,
-            i.schedule_number,
-            i.schedule_date,
-            i.order_id,
-            o.order_number,
-            o.order_date,
-            o.supplier_id,
-            s.supplier_name,
-            p.product_id,
-            p.product_code,
-            p.product_name,
-            (p.stock_lot_count * p.lot_unit) AS product_count,
-            p.stock_lot_count  AS lot_count,
-            COALESCE(SUM(op.defective_count), 0) AS defective_count
-        FROM inbound i
-        JOIN `order` o ON i.order_id = o.order_id
-        JOIN supplier s ON o.supplier_id = s.supplier_id
-        JOIN order_product op ON o.order_id = op.order_id
-        JOIN product p ON op.product_id = p.product_id
-        <where>
-            schedule_number IS NOT NULL
-            AND check_number IS NULL
-            <if test="startDate != null">
-                schedule_date <![CDATA[>=]]> #{startDate}
-            </if>
-
-            <if test="endDate != null">
-                <if test="startDate != null">
-                    AND
-                </if>
-                schedule_date <![CDATA[<=]]> #{endDate}
-            </if>
-
-
-            <if test="inboundScheduleNumber != null and inboundScheduleNumber != ''">
-                AND schedule_number LIKE CONCAT('%', #{inboundScheduleNumber}, '%')
-            </if>
-        </where>
-        GROUP BY i.inbound_id, i.inbound_status, i.created_at, i.schedule_number, i.schedule_date,
-        i.order_id, o.order_number, o.order_date, o.supplier_id, s.supplier_name,
-        p.product_id, p.product_code, p.product_name, p.stock_lot_count, p.lot_unit
-
-        <if test="pageable.sort.sorted">
-            <trim prefix="ORDER BY">
-                <foreach item="order" index="i" collection="pageable.sort" separator=", ">
-                    ${order.property}
-                    <choose>
-                        <when test="order.direction.toString() == 'ASC'">ASC</when>
-                        <otherwise>DESC</otherwise>
-                    </choose>
-                </foreach>
-            </trim>
-        </if>
-
-        LIMIT #{pageable.pageSize} OFFSET #{pageable.offset}
-    </select>
-
-    <select id="findInboundCheckFilteringWithPagination" resultMap="InboundAllProductResultMap">
         SELECT
             i.inbound_id,
             i.inbound_status,
@@ -124,7 +65,6 @@
             i.schedule_date,
             i.check_number,
             i.check_date,
-            i.put_away_number,
             i.order_id,
             o.order_number,
             o.order_date,
@@ -133,91 +73,34 @@
             p.product_id,
             p.product_code,
             p.product_name,
-            (p.stock_lot_count * p.lot_unit) AS product_count,
-            (p.stock_lot_count * p.lot_unit) AS lot_count,
-            COALESCE(op.defective_count, 0) AS defective_count
+            COUNT(p.stock_lot_count * p.lot_unit) AS product_count
         FROM inbound i
         JOIN `order` o ON i.order_id = o.order_id
-        JOIN supplier s ON o.supplier_id = s.supplier_id
         JOIN order_product op ON o.order_id = op.order_id
         JOIN product p ON op.product_id = p.product_id
+        JOIN supplier s ON o.supplier_id = s.supplier_id
         <where>
-            check_number IS NOT NULL
+            schedule_number IS NOT NULL
+            AND check_number IS NULL
             AND put_away_number IS NULL
             <if test="startDate != null">
+                AND
                 schedule_date <![CDATA[>=]]> #{startDate}
             </if>
+
             <if test="endDate != null">
-                AND schedule_date <![CDATA[<=]]> #{endDate}
+                AND
+                schedule_date <![CDATA[<=]]> #{endDate}
             </if>
 
-            <if test="inboundCheckNumber != null and inboundCheckNumber != ''">
-                AND check_number LIKE CONCAT('%', #{checkNumber}, '%')
-            </if>
-        </where>
-        GROUP BY i.inbound_id, i.inbound_status, i.created_at, i.schedule_number, i.schedule_date,
-        i.check_number, i.check_date, i.put_away_number, i.order_id,
-        o.order_number, o.order_date, o.supplier_id, s.supplier_name,
-        p.product_id, p.product_code, p.product_name,
-        p.stock_lot_count, p.lot_unit, op.defective_count
-
-        <if test="pageable.sort.sorted">
-            <trim prefix="ORDER BY">
-                <foreach item="order" index="i" collection="pageable.sort" separator=", ">
-                    ${order.property}
-                    <choose>
-                        <when test="order.direction.toString() == 'ASC'">ASC</when>
-                        <otherwise>DESC</otherwise>
-                    </choose>
-                </foreach>
-            </trim>
-        </if>
-
-        LIMIT #{pageable.pageSize} OFFSET #{pageable.offset}
-    </select>
-
-    <select id="findInboundPutAwayFilteringWithPagination" resultMap="InboundPutAwayResultMap">
-        SELECT
-        i.inbound_id,
-        i.inbound_status,
-        i.created_at,
-        i.schedule_number,
-        i.check_number,
-        i.put_away_number,
-        i.put_away_date,
-        i.order_id,
-        o.order_number,
-        o.order_date,
-        o.supplier_id,
-        s.supplier_name,
-        p.product_id,
-        p.product_code,
-        p.product_name,
-        (p.stock_lot_count * p.lot_unit) AS product_count,
-        (p.stock_lot_count * p.lot_unit) AS lot_count
-        FROM inbound i
-        JOIN `order` o ON i.order_id = o.order_id
-        JOIN supplier s ON o.supplier_id = s.supplier_id
-        JOIN order_product op1 ON o.order_id = op1.order_id
-        JOIN product p ON p.product_id = op1.product_id
-        <where>
-            put_away_number IS NOT NULL
-            <if test="startDate != null">
-                put_away_date <![CDATA[>=]]> #{startDate}
-            </if>
-            <if test="endDate != null">
-                AND put_away_date <![CDATA[<=]]> #{endDate}
-            </if>
-
-            <if test="inboundPutAwayNumber != null and inboundPutAwayNumber != ''">
-               AND put_away_number LIKE CONCAT('%', #{inboundPutAwayNumber}, '%')
+            <if test="inboundScheduleNumber != null and inboundScheduleNumber != ''">
+                AND schedule_number LIKE CONCAT('%', #{inboundScheduleNumber}, '%')
             </if>
         </where>
         GROUP BY
-        i.inbound_id, i.inbound_status, i.created_at, i.schedule_number,
-        i.check_number, i.put_away_number, i.order_id,
-        o.order_number, o.order_date, o.supplier_id, s.supplier_name,
-        p.product_id, p.product_code, p.product_name, p.stock_lot_count, p.lot_unit
+        i.inbound_id, i.inbound_status, i.created_at, i.schedule_number, i.schedule_date,
+        i.order_id, o.order_number, o.order_date, o.supplier_id, s.supplier_name,
+        p.product_id, p.product_code, p.product_name, p.lot_unit
 
         <if test="pageable.sort.sorted">
             <trim prefix="ORDER BY">
@@ -233,6 +116,7 @@
 
         LIMIT #{pageable.pageSize} OFFSET #{pageable.offset}
     </select>
+
 
 
 
@@ -314,24 +198,21 @@
     <select id="countAllInboundPlanFiltering" resultType="int">
         SELECT COUNT(*)
         FROM inbound
-        WHERE schedule_number is not null AND check_number is null
         <where>
-            <if test="inboundScheduleNumber != null">
-                schedule_number = #{inboundScheduleNumber}
-            </if>
-
+            schedule_number is not null AND check_number is null
             <if test="startDate != null">
-                <if test="inboundScheduleNumber != null">
-                    AND
-                </if>
+                AND
                 schedule_date <![CDATA[>=]]> #{startDate}
             </if>
 
             <if test="endDate != null">
-                <if test="inboundScheduleNumber != null or startDate != null">
-                    AND
-                </if>
+                AND
                 schedule_date <![CDATA[<=]]> #{endDate}
+            </if>
+
+            <if test="inboundScheduleNumber != null and inboundScheduleNumber != ''">
+                AND
+                schedule_number LIKE CONCAT('%', #{inboundScheduleNumber}, '%')
             </if>
         </where>
     </select>
@@ -339,26 +220,22 @@
     <select id="countAllInboundCheckFiltering" resultType="int">
         SELECT COUNT(*)
         FROM inbound
-        WHERE check_number is not null AND put_away_number is null
         <where>
-            <if test="inboundCheckNumber != null">
-                inbound_check_number = #{inboundCheckNumber}
-            </if>
-
+            check_number is not null AND put_away_number is null
             <if test="startDate != null">
-                <if test="inboundCheckNumber != null">
-                    AND
-                </if>
+                AND
                 check_date <![CDATA[>=]]> #{startDate}
             </if>
 
             <if test="endDate != null">
-                <if test="inboundCheckNumber != null or startDate != null">
-                    AND
-                </if>
+                AND
                 check_date <![CDATA[<=]]> #{endDate}
             </if>
 
+            <if test="inboundCheckNumber != null and inboundCheckNumber != ''">
+                AND
+                check_number LIKE CONCAT('%', #{inboundCheckNumber}, '%')
+            </if>
         </where>
     </select>
 
@@ -471,7 +348,7 @@
             <result property="productCode" column="product_code"/>
             <result property="productName" column="product_name"/>
             <result property="productCount" column="product_count"/>
-            <result property="lotCount" column="lot_count"/>
+            <result property="stockLotCount" column="lot_count"/>
             <result property="defectiveCount" column="defective_count"/>
         </collection>
     </resultMap>
@@ -526,28 +403,27 @@
         </collection>
     </resultMap>
 
+    <resultMap id="InboundCheckResultMap" type="com.example.wms.inbound.adapter.in.dto.response.InboundAllProductDto">
+        <id property="inboundId" column="inbound_id"/>
+        <result property="inboundStatus" column="inbound_status"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="scheduleNumber" column="schedule_number"/>
+        <result property="scheduleDate" column="schedule_date"/>
+        <result property="checkNumber" column="check_number"/>
+        <result property="checkDate" column="check_date"/>
+        <result property="orderId" column="order_id"/>
+        <result property="orderNumber" column="order_number"/>
+        <result property="orderDate" column="order_date"/>
+        <result property="supplierId" column="supplier_id"/>
+        <result property="supplierName" column="supplier_name"/>
 
-
-    <resultMap id="InboundPutAwayResultMap" type="com.example.wms.inbound.adapter.in.dto.response.InboundPutAwayResDto">
-        <id column="inbound_id" property="inboundId"/>
-        <result column="inbound_status" property="inboundStatus"/>
-        <result column="created_at" property="createdAt"/>
-        <result column="schedule_number" property="scheduleNumber"/>
-        <result column="check_number" property="checkNumber"/>
-        <result column="put_away_number" property="putAwayNumber"/>
-        <result column="put_away_date" property="putAwayDate"/>
-        <result column="order_id" property="orderId"/>
-        <result column="order_number" property="orderNumber"/>
-        <result column="order_date" property="orderDate"/>
-        <result column="supplier_id" property="supplierId"/>
-        <result column="supplier_name" property="supplierName"/>
-
-        <collection property="lotList" ofType="com.example.wms.inbound.adapter.in.dto.response.LotResDto">
-            <id column="product_id" property="productId"/>
-            <result column="product_code" property="productCode"/>
-            <result column="product_name" property="productName"/>
-            <result column="product_count" property="productCount"/>
-            <result column="location_bin_code" property="locationBinCode"/>
+        <collection property="productList" ofType="com.example.wms.inbound.adapter.in.dto.response.InboundProductDto">
+            <id property="productId" column="product_id"/>
+            <result property="productCode" column="product_code"/>
+            <result property="productName" column="product_name"/>
+            <result property="productCount" column="product_count"/>
+            <result property="stockLotCount" column="stock_lot_count"/>
+            <result property="defectiveCount" column="defective_count"/>
         </collection>
     </resultMap>
 

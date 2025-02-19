@@ -6,7 +6,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -19,8 +18,8 @@ public class InboundAllProductDto {
     private LocalDate createdAt;
     private String scheduleNumber;
     private LocalDate scheduleDate;
+    private String inboundCheckNumber;
     private LocalDate checkDate;
-    private String checkNumber;
     private Long orderId;
     private String orderNumber;
     private LocalDate orderDate;

@@ -8,6 +8,8 @@ import com.example.wms.inbound.application.port.out.AssignInboundNumberPort;
 import com.example.wms.inbound.application.port.out.InboundPort;
 import com.example.wms.inbound.application.port.out.InboundRetrievalPort;
 import com.example.wms.infrastructure.exception.NotFoundException;
+import com.example.wms.infrastructure.mapper.InboundCheckMapper;
+import com.example.wms.infrastructure.mapper.TestMapper;
 import com.example.wms.infrastructure.pagination.util.PageableUtils;
 import com.example.wms.inventory.application.port.out.InventoryPort;
 import com.example.wms.order.application.domain.Order;
@@ -33,6 +35,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 
@@ -50,8 +53,8 @@ public class InboundService implements InboundUseCase {
     private final InventoryPort inventoryPort;
     private final ProductUseCase productUseCase;
     private final BinUseCase binUseCase;
-
-    @Scheduled(cron = "0 0/1 * * * ?") // 1분마다 실행
+    private final TestMapper testMapper;
+    @Scheduled(cron = "0 0 * * * ?") // 1분마다 실행
     public void schedule(){
         productUseCase.performABCAnalysis();
         productUseCase.assignLocationBinCode();
@@ -109,8 +112,8 @@ public class InboundService implements InboundUseCase {
     @Override
     public Page<InboundResDto> getFilteredInboundPlans(String inboundScheduleNumber, LocalDate startDate, LocalDate endDate, Pageable pageable) {
         Pageable safePageable = PageableUtils.convertToSafePageableStrict(pageable, Inbound.class);
-
         List<InboundAllProductDto> inboundAllProductDtoList = inboundRetrievalPort.findInboundFilteringWithPagination(inboundScheduleNumber, startDate, endDate, safePageable);
+
         Integer count = inboundRetrievalPort.countFilteredInboundPlan(inboundScheduleNumber, startDate, endDate);
 
         List<InboundResDto> inboundResDtoList = convertToInboundResDto(inboundAllProductDtoList);
@@ -126,29 +129,50 @@ public class InboundService implements InboundUseCase {
 
 
 
-    private List<InboundResDto> convertToInboundResDto(List<InboundAllProductDto> planProductList) {
-        if (planProductList.isEmpty()) {
+    private List<InboundResDto> convertToInboundResDto(List<InboundAllProductDto> inboundDtoList) {
+        if (inboundDtoList.isEmpty()) {
             return Collections.emptyList();
         }
 
         Map<Long, InboundResDto> inboundMap = new LinkedHashMap<>();
 
-        for (InboundAllProductDto dto : planProductList) {
-            inboundMap.putIfAbsent(dto.getInboundId(),
-                    InboundResDto.builder()
-                            .inboundId(dto.getInboundId())
-                            .inboundStatus(dto.getInboundStatus())
-                            .createdAt(dto.getCreatedAt())
-                            .scheduleNumber(dto.getScheduleNumber())
-                            .scheduleDate(dto.getScheduleDate())
-                            .orderId(dto.getOrderId())
-                            .orderNumber(dto.getOrderNumber())
-                            .orderDate(dto.getOrderDate())
-                            .supplierId(dto.getSupplierId())
-                            .supplierName(dto.getSupplierName())
-                            .productList(getAllInboundProductList(OrderProduct.builder().orderId(dto.getOrderId()).build()))
-                            .build()
-            );
+        for (InboundAllProductDto dto : inboundDtoList) {
+
+           inboundMap.putIfAbsent(dto.getInboundId(),
+                   InboundResDto.builder()
+                           .inboundId(dto.getInboundId())
+                           .inboundStatus(dto.getInboundStatus())
+                           .createdAt(dto.getCreatedAt())
+                           .scheduleNumber(dto.getScheduleNumber())
+                           .scheduleDate(dto.getScheduleDate())
+                           .checkNumber(dto.getInboundCheckNumber())
+                           .checkDate(dto.getCheckDate())
+                           .orderId(dto.getOrderId())
+                           .orderNumber(dto.getOrderNumber())
+                           .orderDate(dto.getOrderDate())
+                           .supplierId(dto.getSupplierId())
+                           .supplierName(dto.getSupplierName())
+                           .productList(new ArrayList<>())
+                           .build()
+           );
+
+           InboundResDto existingResDto = inboundMap.get(dto.getInboundId());
+
+           if (dto.getProductList() != null && !dto.getProductList().isEmpty()) {
+               List<InboundProductDto> convertedProducts = dto.getProductList().stream()
+                       .map(product -> InboundProductDto.builder()
+                               .productId(product.getProductId())
+                               .productCode(product.getProductCode())
+                               .productName(product.getProductName())
+                               .productCount(product.getProductCount())
+                               .stockLotCount(product.getStockLotCount())  // 필드명 주의
+                               .defectiveCount(product.getDefectiveCount())  // 필드명 주의
+                               .build())
+                       .collect(Collectors.toList());
+
+               existingResDto.getProductList().addAll(convertedProducts);
+           }
+
         }
 
         return new ArrayList<>(inboundMap.values());
@@ -196,8 +220,7 @@ public class InboundService implements InboundUseCase {
             }
 
             OrderProduct orderProduct = orderProductPort.findByProductId(productId);
-            orderProduct.setDefectiveCount(defectiveCount);
-
+            orderProductPort.updateDefectiveCount(productId, defectiveCount);
             // 재발주
             if (defectiveCount > 0) {
                 orderPort.createOrder(orderProduct.getProductId(), inboundId, defectiveCount);
@@ -208,7 +231,7 @@ public class InboundService implements InboundUseCase {
     }
 
     @Override
-    public Page<InboundAllProductDto> getFilteredInboundCheck(String inboundCheckNumber, LocalDate startDate, LocalDate endDate, Pageable pageable) {
+    public Page<InboundResDto> getFilteredInboundCheck(String inboundCheckNumber, LocalDate startDate, LocalDate endDate, Pageable pageable) {
 
         Pageable safePageable = PageableUtils.convertToSafePageableStrict(pageable, Inbound.class);
 
@@ -216,9 +239,9 @@ public class InboundService implements InboundUseCase {
 
         Integer count = inboundRetrievalPort.countFilteredInboundCheck(inboundCheckNumber, startDate, endDate);
 
-//        List<InboundResDto> inboundResDtoList = convertToInboundResDto(inboundAllProductDtoList);
+        List<InboundResDto> inboundResDtoList = convertToInboundResDto(inboundAllProductDtoList);
 
-        return new PageImpl<>(inboundAllProductDtoList, pageable, count);
+        return new PageImpl<>(inboundResDtoList, pageable, count);
     }
 
     @Transactional
@@ -351,9 +374,11 @@ public class InboundService implements InboundUseCase {
         for (InboundPutAwayReqDto request : putAwayRequests) {
             Long productId = request.getProductId();
             Integer lotCount = request.getLotCount();
+            System.out.println("productId ****"+productId);
             Product product = productPort.findById(productId);
             Integer lotUnit = product.getLotUnit();
             String locationBinCode = productPort.getLocationBinCode(productId);
+            System.out.println("locationBinCode****"+locationBinCode);
 
 //            Long binId = findExactBinId(locationBinCode);
             List<Long> binIds = binUseCase.assignBinIdsToLots(locationBinCode, lotCount);
@@ -364,6 +389,7 @@ public class InboundService implements InboundUseCase {
 
             for(int i=0; i<lotCount; i++) {
                 String lotBinCode = generateFullLotBinCode(locationBinCode, i);
+                System.out.println("****lotBinCode"+lotBinCode);
                 Lot lot = Lot.builder()
                         .productId(productId)
                         .binId(binIds.get(i))
@@ -386,6 +412,7 @@ public class InboundService implements InboundUseCase {
     }
 
     private String generateFullLotBinCode(String locationBinCode, int index) {
+        System.out.println("***locationBinCode"+locationBinCode);
         if (!locationBinCode.matches("[A-F]-\\d{2}-\\d{2}-\\d{2}")) {
             return locationBinCode + "-" + String.format("%02d", index + 1);
         }
@@ -427,6 +454,12 @@ public class InboundService implements InboundUseCase {
         return new PageImpl<>(resultList, pageable, resultList.size());
     }
 
+    public void testQuery() {
+        List<Map<String, Object>> results = testMapper.findInboundCheckFilteringWithPagination();
+        for (Map<String, Object> row : results) {
+            System.out.println(row);
+        }
+    }
 
 }
 
