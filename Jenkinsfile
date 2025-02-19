@@ -129,95 +129,115 @@ pipeline {
                 }
             }
         }
+        stage('Deploy to Backend Server') {
+            steps {
+                script {
+                    def currentEnv = sh(
+                        script: """
+                            set -x  # 디버깅을 위한 명령어 출력
+                            ssh -o StrictHostKeyChecking=no ec2-user@api.stockholmes.store '
+                                echo "Checking current deployment environment..."
+                                if docker ps | grep -q "spring-wms-blue"; then
+                                    echo "blue"
+                                elif docker ps | grep -q "spring-wms-green"; then
+                                    echo "green"
+                                else
+                                    echo "none"
+                                fi
+                            '
+                        """,
+                        returnStdout: true
+                    ).trim()
 
-                stage('Deploy to Backend Server') {
-                    steps {
-                        script {
-                            def currentEnv = sh(
-                                script: """
-                                    set -x  # 디버깅을 위한 명령어 출력
-                                    ssh -o StrictHostKeyChecking=no ec2-user@api.stockholmes.store '
-                                        echo "Checking current deployment environment..."
-                                        if docker ps | grep -q "spring-wms-blue"; then
-                                            echo "blue"
-                                        elif docker ps | grep -q "spring-wms-green"; then
-                                            echo "green"
-                                        else
-                                            echo "none"
-                                        fi
-                                    '
-                                """,
-                                returnStdout: true
-                            ).trim()
+                    echo "Current environment: ${currentEnv}"
+                    def deployEnv = currentEnv == 'blue' ? 'green' : 'blue'
+                    def port = deployEnv == 'blue' ? '8011' : '8012'
+                    def containerName = "spring-wms-${deployEnv}"
 
-                            echo "Current environment: ${currentEnv}"
-                            def deployEnv = currentEnv == 'blue' ? 'green' : 'blue'
-                            def port = deployEnv == 'blue' ? '8011' : '8012'
-                            def containerName = "spring-wms-${deployEnv}"
+                    echo "Deploying to environment: ${deployEnv}"
+                    echo "Using port: ${port}"
 
-                            echo "Deploying to environment: ${deployEnv}"
-                            echo "Using port: ${port}"
+                    sshPublisher(publishers: [
+                        sshPublisherDesc(
+                            configName: 'BackendServer',
+                            transfers: [
+                                sshTransfer(
+                                    execCommand: """
+                                        set -e  # 에러 발생 시 즉시 중단
+                                        set -x  # 디버깅을 위한 명령어 출력
 
-                            sshPublisher(publishers: [
-                                sshPublisherDesc(
-                                    configName: 'BackendServer',
-                                    transfers: [
-                                        sshTransfer(
-                                            execCommand: """
-                                                set -e  # 에러 발생 시 즉시 중단
-                                                set -x  # 디버깅을 위한 명령어 출력
+                                        echo "Starting deployment process..."
+                                        cd /home/ec2-user/backend
 
-                                                echo "Starting deployment process..."
-                                                cd /home/ec2-user/backend
+                                        echo "Saving and transferring Docker image..."
+                                        docker save ${DOCKER_TAG} > /tmp/image.tar
+                                        docker load < /tmp/image.tar
+                                        rm /tmp/image.tar
 
-                                                echo "Saving and transferring Docker image..."
-                                                docker save ${DOCKER_TAG} > /tmp/image.tar
-                                                docker load < /tmp/image.tar
-                                                rm /tmp/image.tar
+                                        echo "Setting BUILD_NUMBER environment variable..."
+                                        export BUILD_NUMBER=${BUILD_NUMBER}
 
-                                                echo "Setting BUILD_NUMBER environment variable..."
-                                                export BUILD_NUMBER=${BUILD_NUMBER}
+                                        echo "Stopping existing container if any..."
+                                        docker-compose -p spring-wms-${deployEnv} -f docker-compose.${deployEnv}.yml down || true
 
-                                                echo "Stopping existing container if any..."
-                                                docker-compose -p spring-wms-${deployEnv} -f docker-compose.${deployEnv}.yml down || true
+                                        echo "Starting new container..."
+                                        docker-compose -p spring-wms-${deployEnv} -f docker-compose.${deployEnv}.yml up -d
 
-                                                echo "Starting new container..."
-                                                docker-compose -p spring-wms-${deployEnv} -f docker-compose.${deployEnv}.yml up -d
+                                        echo "Waiting for container to start..."
+                                        sleep 10
 
-                                                echo "Updating Nginx configuration..."
-                                                echo ${deployEnv} | sudo tee /etc/nginx/deployment_env
-                                                sudo sed -i "s/proxy_pass http:\\/\\/localhost:[0-9]*/proxy_pass http:\\/\\/localhost:${port}/" /etc/nginx/conf.d/backend.conf
+                                        echo "Updating Nginx configuration..."
+                                        echo ${deployEnv} | sudo tee /etc/nginx/deployment_env
+                                        sudo sed -i "s/proxy_pass http:\\/\\/localhost:[0-9]*/proxy_pass http:\\/\\/localhost:${port}/" /etc/nginx/conf.d/backend.conf
 
-                                                echo "Reloading Nginx..."
-                                                sudo nginx -t && sudo systemctl reload nginx
+                                        echo "Reloading Nginx..."
+                                        sudo nginx -t && sudo systemctl reload nginx
+
+                                        echo "Performing health check..."
+                                        attempt=1
+                                        max_attempts=6
+
+                                        until [ "\$attempt" -gt "\$max_attempts" ]
+                                        do
+                                            echo "Health check attempt \$attempt of \$max_attempts"
+                                            if curl -sf http://localhost:${port}/actuator/health > /dev/null; then
+                                                echo "Health check passed successfully"
 
                                                 if [ "${currentEnv}" != "none" ]; then
                                                     echo "Cleaning up old environment..."
                                                     docker-compose -p spring-wms-${currentEnv} -f docker-compose.${currentEnv}.yml down || true
                                                 fi
 
-                                                echo "Performing health check..."
-                                                for i in {1..6}; do
-                                                    echo "Health check attempt $i of 6"
-                                                    if curl -f http://localhost:${port}/actuator/health; then
-                                                        echo "Health check passed successfully"
-                                                        exit 0
-                                                    fi
-                                                    echo "Health check failed, waiting 10 seconds before retry..."
-                                                    sleep 10
-                                                done
+                                                exit 0
+                                            fi
 
-                                                echo "All health checks failed"
-                                                exit 1
-                                            """
-                                        )
-                                    ],
-                                    verbose: true  // SSH 상세 로그 활성화
+                                            echo "Health check failed, waiting 10 seconds before retry..."
+                                            sleep 10
+                                            attempt=\$((attempt + 1))
+                                        done
+
+                                        echo "All health checks failed"
+
+                                        echo "Rolling back to previous environment..."
+                                        docker-compose -p spring-wms-${deployEnv} -f docker-compose.${deployEnv}.yml down
+
+                                        if [ "${currentEnv}" != "none" ]; then
+                                            docker-compose -p spring-wms-${currentEnv} -f docker-compose.${currentEnv}.yml up -d
+                                            echo ${currentEnv} | sudo tee /etc/nginx/deployment_env
+                                            sudo sed -i "s/proxy_pass http:\\/\\/localhost:[0-9]*/proxy_pass http:\\/\\/localhost:${currentEnv == 'blue' ? '8011' : '8012'}/" /etc/nginx/conf.d/backend.conf
+                                            sudo systemctl reload nginx
+                                        fi
+
+                                        exit 1
+                                    """
                                 )
-                            ])
-                        }
-                    }
+                            ],
+                            verbose: true  // SSH 상세 로그 활성화
+                        )
+                    ])
                 }
+            }
+        }
     }
 //     post {
 //         success {
