@@ -16,6 +16,7 @@ RUN apt-get update && apt-get install -y \
     && apt-get update \
     && apt-get install -y docker-ce-cli docker-compose-plugin containerd.io \
     && apt-get clean \
+    && apt-get install redis-tools \
     && rm -rf /var/lib/apt/lists/*
 
 # Docker 소켓 마운트 설정
