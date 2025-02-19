@@ -9,9 +9,6 @@ services:
     environment:
       - TZ=Asia/Seoul
       - SPRING_PROFILES_ACTIVE=prod
-      - SPRING_DATA_REDIS_HOST=54.180.166.147
-      - SPRING_DATA_REDIS_PORT=6379
-      - SPRING_DATA_REDIS_PASSWORD=${REDIS_PASSWORD}
     networks:
       - servernetwork
     extra_hosts:

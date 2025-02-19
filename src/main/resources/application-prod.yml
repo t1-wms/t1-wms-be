@@ -35,9 +35,9 @@ spring:
 
   data:
     redis:
-      host: 54.180.166.147
+      host: redis.jx8td2.clustercfg.apn2.cache.amazonaws.com:6379
       port: 6379
-      password: ${secret.redis.password}
+      password:
     web:
       pageable:
         default-page-size: 10
