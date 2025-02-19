@@ -8,12 +8,14 @@ RUN apt-get update && apt-get install -y \
     gnupg \
     lsb-release \
     sudo \
+    iputils-ping \
+    net-tools \
+    dnsutils \
     && curl -fsSL https://download.docker.com/linux/debian/gpg | tee /etc/apt/trusted.gpg.d/docker.asc \
     && echo "deb [arch=amd64] https://download.docker.com/linux/debian $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list \
     && apt-get update \
     && apt-get install -y docker-ce-cli docker-compose-plugin containerd.io \
     && apt-get clean \
-    && apt-get install redis-tools \
     && rm -rf /var/lib/apt/lists/*
 
 # Docker 소켓 마운트 설정
