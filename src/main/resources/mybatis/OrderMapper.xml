@@ -23,7 +23,7 @@
     </select>
 
     <!-- 주문 하나 조회 -->
-    <select id="findById" parameterType="long" resultType="com.example.wms.order.application.domain.Order">
+    <select id="findOrderById" parameterType="long" resultType="com.example.wms.order.application.domain.Order">
         SELECT * FROM `order`
         WHERE order_id = #{orderId}
     </select>
@@ -44,8 +44,8 @@
     </select>
 
     <insert id="saveOrder" parameterType="com.example.wms.order.application.domain.Order">
-        INSERT INTO order (order_id, order_date, is_approved, is_delayed, product_id, quantity, customer_id)
-        VALUES (#{orderId}, #{orderDate}, #{isApproved}, #{isDelayed}, #{productId}, #{quantity}, #{customerId})
+        INSERT INTO order (order_id, order_date, is_approved, is_delayed, product_id, customer_id)
+        VALUES (#{orderId}, #{orderDate}, #{isApproved}, #{isDelayed}, #{productId}, #{customerId})
     </insert>
 
     <select id="getLastOrderNumber" resultType="String">
