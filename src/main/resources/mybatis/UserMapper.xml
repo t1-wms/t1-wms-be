@@ -17,7 +17,7 @@
         <result property="supplierId" column="supplier_id"/>
     </resultMap>
 
-    <!-- 회원가입 -->
+    <!-- 직원 등록 -->
     <insert id="save" useGeneratedKeys="true" keyProperty="userId">
         INSERT INTO users (staff_number, password, name, phone, gender, birth_date, supplier_id, user_role, address, is_active, created_at, updated_at)
         VALUES (#{user.staffNumber}, #{user.password}, #{user.name}, #{user.phone}, #{user.gender}, #{user.birthDate}, #{user.supplierId}, #{user.userRole}, #{user.address}, #{user.isActive}, NOW(), NOW());
