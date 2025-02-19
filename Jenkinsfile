@@ -169,6 +169,10 @@ pipeline {
 
                                             cd /home/ec2-user/backend
 
+                                            # 권한 변경 추가
+                                            sudo chmod 666 /home/ec2-user/backend/docker-compose.blue.yml
+                                            sudo chmod 666 /home/ec2-user/backend/docker-compose.green.yml
+
                                             # Docker Compose 파일 이미지 태그 업데이트
                                             sed -i 's/image: backend:.*/image: backend:${BUILD_NUMBER}/' docker-compose.${deployEnv}.yml
 
