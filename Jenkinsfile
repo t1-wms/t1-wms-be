@@ -153,7 +153,7 @@ pipeline {
 
                     echo "Deploying to environment: ${deployEnv}"
                     echo "Using port: ${port}"
-
+{
                     sshPublisher(publishers: [
                         sshPublisherDesc(
                             configName: 'BackendServer',
@@ -188,7 +188,7 @@ pipeline {
                                         sleep 10
 
                                         echo "Updating Nginx configuration..."
-                                        sudo bash -c 'echo "${deployEnv}" > /etc/nginx/deployment_env'
+                                        sudo bash -c 'echo "set \$deployment_env \"${deployEnv}\";" > /etc/nginx/deployment_env'
                                         sudo chmod 666 /etc/nginx/deployment_env
                                         sudo chown root:root /etc/nginx/deployment_env
 
