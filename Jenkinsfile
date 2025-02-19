@@ -131,86 +131,80 @@ pipeline {
         stage('Deploy to Backend Server') {
             steps {
                 script {
-                    withCredentials([
-                        string(credentialsId: 'redis-host', variable: 'REDIS_HOST'),
-                        string(credentialsId: 'redis-password', variable: 'REDIS_PASSWORD')
-                    ]) {
-                        def currentEnv = sh(
-                            script: """
-                                ssh -o StrictHostKeyChecking=no ec2-user@api.stockholmes.store '
-                                    if docker ps | grep -q "spring-wms-blue"; then
-                                        echo "blue"
-                                    elif docker ps | grep -q "spring-wms-green"; then
-                                        echo "green"
-                                    else
-                                        echo "none"
-                                    fi
-                                '
-                            """,
-                            returnStdout: true
-                        ).trim()
+                    def currentEnv = sh(
+                        script: """
+                            ssh -o StrictHostKeyChecking=no ec2-user@api.stockholmes.store '
+                                if docker ps | grep -q "spring-wms-blue"; then
+                                    echo "blue"
+                                elif docker ps | grep -q "spring-wms-green"; then
+                                    echo "green"
+                                else
+                                    echo "none"
+                                fi
+                            '
+                        """,
+                        returnStdout: true
+                    ).trim()
 
-                        echo "Current environment: ${currentEnv}"
-                        def deployEnv = currentEnv == 'blue' ? 'green' : 'blue'
-                        def port = deployEnv == 'blue' ? '8011' : '8012'
-                        def containerName = "spring-wms-${deployEnv}"
+                    echo "Current environment: ${currentEnv}"
+                    def deployEnv = currentEnv == 'blue' ? 'green' : 'blue'
+                    def port = deployEnv == 'blue' ? '8011' : '8012'
+                    def containerName = "spring-wms-${deployEnv}"
 
-                        echo "Deploying to environment: ${deployEnv}"
-                        echo "Using port: ${port}"
+                    echo "Deploying to environment: ${deployEnv}"
+                    echo "Using port: ${port}"
 
-                        sshPublisher(publishers: [
-                            sshPublisherDesc(
-                                configName: 'BackendServer',
-                                transfers: [
-                                    sshTransfer(
-                                        execCommand: """
-                                            set -e
-                                            set -x
+                    sshPublisher(publishers: [
+                        sshPublisherDesc(
+                            configName: 'BackendServer',
+                            transfers: [
+                                sshTransfer(
+                                    execCommand: """
+                                        set -e
+                                        set -x
 
-                                            cd /home/ec2-user/backend
+                                        echo "Starting deployment process..."
+                                        cd /home/ec2-user/backend
 
-                                                  # 파일 소유자 확인 및 권한 변경
-                                                  sudo chown ec2-user:ec2-user /home/ec2-user/backend/docker-compose.blue.yml
-                                                  sudo chown ec2-user:ec2-user /home/ec2-user/backend/docker-compose.green.yml
-                                                  sudo chmod 664 /home/ec2-user/backend/docker-compose.blue.yml
-                                                  sudo chmod 664 /home/ec2-user/backend/docker-compose.green.yml
+                                        echo "Loading Docker image directly..."
+                                        docker save ${DOCKER_TAG} | ssh ec2-user@api.stockholmes.store 'docker load'
 
-                                            # Docker Compose 파일 이미지 태그 업데이트
-                                            sed -i 's/image: backend:.*/image: backend:${BUILD_NUMBER}/' docker-compose.${deployEnv}.yml
+                                        echo "Cleaning up exited container for port ${port}..."
+                                        CONTAINER_ID=\$(docker ps -a | grep ${port} | grep 'Exited' | awk '{print \$1}')
+                                        if [ ! -z "\$CONTAINER_ID" ]; then
+                                            docker rm \$CONTAINER_ID
+                                        fi
 
-                                            # Redis 호스트 환경변수 업데이트
-                                            sed -i 's/SPRING_DATA_REDIS_HOST=.*/SPRING_DATA_REDIS_HOST=${REDIS_HOST}/' docker-compose.${deployEnv}.yml
+                                        echo "Setting BUILD_NUMBER environment variable..."
+                                        export BUILD_NUMBER=${BUILD_NUMBER}
 
-                                            # Docker Compose 파일 내용 확인
-                                            cat docker-compose.${deployEnv}.yml
+                                        echo "Stopping existing container if any..."
+                                        docker-compose -p spring-wms-${deployEnv} -f docker-compose.${deployEnv}.yml down || true
 
-                                            # 기존 컨테이너 중지
-                                            docker-compose -p spring-wms-${deployEnv} -f docker-compose.${deployEnv}.yml down || true
+                                        echo "Starting new container..."
+                                        docker-compose -p spring-wms-${deployEnv} -f docker-compose.${deployEnv}.yml up -d
 
-                                            # 새 컨테이너 시작
-                                            docker-compose -p spring-wms-${deployEnv} -f docker-compose.${deployEnv}.yml up -d
+                                        echo "Waiting for container to start..."
+                                        sleep 10
 
-                                            # 컨테이너 시작 대기
-                                            sleep 10
+                                        echo "Updating Nginx configuration..."
+                                        # 새로운 NGINX 설정 업데이트 방식
+                                        ssh ec2-user@ip-172-31-43-48 "sudo sed -i 's/set \\\$deployment_env \\\".*\\\";/set \\\$deployment_env \\\"${deployEnv}\\\";/' /etc/nginx/conf.d/backend.conf"
+                                        ssh ec2-user@ip-172-31-43-48 'echo "${deployEnv}" | sudo tee /etc/nginx/deployment_env'
 
-                                            # Nginx 설정 업데이트
-                                            ssh ec2-user@ip-172-31-43-48 "sudo sed -i 's/set \\\$deployment_env \".*\";/set \\\$deployment_env \"${deployEnv}\";/' /etc/nginx/conf.d/backend.conf"
-                                            ssh ec2-user@ip-172-31-43-48 'echo "${deployEnv}" | sudo tee /etc/nginx/deployment_env'
+                                        echo "Testing and reloading Nginx..."
+                                        sudo nginx -t && sudo systemctl reload nginx
 
-                                            # Nginx 리로드
-                                            sudo nginx -t && sudo systemctl reload nginx
-
-                                            # 이전 환경 컨테이너 중지
-                                            if [ "${currentEnv}" != "none" ]; then
-                                                docker-compose -p spring-wms-${currentEnv} -f docker-compose.${currentEnv}.yml down
-                                            fi
-                                        """
-                                    )
-                                ],
-                                verbose: true
-                            )
-                        ])
-                    }
+                                        if [ "${currentEnv}" != "none" ]; then
+                                            echo "Stopping old container: ${currentEnv}..."
+                                            docker-compose -p spring-wms-${currentEnv} -f docker-compose.${currentEnv}.yml down
+                                        fi
+                                    """
+                                )
+                            ],
+                            verbose: true
+                        )
+                    ])
                 }
             }
         }
