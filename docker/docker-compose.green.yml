@@ -1,3 +1,4 @@
+# docker-compose.green.yml
 version: '3'
 services:
   spring-wms-green:
@@ -13,7 +14,8 @@ services:
       - SPRING_DATA_REDIS_PASSWORD=${REDIS_PASSWORD}
     networks:
       - servernetwork
-
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 networks:
   servernetwork:
     external: true
