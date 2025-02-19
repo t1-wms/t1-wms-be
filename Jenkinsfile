@@ -188,20 +188,17 @@ pipeline {
                                         sleep 10
 
                                         echo "Updating Nginx configuration..."
-                                        sudo bash -c 'echo "${deployEnv}" > /etc/nginx/deployment_env'
-                                        sudo chmod 666 /etc/nginx/deployment_env
-                                        sudo chown root:root /etc/nginx/deployment_env
+                                        # 새로운 NGINX 설정 업데이트 방식
+                                        ssh ec2-user@ip-172-31-43-48 "sudo sed -i 's/set \\\$deployment_env \\\".*\\\";/set \\\$deployment_env \\\"${deployEnv}\\\";/' /etc/nginx/conf.d/backend.conf"
+                                        ssh ec2-user@ip-172-31-43-48 'echo "${deployEnv}" | sudo tee /etc/nginx/deployment_env'
 
-                                        sudo sed -i "s/proxy_pass http:\\/\\/localhost:[0-9]*/proxy_pass http:\\/\\/localhost:${port}/" /etc/nginx/conf.d/backend.conf
-
-                                        echo "Reloading Nginx..."
+                                        echo "Testing and reloading Nginx..."
                                         sudo nginx -t && sudo systemctl reload nginx
 
                                         if [ "${currentEnv}" != "none" ]; then
                                             echo "Stopping old container: ${currentEnv}..."
                                             docker-compose -p spring-wms-${currentEnv} -f docker-compose.${currentEnv}.yml down
                                         fi
-
                                     """
                                 )
                             ],
