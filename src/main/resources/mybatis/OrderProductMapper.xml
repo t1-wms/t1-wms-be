@@ -6,4 +6,9 @@
         FROM order_product
         WHERE product_id = #{productId}
     </select>
+
+    <update id="updateDefectiveCount">
+        UPDATE order_product
+        SET defectiveCount
+    </update>
 </mapper>

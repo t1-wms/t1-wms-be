@@ -25,4 +25,6 @@ public interface OrderProductMapper {
     void batchInsert(@Param("products") List<OrderProduct> orderProducts);
 
     OrderProduct findByProductId(@Param("productId") Long productId);
+
+    void updateDefectiveCount(@Param("productId") Long productId, Long defectiveCount);
 }

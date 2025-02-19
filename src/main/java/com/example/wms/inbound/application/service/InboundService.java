@@ -109,8 +109,8 @@ public class InboundService implements InboundUseCase {
     @Override
     public Page<InboundResDto> getFilteredInboundPlans(String inboundScheduleNumber, LocalDate startDate, LocalDate endDate, Pageable pageable) {
         Pageable safePageable = PageableUtils.convertToSafePageableStrict(pageable, Inbound.class);
-
         List<InboundAllProductDto> inboundAllProductDtoList = inboundRetrievalPort.findInboundFilteringWithPagination(inboundScheduleNumber, startDate, endDate, safePageable);
+
         Integer count = inboundRetrievalPort.countFilteredInboundPlan(inboundScheduleNumber, startDate, endDate);
 
         List<InboundResDto> inboundResDtoList = convertToInboundResDto(inboundAllProductDtoList);
@@ -197,7 +197,7 @@ public class InboundService implements InboundUseCase {
 
             OrderProduct orderProduct = orderProductPort.findByProductId(productId);
             orderProduct.setDefectiveCount(defectiveCount);
-
+            orderProductPort.updateDefectiveCount(productId, defectiveCount);
             // 재발주
             if (defectiveCount > 0) {
                 orderPort.createOrder(orderProduct.getProductId(), inboundId, defectiveCount);

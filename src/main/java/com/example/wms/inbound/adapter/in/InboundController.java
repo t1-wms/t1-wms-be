@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.RequiredArgsConstructor;
+import org.apache.ibatis.annotations.Param;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springdoc.core.converters.models.PageableAsQueryParam;
 import org.springframework.data.domain.Page;
@@ -43,13 +44,9 @@ public class InboundController {
     @Operation(summary = "입하 예정 조회하기" , description = "입하예정번호와 시작일, 종료일을 입력해 입하 예정 데이터를 검색 조건에 따라 조회합니다.")
     @PageableAsQueryParam
     public ResponseEntity<Page<InboundResDto>> getInboundPlans(
-            @Parameter(name ="inboundScheduleNumber", in = ParameterIn.QUERY, description = "입하 예정 번호")
+
             @RequestParam(value = "number", required = false) String inboundScheduleNumber,
-
-            @Parameter(name ="startDate", in = ParameterIn.QUERY, description = "시작 날짜")
             @RequestParam(value = "startDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-
-            @Parameter(name ="endDate", in = ParameterIn.QUERY, description = "종료 날짜")
             @RequestParam(value = "endDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
 
             @ParameterObject Pageable pageable)  // 자동으로 page, size, sort를 문서화

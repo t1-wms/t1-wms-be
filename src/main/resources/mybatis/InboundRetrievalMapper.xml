@@ -80,17 +80,16 @@
         <where>
             schedule_number IS NOT NULL
             AND check_number IS NULL
+            AND put_away_number IS NULL
             <if test="startDate != null">
+                AND
                 schedule_date <![CDATA[>=]]> #{startDate}
             </if>
 
             <if test="endDate != null">
-                <if test="startDate != null">
-                    AND
-                </if>
+                AND
                 schedule_date <![CDATA[<=]]> #{endDate}
             </if>
-
 
             <if test="inboundScheduleNumber != null and inboundScheduleNumber != ''">
                 AND schedule_number LIKE CONCAT('%', #{inboundScheduleNumber}, '%')
@@ -314,24 +313,21 @@
     <select id="countAllInboundPlanFiltering" resultType="int">
         SELECT COUNT(*)
         FROM inbound
-        WHERE schedule_number is not null AND check_number is null
         <where>
-            <if test="inboundScheduleNumber != null">
-                schedule_number = #{inboundScheduleNumber}
-            </if>
-
+            schedule_number is not null AND check_number is null
             <if test="startDate != null">
-                <if test="inboundScheduleNumber != null">
-                    AND
-                </if>
+                AND
                 schedule_date <![CDATA[>=]]> #{startDate}
             </if>
 
             <if test="endDate != null">
-                <if test="inboundScheduleNumber != null or startDate != null">
-                    AND
-                </if>
+                AND
                 schedule_date <![CDATA[<=]]> #{endDate}
+            </if>
+
+            <if test="inboundScheduleNumber != null and inboundScheduleNumber != ''">
+                AND
+                schedule_number LIKE CONCAT('%', #{inboundScheduleNumber}, '%')
             </if>
         </where>
     </select>
