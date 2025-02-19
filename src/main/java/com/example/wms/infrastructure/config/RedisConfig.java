@@ -4,12 +4,14 @@ import com.example.wms.user.application.domain.LogoutAccessToken;
 import com.example.wms.user.application.domain.RefreshToken;
 import com.example.wms.user.application.domain.UserInfo;
 import jakarta.annotation.PostConstruct;
-import org.springframework.core.env.Environment;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.SpringBootVersion;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -22,6 +24,7 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import java.time.Duration;
 
+@Slf4j
 @EnableCaching
 @Configuration
 @EnableRedisRepositories
@@ -41,14 +44,18 @@ public class RedisConfig {
 
     @PostConstruct
     public void init() {
-        System.out.println("Redis Host from env: " + env.getProperty("spring.data.redis.host"));
-        System.out.println("Redis Port from env: " + env.getProperty("spring.data.redis.port"));
+        log.info("=== Redis Configuration Initializing ===");
+        log.info("Spring Boot Version: {}", SpringBootVersion.getVersion());
+        log.info("Redis Host from @Value: {}", host);
+        log.info("Redis Host from Environment: {}", env.getProperty("spring.data.redis.host"));
+        log.info("Redis Port from @Value: {}", port);
     }
 
     @Bean
     public RedisConnectionFactory redisConnectionFactory() {
+        log.info("=== Creating Redis Connection Factory ===");
         RedisStandaloneConfiguration redisConfiguration = new RedisStandaloneConfiguration();
-        System.out.println("Redis Host: " + host);
+        log.info("Setting Redis host: {}", host);
         redisConfiguration.setHostName(host);
         redisConfiguration.setPort(port);
 
