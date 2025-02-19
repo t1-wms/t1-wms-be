@@ -206,6 +206,6 @@ CREATE TABLE IF NOT EXISTS inventory (
                             inventory_id BIGINT AUTO_INCREMENT PRIMARY KEY, -- 재고 고유 ID
                             product_id   BIGINT NOT NULL,                     -- 제품 ID
                             available_quantity INT NOT NULL,                  -- 사용 가능한 수량
-                            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                            last_updated DATE,
                             CONSTRAINT fk_product FOREIGN KEY (product_id) REFERENCES product(product_id)
 );
