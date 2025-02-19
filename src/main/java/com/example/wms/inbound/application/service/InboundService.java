@@ -16,6 +16,7 @@ import com.example.wms.order.application.port.out.OrderPort;
 import com.example.wms.order.application.port.out.OrderProductPort;
 import com.example.wms.product.adapter.in.dto.LotInfoDto;
 import com.example.wms.product.application.domain.Lot;
+import com.example.wms.product.application.domain.LotStatus;
 import com.example.wms.product.application.domain.Product;
 import com.example.wms.product.application.port.out.BinPort;
 import com.example.wms.product.application.port.out.LotPort;
@@ -333,7 +334,7 @@ public class InboundService implements InboundUseCase {
                         .productId(productId)
                         .binId(binId)
                         .lotNumber(locationBinCode)
-                        .status("입고완료")
+                        .status(LotStatus.입고)
                         .inboundId(inboundId)
                         .build();
                 lotPort.insertLot(lot);

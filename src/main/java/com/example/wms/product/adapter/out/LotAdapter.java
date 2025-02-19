@@ -13,8 +13,9 @@ public class LotAdapter implements LotPort {
     private final LotMapper lotMapper;
 
     @Override
-    public void updateStatus(Long lotId) {
-        lotMapper.updateStatus(lotId);
+    public void updateStatus(Long lotId, String status) {
+        status = "입고";
+        lotMapper.updateStatus(lotId, status);
     }
 
     @Override
