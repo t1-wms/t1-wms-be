@@ -195,7 +195,7 @@ pipeline {
                                             docker rm spring-wms-${currentEnv} || true
                                         fi
 
-                                        # 6. 헬스 체크 (재시도 로직 추가)
+                                        # 6. 헬스 체크
                                         for i in {1..6}; do
                                             if curl -f http://localhost:${port}/actuator/health; then
                                                 echo "Health check passed"
