@@ -29,6 +29,7 @@ repositories {
 }
 
 dependencies {
+    // Spring Boot
     implementation 'org.springframework.boot:spring-boot-starter-web:3.2.0'
     implementation 'org.springframework.boot:spring-boot-starter-jdbc:3.2.0'
     implementation 'org.springframework.boot:spring-boot-starter-validation:3.2.0'
@@ -42,13 +43,9 @@ dependencies {
     compileOnly 'org.projectlombok:lombok:1.18.24'
     annotationProcessor 'org.projectlombok:lombok:1.18.24'
 
-    // MyBatis Spring Boot Starter
+    // MyBatis
     implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.3'
-    implementation 'org.springframework.boot:spring-boot-starter-jdbc'
     implementation 'org.mybatis:mybatis:3.5.9'
-
-    // AWS S3
-    implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
 
     // Redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis:3.2.0'
@@ -65,17 +62,13 @@ dependencies {
     implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
 
-    // JSON
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.2'
-    implementation 'org.springframework.boot:spring-boot-starter-json:3.2.0'
-
     // WebSocket
     implementation 'org.springframework.boot:spring-boot-starter-websocket:3.2.0'
 
     // Selenium
     implementation 'org.seleniumhq.selenium:selenium-java:4.1.2'
 
-    // H2
+    // H2 Database (Runtime Only)
     runtimeOnly 'com.h2database:h2:2.1.212'
 }
 
@@ -89,18 +82,15 @@ tasks.named('test') {
 }
 
 test {
-    // finalizedBy : 이(test) 작업에 대해 주어진 종료자 작업을 추가
-    finalizedBy jacocoTestReport // test 작업이 끝나고 jacocoTestReport를 실행
+    finalizedBy jacocoTestReport
 }
 
 jacocoTestReport {
     dependsOn test
     reports {
-        html.required = true;
-        xml.required = false;
-        csv.required = false;
-        //html.outputLocation = layout.projectDirectory.dir("$buildDir/src/reports44/html-report")
-        //html.destination file('D://apache-tomcat-10.1.19//webapps//jacoco')
+        html.required = true
+        xml.required = false
+        csv.required = false
     }
 
     // 결과 리포트에서 제외할 클래스들
@@ -121,16 +111,14 @@ jacocoTestReport {
                             "**/*Request*",
                             "**/*Response*",
                             "**/*Entity*",
-                            "**/common",
-
+                            "**/common"
                     ] + Qdomains)
                 })
         )
     }
+
     finalizedBy 'jacocoTestCoverageVerification'
 }
-
-
 
 jacocoTestCoverageVerification {
     def Qdomains = []
