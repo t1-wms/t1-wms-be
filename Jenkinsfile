@@ -71,11 +71,6 @@ pipeline {
                             echo "Resource directory contents before:"
                             ls -la ./src/main/resources/
 
-                    echo "===== Checking application-prod.yml contents ====="
-                    cat ./src/main/resources/application-prod.yml | grep 'host' || echo "No host found"
-                    cat ./src/main/resources/application-prod.yml | grep 'redis' || echo "No redis settings found"
-
-
                             chmod -R 777 ./src/main/resources
                             cp \${SECRET_FILE} ./src/main/resources/application-secret.yml
 
