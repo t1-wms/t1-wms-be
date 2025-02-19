@@ -1,9 +1,7 @@
 version: '3'
 services:
   spring-wms-blue:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: backend:${BUILD_NUMBER}
     container_name: spring-wms-blue
     ports:
       - "8011:8080"
@@ -12,6 +10,17 @@ services:
       - SPRING_PROFILES_ACTIVE=prod
     networks:
       - servernetwork
+    depends_on:
+      - redis-container
+
+  redis-container:
+    image: redis:6
+    container_name: redis-container
+    ports:
+      - "6379:6379"
+    networks:
+      - servernetwork
+    restart: unless-stopped
 
 networks:
   servernetwork:

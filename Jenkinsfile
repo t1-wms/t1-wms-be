@@ -163,9 +163,6 @@ pipeline {
                                         # Docker 이미지 전송
                                         docker save ${DOCKER_TAG} | ssh ec2-user@api.stockholmes.store 'docker load'
 
-                                        # BUILD_NUMBER 환경변수 설정
-                                        export BUILD_NUMBER=${BUILD_NUMBER}
-
                                         # 1. 새 컨테이너 중지 및 삭제 (존재할 경우)
                                         docker-compose -p spring-wms-${deployEnv} -f docker-compose.${deployEnv}.yml down || true
 
