@@ -49,11 +49,6 @@ pipeline {
                     sh 'gradle --version'
                     echo "Listing project files"
                     sh 'ls -la'
-
-                                // 환경 변수 확인
-                                echo "===== Checking Jenkins Environment Variables ====="
-                                echo "Redis Host: ${env.redis-host}"
-                                echo "Redis Password: ${env.redis-password}"
                 }
             }
         }
