@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.Operation;
 
 import java.time.LocalDate;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -26,6 +28,7 @@ import java.time.LocalDate;
 public class InboundController {
 
     private final InboundUseCase inboundUseCase;
+
 
     @PostMapping
     @Operation(summary = "입하 예정 생성하기", description = "InboundReqDto를 입력하여 입고 예정을 생성합니다.")
@@ -63,5 +66,10 @@ public class InboundController {
 
         inboundUseCase.deleteInboundPlan(inboundId);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/test")
+    public void testQuery() {
+        inboundUseCase.testQuery();
     }
 }

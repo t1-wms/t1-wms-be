@@ -26,5 +26,5 @@ public interface OrderProductMapper {
 
     OrderProduct findByProductId(@Param("productId") Long productId);
 
-    void updateDefectiveCount(@Param("productId") Long productId, Long defectiveCount);
+    void updateDefectiveCount(@Param("productId") Long productId, @Param("defectiveCount") Long defectiveCount);
 }

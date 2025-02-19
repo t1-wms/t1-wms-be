@@ -9,6 +9,7 @@
 
     <update id="updateDefectiveCount">
         UPDATE order_product
-        SET defectiveCount
+        SET defective_count = #{defectiveCount}
+        WHERE product_id = #{productId}
     </update>
 </mapper>

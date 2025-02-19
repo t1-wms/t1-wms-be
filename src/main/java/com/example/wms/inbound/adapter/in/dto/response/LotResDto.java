@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class LotResDto {
+    private Long lotId;
     private Long productId;
     private String productCode;
     private String productName;

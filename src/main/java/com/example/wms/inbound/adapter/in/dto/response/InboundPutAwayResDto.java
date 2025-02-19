@@ -16,7 +16,7 @@ public class InboundPutAwayResDto {
     private String inboundStatus;
     private String createdAt;
     private String scheduleNumber;
-    private String checkNumber;
+    private String inboundCheckNumber;
     private String putAwayNumber;
     private String putAwayDate;
     private Long orderId;

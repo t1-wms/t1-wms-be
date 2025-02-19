@@ -2,6 +2,9 @@ package com.example.wms.inbound.adapter.out;
 
 import com.example.wms.inbound.adapter.in.dto.response.*;
 import com.example.wms.inbound.application.port.out.InboundRetrievalPort;
+import com.example.wms.infrastructure.mapper.InboundCheckMapper;
+import com.example.wms.infrastructure.mapper.InboundPlanMapper;
+import com.example.wms.infrastructure.mapper.InboundPutAwayMapper;
 import com.example.wms.infrastructure.mapper.InboundRetrievalMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -15,6 +18,9 @@ import java.util.List;
 public class InboundRetrievalAdapter implements InboundRetrievalPort {
 
     private final InboundRetrievalMapper inboundRetrievalMapper;
+    private final InboundCheckMapper inboundCheckMapper;
+    private final InboundPlanMapper inboundPlanMapper;
+    private final InboundPutAwayMapper inboundPutAwayMapper;
 
     @Override
     public List<InboundProductDto> findInboundProductListByOrderId(Long orderId) {
@@ -28,12 +34,12 @@ public class InboundRetrievalAdapter implements InboundRetrievalPort {
 
     @Override
     public List<InboundAllProductDto> findInboundFilteringWithPagination(String inboundScheduleNumber, LocalDate startDate, LocalDate endDate, Pageable pageable) {
-        return inboundRetrievalMapper.findInboundFilteringWithPagination(inboundScheduleNumber, startDate, endDate, pageable);
+        return inboundPlanMapper.findInboundPlanFilteringWithPagination(inboundScheduleNumber, startDate, endDate, pageable);
     }
 
     @Override
     public List<InboundAllProductDto> findInboundCheckFilteringWithPagination(String inboundCheckNumber, LocalDate startDate, LocalDate endDate, Pageable pageable) {
-        return inboundRetrievalMapper.findInboundCheckFilteringWithPagination(inboundCheckNumber, startDate, endDate, pageable);
+        return inboundCheckMapper.findInboundCheckFilteringWithPagination(inboundCheckNumber, startDate, endDate, pageable);
     }
 
     @Override
@@ -53,7 +59,7 @@ public class InboundRetrievalAdapter implements InboundRetrievalPort {
 
     @Override
     public List<InboundPutAwayResDto> findFilteredInboundPutAway(String inboundPutAwayNumber, LocalDate startDate, LocalDate endDate, Pageable pageable) {
-        return inboundRetrievalMapper.findInboundPutAwayFilteringWithPagination(inboundPutAwayNumber, startDate, endDate, pageable);
+        return inboundPutAwayMapper.findInboundPutAwayFilteringWithPagination(inboundPutAwayNumber, startDate, endDate, pageable);
     }
 
     @Override
