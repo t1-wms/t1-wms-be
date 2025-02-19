@@ -72,7 +72,7 @@ pipeline {
                             echo "Resource directory contents after:"
                             ls -la ./src/main/resources/
 
-                            # 파일 존재 확인 & 내용 체크
+                            # 파일 존재 확인 및 내용 체크
                             echo "===== Verifying secret file ====="
                             if [ -f ./src/main/resources/application-secret.yml ]; then
                                 echo "Secret file exists"
