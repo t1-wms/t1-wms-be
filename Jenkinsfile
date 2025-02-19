@@ -167,35 +167,35 @@ pipeline {
                                             set -e
                                             set -x
 
-                                            echo "Starting deployment process..."
                                             cd /home/ec2-user/backend
 
-                                            echo "Loading Docker image..."
-                                            docker save ${DOCKER_TAG} | ssh ec2-user@api.stockholmes.store 'docker load'
+                                            # Docker Compose 파일 이미지 태그 업데이트
+                                            sed -i 's/image: backend:.*/image: backend:${BUILD_NUMBER}/' docker-compose.${deployEnv}.yml
 
-                                            echo "Setting environment variables..."
-                                            export BUILD_NUMBER=${BUILD_NUMBER}
-                                            export REDIS_HOST=${REDIS_HOST}
-                                            export REDIS_PASSWORD=${REDIS_PASSWORD}
+                                            # Redis 호스트 환경변수 업데이트
+                                            sed -i 's/SPRING_DATA_REDIS_HOST=.*/SPRING_DATA_REDIS_HOST=${REDIS_HOST}/' docker-compose.${deployEnv}.yml
 
-                                            echo "Stopping existing container..."
+                                            # Docker Compose 파일 내용 확인
+                                            cat docker-compose.${deployEnv}.yml
+
+                                            # 기존 컨테이너 중지
                                             docker-compose -p spring-wms-${deployEnv} -f docker-compose.${deployEnv}.yml down || true
 
-                                            echo "Starting new container..."
+                                            # 새 컨테이너 시작
                                             docker-compose -p spring-wms-${deployEnv} -f docker-compose.${deployEnv}.yml up -d
 
-                                            echo "Waiting for container startup..."
+                                            # 컨테이너 시작 대기
                                             sleep 10
 
-                                            echo "Updating Nginx configuration..."
-                                            ssh ec2-user@ip-172-31-43-48 "sudo sed -i 's/set \\\$deployment_env \\\".*\\\";/set \\\$deployment_env \\\"${deployEnv}\\\";/' /etc/nginx/conf.d/backend.conf"
+                                            # Nginx 설정 업데이트
+                                            ssh ec2-user@ip-172-31-43-48 "sudo sed -i 's/set \\\$deployment_env \".*\";/set \\\$deployment_env \"${deployEnv}\";/' /etc/nginx/conf.d/backend.conf"
                                             ssh ec2-user@ip-172-31-43-48 'echo "${deployEnv}" | sudo tee /etc/nginx/deployment_env'
 
-                                            echo "Reloading Nginx..."
+                                            # Nginx 리로드
                                             sudo nginx -t && sudo systemctl reload nginx
 
+                                            # 이전 환경 컨테이너 중지
                                             if [ "${currentEnv}" != "none" ]; then
-                                                echo "Stopping old container..."
                                                 docker-compose -p spring-wms-${currentEnv} -f docker-compose.${currentEnv}.yml down
                                             fi
                                         """
