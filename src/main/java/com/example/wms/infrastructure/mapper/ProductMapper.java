@@ -24,4 +24,6 @@ public interface ProductMapper {
 
     Product findById(@Param("productId") Long productId);
     String getLocationBinCode(@Param("productId") Long productId);
+
+    Long getSupplierIdByProductId(Long productId);
 }

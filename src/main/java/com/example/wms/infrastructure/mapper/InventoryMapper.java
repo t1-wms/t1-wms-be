@@ -7,6 +7,7 @@ import com.example.wms.product.application.domain.Product;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.parameters.P;
 
 import java.util.List;
 
@@ -18,4 +19,6 @@ public interface InventoryMapper {
     void updateInventory(Long productId, Integer lotCount);
     Product findByProductId(Long productId);
     int updateThreshold(ThresholdUpdateRequestDto thresholdUpdateRequestDto);
+    Integer findAvailableQuantity(@Param("productId") Long productId);
+    void updateInventoryQuantity(@Param("productId") Long productId, @Param("availableQuantity") Integer availableQuantity);
 }
