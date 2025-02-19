@@ -25,7 +25,6 @@ spring:
     init:
       mode: always
       schema: classpath:schema.sql
-      data: classpath:data.sql
       encoding: UTF-8
 
 
