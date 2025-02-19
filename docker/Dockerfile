@@ -6,6 +6,7 @@ RUN apt-get update && apt-get install -y \
     ca-certificates \
     curl \
     gnupg \
+    lsb-release \
     sudo \
     iputils-ping \
     && curl -fsSL https://download.docker.com/linux/debian/gpg | tee /etc/apt/trusted.gpg.d/docker.asc \
@@ -14,7 +15,6 @@ RUN apt-get update && apt-get install -y \
     && apt-get install -y redis-tools docker-ce-cli docker-compose-plugin containerd.io \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
-
 # Docker 소켓 마운트 설정
 VOLUME /var/run/docker.sock
 
