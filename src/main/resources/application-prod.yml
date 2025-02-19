@@ -50,10 +50,12 @@ logging:
       hibernate.type.descriptor.sql.BasicBinder: TRACE
       spring.boot: DEBUG
       spring.security: DEBUG
+      springframework.data.redis: DEBUG
       spring.web: DEBUG
       apache.tiles: INFO
       spring.mail: DEBUG
     root: DEBUG
+    io.lettuce.core: DEBUG
 
 server:
   error:
