@@ -19,4 +19,9 @@ public class UpdateOrderAdapter implements UpdateOrderPort {
         orderMapper.deleteOrderProduct(orderId);
         orderMapper.upDateOrderProducts(orderId, productList);
     }
+
+    @Override
+    public void updateOrderApprove(Long orderId) {
+        orderMapper.upDateOrderApprove(orderId);
+    }
 }

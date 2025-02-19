@@ -42,9 +42,10 @@ public class CreateOutboundPlanProductService implements CreateOutboundPlanProdu
 
         List<OutboundPlanProduct> outboundPlanProductList = new ArrayList<>();
         List<OrderProduct> orderProductList = new ArrayList<>();
-        Order order = null;
 
         for (ProductInfoDto dto : productInfoDtoList) {
+            Order order = null;
+
             Long productId = dto.getProductId();
             Product product = productPort.findById(productId);
 
@@ -72,7 +73,7 @@ public class CreateOutboundPlanProductService implements CreateOutboundPlanProdu
             }
 
             // 발주 필요 시 Order 생성
-            if (orderQuantity > 0 && order == null) {
+            if (orderQuantity > 0) {
                 order = Order.builder()
                         .supplierId(product.getSupplierId())
                         .orderDate(LocalDate.now())
@@ -85,10 +86,7 @@ public class CreateOutboundPlanProductService implements CreateOutboundPlanProdu
                         .isReturnOrder(false)
                         .build();
                 registerOrderPort.saveOrder(order);
-            }
 
-            // Order가 생성된 경우에만 OrderProduct 추가
-            if (orderQuantity > 0 && order != null) {
                 orderProductList.add(OrderProduct.builder()
                         .orderId(order.getOrderId())
                         .productId(productId)
