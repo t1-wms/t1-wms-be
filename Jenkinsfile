@@ -170,6 +170,12 @@ pipeline {
                                         echo "Loading Docker image directly..."
                                         docker save ${DOCKER_TAG} | ssh ec2-user@api.stockholmes.store 'docker load'
 
+                                        echo "Cleaning up exited container for port ${port}..."
+                                        CONTAINER_ID=\$(docker ps -a | grep ${port} | grep 'Exited' | awk '{print \$1}')
+                                        if [ ! -z "\$CONTAINER_ID" ]; then
+                                            docker rm \$CONTAINER_ID
+                                        fi
+
                                         echo "Setting BUILD_NUMBER environment variable..."
                                         export BUILD_NUMBER=${BUILD_NUMBER}
 
