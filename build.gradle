@@ -50,8 +50,6 @@ dependencies {
     // Redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis:3.2.0'
 
-    implementation 'io.netty:netty-transport-native-unix-common:4.1.73.Final'
-
     // Swagger
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0'
 

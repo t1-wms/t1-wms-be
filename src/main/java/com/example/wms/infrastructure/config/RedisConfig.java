@@ -3,6 +3,9 @@ package com.example.wms.infrastructure.config;
 import com.example.wms.user.application.domain.LogoutAccessToken;
 import com.example.wms.user.application.domain.RefreshToken;
 import com.example.wms.user.application.domain.UserInfo;
+import jakarta.annotation.PostConstruct;
+import org.springframework.core.env.Environment;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
@@ -33,9 +36,19 @@ public class RedisConfig {
     @Value("${spring.data.redis.password}")
     private String password;
 
+    @Autowired
+    private Environment env;
+
+    @PostConstruct
+    public void init() {
+        System.out.println("Redis Host from env: " + env.getProperty("spring.data.redis.host"));
+        System.out.println("Redis Port from env: " + env.getProperty("spring.data.redis.port"));
+    }
+
     @Bean
     public RedisConnectionFactory redisConnectionFactory() {
         RedisStandaloneConfiguration redisConfiguration = new RedisStandaloneConfiguration();
+        System.out.println("Redis Host: " + host);
         redisConfiguration.setHostName(host);
         redisConfiguration.setPort(port);
 
