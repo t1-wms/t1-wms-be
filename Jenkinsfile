@@ -129,9 +129,11 @@ pipeline {
                 }
             }
         }
+
         stage('Deploy to Backend Server') {
             steps {
                 script {
+                    // 현재 실행 중인 환경 확인
                     def currentEnv = sh(
                         script: """
                             ssh -o StrictHostKeyChecking=no ec2-user@api.stockholmes.store '
@@ -157,16 +159,27 @@ pipeline {
                             transfers: [
                                 sshTransfer(
                                     execCommand: """
+                                        # 로그 디렉토리 권한 설정
+                                        sudo chown -R jenkins:jenkins /home/ec2-user/backend/logs
+                                        sudo chmod -R 755 /home/ec2-user/backend/logs
+
+                                        # Redis 비밀번호 설정 (환경변수에서 가져오기)
+                                        export REDIS_PASSWORD=\${REDIS_PASSWORD}
+
                                         # 1. 새 컨테이너 중지 및 삭제 (존재할 경우)
                                         docker stop ${containerName} || true
                                         docker rm ${containerName} || true
 
                                         # 2. 새 컨테이너 실행
-                                        docker run -d \
-                                            --name ${containerName} \
-                                            --network servernetwork \
-                                            -p ${port}:8080 \
-                                            -v /home/ec2-user/backend/logs:/logs \
+                                        docker run -d \\
+                                            --name ${containerName} \\
+                                            --network servernetwork \\
+                                            -p ${port}:8080 \\
+                                            -v /home/ec2-user/backend/logs:/logs \\
+                                            -e SPRING_PROFILES_ACTIVE=prod \\
+                                            -e SPRING_DATA_REDIS_HOST=redis-container \\
+                                            -e SPRING_DATA_REDIS_PORT=6379 \\
+                                            -e REDIS_PASSWORD=\${REDIS_PASSWORD} \\
                                             backend:${BUILD_NUMBER}
 
                                         # 3. Nginx 설정 업데이트
@@ -174,7 +187,7 @@ pipeline {
                                         sudo sed -i "s/proxy_pass http:\\/\\/localhost:[0-9]*/proxy_pass http:\\/\\/localhost:${port}/" /etc/nginx/conf.d/backend.conf
 
                                         # 4. Nginx 재로드
-                                        sudo systemctl reload nginx
+                                        sudo nginx -t && sudo systemctl reload nginx
 
                                         # 5. 이전 환경 컨테이너 정리
                                         if [ "${currentEnv}" != "none" ]; then
@@ -182,9 +195,17 @@ pipeline {
                                             docker rm spring-wms-${currentEnv} || true
                                         fi
 
-                                        # 6. 헬스 체크
-                                        sleep 10
-                                        curl -f http://localhost:${port}/actuator/health || exit 1
+                                        # 6. 헬스 체크 (재시도 로직 추가)
+                                        for i in {1..6}; do
+                                            if curl -f http://localhost:${port}/actuator/health; then
+                                                echo "Health check passed"
+                                                exit 0
+                                            fi
+                                            echo "Health check failed, retrying in 10 seconds..."
+                                            sleep 10
+                                        done
+                                        echo "Health check failed after all retries"
+                                        exit 1
                                     """
                                 )
                             ]
@@ -194,7 +215,6 @@ pipeline {
             }
         }
     }
-
 //     post {
 //         success {
 //             slackSend (
