@@ -8,15 +8,15 @@ services:
     environment:
       - TZ=Asia/Seoul
       - SPRING_PROFILES_ACTIVE=prod
-      - SPRING_DATA_REDIS_HOST= 172.19.0.3
+      - SPRING_DATA_REDIS_HOST=54.180.166.147
       - SPRING_DATA_REDIS_PORT=6379
       - SPRING_DATA_REDIS_PASSWORD=${REDIS_PASSWORD}
     networks:
       - servernetwork
     extra_hosts:
       - "host.docker.internal:host-gateway"
-      - "redis:172.19.0.3"
-
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
 networks:
   servernetwork:
     driver: bridge
