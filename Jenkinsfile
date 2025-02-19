@@ -134,9 +134,7 @@ pipeline {
                 script {
                     def currentEnv = sh(
                         script: """
-                            set -x  # 디버깅을 위한 명령어 출력
                             ssh -o StrictHostKeyChecking=no ec2-user@api.stockholmes.store '
-                                echo "Checking current deployment environment..."
                                 if docker ps | grep -q "spring-wms-blue"; then
                                     echo "blue"
                                 elif docker ps | grep -q "spring-wms-green"; then
@@ -163,16 +161,14 @@ pipeline {
                             transfers: [
                                 sshTransfer(
                                     execCommand: """
-                                        set -e  # 에러 발생 시 즉시 중단
-                                        set -x  # 디버깅을 위한 명령어 출력
+                                        set -e
+                                        set -x
 
                                         echo "Starting deployment process..."
                                         cd /home/ec2-user/backend
 
-                                        echo "Saving and transferring Docker image..."
-                                        docker save ${DOCKER_TAG} > /tmp/image.tar
-                                        docker load < /tmp/image.tar
-                                        rm /tmp/image.tar
+                                        echo "Loading Docker image directly..."
+                                        docker save ${DOCKER_TAG} | ssh ec2-user@api.stockholmes.store 'docker load'
 
                                         echo "Setting BUILD_NUMBER environment variable..."
                                         export BUILD_NUMBER=${BUILD_NUMBER}
@@ -187,7 +183,7 @@ pipeline {
                                         sleep 10
 
                                         echo "Updating Nginx configuration..."
-                                        echo ${deployEnv} | sudo tee /etc/nginx/deployment_env
+                                        echo "${deployEnv}" | sudo tee /etc/nginx/deployment_env
                                         sudo sed -i "s/proxy_pass http:\\/\\/localhost:[0-9]*/proxy_pass http:\\/\\/localhost:${port}/" /etc/nginx/conf.d/backend.conf
 
                                         echo "Reloading Nginx..."
@@ -197,7 +193,7 @@ pipeline {
                                         attempt=1
                                         max_attempts=6
 
-                                        until [ "\$attempt" -gt "\$max_attempts" ]
+                                        while [ "\$attempt" -le "\$max_attempts" ]
                                         do
                                             echo "Health check attempt \$attempt of \$max_attempts"
                                             if curl -sf http://localhost:${port}/actuator/health > /dev/null; then
@@ -223,7 +219,7 @@ pipeline {
 
                                         if [ "${currentEnv}" != "none" ]; then
                                             docker-compose -p spring-wms-${currentEnv} -f docker-compose.${currentEnv}.yml up -d
-                                            echo ${currentEnv} | sudo tee /etc/nginx/deployment_env
+                                            echo "${currentEnv}" | sudo tee /etc/nginx/deployment_env
                                             sudo sed -i "s/proxy_pass http:\\/\\/localhost:[0-9]*/proxy_pass http:\\/\\/localhost:${currentEnv == 'blue' ? '8011' : '8012'}/" /etc/nginx/conf.d/backend.conf
                                             sudo systemctl reload nginx
                                         fi
@@ -232,7 +228,7 @@ pipeline {
                                     """
                                 )
                             ],
-                            verbose: true  // SSH 상세 로그 활성화
+                            verbose: true
                         )
                     ])
                 }
