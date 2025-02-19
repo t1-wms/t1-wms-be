@@ -63,8 +63,6 @@
             i.created_at,
             i.schedule_number,
             i.schedule_date,
-            i.check_date,
-            i.check_number,
             i.order_id,
             o.order_number,
             o.order_date,
@@ -74,7 +72,7 @@
             p.product_code,
             p.product_name,
             (p.stock_lot_count * p.lot_unit) AS product_count,
-            (p.stock_lot_count * p.lot_unit) AS lot_count,
+            p.stock_lot_count  AS lot_count,
             COALESCE(SUM(op.defective_count), 0) AS defective_count
         FROM inbound i
         JOIN `order` o ON i.order_id = o.order_id
@@ -82,6 +80,8 @@
         JOIN order_product op ON o.order_id = op.order_id
         JOIN product p ON op.product_id = p.product_id
         <where>
+            schedule_number IS NOT NULL
+            AND check_number IS NULL
             <if test="startDate != null">
                 schedule_date <![CDATA[>=]]> #{startDate}
             </if>
@@ -93,14 +93,14 @@
                 schedule_date <![CDATA[<=]]> #{endDate}
             </if>
 
+
             <if test="inboundScheduleNumber != null and inboundScheduleNumber != ''">
-                <if test="startDate != null or endDate != null">
-                    AND
-                </if>
-                schedule_number LIKE CONCAT('%', #{inboundScheduleNumber}, '%')
+                AND schedule_number LIKE CONCAT('%', #{inboundScheduleNumber}, '%')
             </if>
         </where>
-        GROUP BY i.inbound_id, p.product_id
+        GROUP BY i.inbound_id, i.inbound_status, i.created_at, i.schedule_number, i.schedule_date,
+        i.order_id, o.order_number, o.order_date, o.supplier_id, s.supplier_name,
+        p.product_id, p.product_code, p.product_name, p.stock_lot_count, p.lot_unit
 
         <if test="pageable.sort.sorted">
             <trim prefix="ORDER BY">
@@ -126,6 +126,7 @@
             i.schedule_date,
             i.check_number,
             i.check_date,
+            i.put_away_number,
             i.order_id,
             o.order_number,
             o.order_date,
@@ -142,26 +143,25 @@
         JOIN supplier s ON o.supplier_id = s.supplier_id
         JOIN order_product op ON o.order_id = op.order_id
         JOIN product p ON op.product_id = p.product_id
-
         <where>
+            check_number IS NOT NULL
+            AND put_away_number IS NULL
             <if test="startDate != null">
                 schedule_date <![CDATA[>=]]> #{startDate}
             </if>
-
             <if test="endDate != null">
-                <if test="startDate != null">
-                    AND
-                </if>
-                schedule_date <![CDATA[<=]]> #{endDate}
+                AND schedule_date <![CDATA[<=]]> #{endDate}
             </if>
 
             <if test="inboundCheckNumber != null and inboundCheckNumber != ''">
-                <if test="startDate != null or endDate != null">
-                    AND
-                </if>
-                check_number LIKE CONCAT('%', #{inboundCheckNumber}, '%')
+                AND check_number LIKE CONCAT('%', #{checkNumber}, '%')
             </if>
         </where>
+        GROUP BY i.inbound_id, i.inbound_status, i.created_at, i.schedule_number, i.schedule_date,
+        i.check_number, i.check_date, i.put_away_number, i.order_id,
+        o.order_number, o.order_date, o.supplier_id, s.supplier_name,
+        p.product_id, p.product_code, p.product_name,
+        p.stock_lot_count, p.lot_unit, op.defective_count
 
         <if test="pageable.sort.sorted">
             <trim prefix="ORDER BY">
@@ -202,30 +202,23 @@
         JOIN supplier s ON o.supplier_id = s.supplier_id
         JOIN order_product op1 ON o.order_id = op1.order_id
         JOIN product p ON p.product_id = op1.product_id
-        AND op1.product_id = p.product_id
         <where>
+            put_away_number IS NOT NULL
             <if test="startDate != null">
                 put_away_date <![CDATA[>=]]> #{startDate}
             </if>
-
             <if test="endDate != null">
-                <if test="startDate != null">
-                    AND
-                </if>
-                put_away_date <![CDATA[<=]]> #{endDate}
+                AND put_away_date <![CDATA[<=]]> #{endDate}
             </if>
 
             <if test="inboundPutAwayNumber != null and inboundPutAwayNumber != ''">
-                <if test="startDate != null or endDate != null">
-                    AND
-                </if>
-                put_away_number LIKE CONCAT('%', #{inboundPutAwayNumber}, '%')
+               AND put_away_number LIKE CONCAT('%', #{inboundPutAwayNumber}, '%')
             </if>
         </where>
         GROUP BY
         i.inbound_id, i.inbound_status, i.created_at, i.schedule_number,
-        i.check_number, i.order_id, o.order_number,
-        o.order_date, o.supplier_id, s.supplier_name,
+        i.check_number, i.put_away_number, i.order_id,
+        o.order_number, o.order_date, o.supplier_id, s.supplier_name,
         p.product_id, p.product_code, p.product_name, p.stock_lot_count, p.lot_unit
 
         <if test="pageable.sort.sorted">
@@ -554,7 +547,7 @@
             <result column="product_code" property="productCode"/>
             <result column="product_name" property="productName"/>
             <result column="product_count" property="productCount"/>
-            <result column="bin_code" property="binCode"/>
+            <result column="location_bin_code" property="locationBinCode"/>
         </collection>
     </resultMap>
 

@@ -18,6 +18,8 @@ import com.example.wms.product.adapter.in.dto.LotInfoDto;
 import com.example.wms.product.application.domain.Lot;
 import com.example.wms.product.application.domain.LotStatus;
 import com.example.wms.product.application.domain.Product;
+import com.example.wms.product.application.port.in.BinUseCase;
+import com.example.wms.product.application.port.in.ProductUseCase;
 import com.example.wms.product.application.port.out.BinPort;
 import com.example.wms.product.application.port.out.LotPort;
 import com.example.wms.product.application.port.out.ProductPort;
@@ -25,6 +27,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,6 +35,7 @@ import java.time.LocalDate;
 import java.util.*;
 
 @Service
+
 @RequiredArgsConstructor
 public class InboundService implements InboundUseCase {
 
@@ -44,6 +48,14 @@ public class InboundService implements InboundUseCase {
     private final BinPort binPort;
     private final OrderProductPort orderProductPort;
     private final InventoryPort inventoryPort;
+    private final ProductUseCase productUseCase;
+    private final BinUseCase binUseCase;
+
+    @Scheduled(cron = "0 0/1 * * * ?") // 1분마다 실행
+    public void schedule(){
+        productUseCase.performABCAnalysis();
+        productUseCase.assignLocationBinCode();
+    }
 
 
     @Transactional
@@ -52,6 +64,7 @@ public class InboundService implements InboundUseCase {
 
         Inbound inboundPlan = Inbound.builder()
                 .scheduleNumber(makeNumber("IS"))
+                .inboundStatus("입하예정")
                 .scheduleDate(inboundReqDto.getScheduleDate())
                 .orderId(inboundReqDto.getOrderId())
                 .supplierId(inboundReqDto.getSupplierId())
@@ -171,11 +184,6 @@ public class InboundService implements InboundUseCase {
             throw new NotFoundException("inbound not found with id " + inboundId);
         }
 
-        // 해당 inbound 에 입하검사 관련 정보 업데이트
-        inbound.setInboundStatus("입하검사");
-        inbound.setCheckDate(LocalDate.now());
-        inbound.setCheckNumber(makeNumber("IC"));
-
         for (InboundCheckedProductReqDto checkedProduct : inboundCheckReqDto.getCheckedProductList()) {
 
             Long productId = checkedProduct.getProductId();
@@ -196,12 +204,11 @@ public class InboundService implements InboundUseCase {
             }
         }
 
-        // 해당 inbound 에 입하 검사 업데이트 완료
-        inboundPort.updateIC(inbound.getInboundId(), inbound.getCheckDate(), inbound.getScheduleNumber());
+        inboundPort.updateIC(inbound.getInboundId(), LocalDate.now(), makeNumber("IC"), "입하검사");
     }
 
     @Override
-    public Page<InboundResDto> getFilteredInboundCheck(String inboundCheckNumber, LocalDate startDate, LocalDate endDate, Pageable pageable) {
+    public Page<InboundAllProductDto> getFilteredInboundCheck(String inboundCheckNumber, LocalDate startDate, LocalDate endDate, Pageable pageable) {
 
         Pageable safePageable = PageableUtils.convertToSafePageableStrict(pageable, Inbound.class);
 
@@ -209,9 +216,9 @@ public class InboundService implements InboundUseCase {
 
         Integer count = inboundRetrievalPort.countFilteredInboundCheck(inboundCheckNumber, startDate, endDate);
 
-        List<InboundResDto> inboundResDtoList = convertToInboundResDto(inboundAllProductDtoList);
+//        List<InboundResDto> inboundResDtoList = convertToInboundResDto(inboundAllProductDtoList);
 
-        return new PageImpl<>(inboundResDtoList, pageable, count);
+        return new PageImpl<>(inboundAllProductDtoList, pageable, count);
     }
 
     @Transactional
@@ -226,7 +233,7 @@ public class InboundService implements InboundUseCase {
 
         inbound.setCheckDate(LocalDate.now());
         inbound.setCheckNumber(makeNumber("IC"));
-        inboundPort.updateIC(inbound.getInboundId(), inbound.getCheckDate(), inbound.getCheckNumber()); // 관련 inbound 테이블에 업데이트
+        inboundPort.updateIC(inbound.getInboundId(), inbound.getCheckDate(), makeNumber("IC"), "입하검사"); // 관련 inbound 테이블에 업데이트
 
         for (InboundCheckedProductReqDto checkedProduct : updateReqDto.getCheckedProductList()) { // 품목별 defectiveCount
             OrderProduct orderProduct = orderProductPort.findByProductId(checkedProduct.getProductId());
@@ -276,11 +283,7 @@ public class InboundService implements InboundUseCase {
             throw new NotFoundException("not found with id " + inboundId);
         }
 
-        inbound.setCheckNumber(null);
-        inbound.setCheckDate(null);
-        inbound.setInboundStatus("입하예정");
-
-        inboundPort.updateIC(inboundId, null, null);
+        inboundPort.updateIC(inboundId, null, null, "입하예정");
     }
 
     @Transactional
@@ -309,12 +312,41 @@ public class InboundService implements InboundUseCase {
         return new InboundWorkerCheckResDto(checkNumber, lots);
     }
 
+    private Long findExactBinId(String locationBinCode) {
+        if (locationBinCode.matches("[A-F]-\\d{2}-\\d{2}-\\d{2}")) {
+            return binPort.findBinIdByBinCode(locationBinCode);
+        }
+
+        String[] parts = locationBinCode.split("-");
+        String zone = parts[0];
+
+        if (parts.length == 3) {
+            Integer aisle = Integer.parseInt(parts[1]);
+            Integer row = Integer.parseInt(parts[2]);
+            return binPort.findAvailableBinIdInRow(zone, aisle, row);
+        }
+
+        if (parts.length == 2) {
+            Integer aisle = Integer.parseInt(parts[1]);
+            return binPort.findAvailableBinIdInAisle(zone, aisle);
+        }
+
+        return binPort.findAvailableBinIdInZone(zone);
+
+    }
+
     @Override
     public void putAway(Long inboundId, List<InboundPutAwayReqDto> putAwayRequests) {
+
         String putAwayNumber = makeNumber("PA");
         LocalDate putAwayDate = LocalDate.now();
+        String inboundStatus = "입고적치";
+        inboundPort.updatePA(inboundId, putAwayDate, putAwayNumber, inboundStatus);
+        Inbound inbound = inboundPort.findById(inboundId);
 
-        inboundPort.updatePA(inboundId, putAwayDate, putAwayNumber);
+        if (inbound == null) {
+            throw new NotFoundException("Inbound not found with id " + inboundId);
+        }
 
         for (InboundPutAwayReqDto request : putAwayRequests) {
             Long productId = request.getProductId();
@@ -323,49 +355,41 @@ public class InboundService implements InboundUseCase {
             Integer lotUnit = product.getLotUnit();
             String locationBinCode = productPort.getLocationBinCode(productId);
 
-            Long binId = findExactBinId(locationBinCode);
+//            Long binId = findExactBinId(locationBinCode);
+            List<Long> binIds = binUseCase.assignBinIdsToLots(locationBinCode, lotCount);
 
-            if (binId == null) {
-                throw new NotFoundException("해당 품목을 적치할 bin이 없습니다. " + locationBinCode);
+            if (binIds.size() < lotCount) {
+                throw new NotFoundException("할당할 bin이 부족합니다." + locationBinCode);
             }
 
             for(int i=0; i<lotCount; i++) {
+                String lotBinCode = generateFullLotBinCode(locationBinCode, i);
                 Lot lot = Lot.builder()
                         .productId(productId)
-                        .binId(binId)
-                        .lotNumber(locationBinCode)
+                        .binId(binIds.get(i))
+                        .lotNumber(lotBinCode)
                         .status(LotStatus.입고)
                         .inboundId(inboundId)
                         .build();
                 lotPort.insertLot(lot);
             }
 
-            binPort.incrementBinAmount(binId, lotCount);
+            for (Long binId : binIds) {
+                binPort.incrementBinAmount(binId, lotCount);
+            }
+
             Integer totalCount = lotCount * lotUnit;
             inventoryPort.updateInventory(productId, totalCount);
+            productPort.updateRequiredQuantity(productId, lotCount);
+            // product 수량도 업데이트
         }
     }
 
-    private Long findExactBinId(String locationBinCode) {
-        if (locationBinCode.matches("[A-F]-\\d{2}-\\d{2}-\\d{2}")) {
-            return binPort.findBinIdByBinCode(locationBinCode);
+    private String generateFullLotBinCode(String locationBinCode, int index) {
+        if (!locationBinCode.matches("[A-F]-\\d{2}-\\d{2}-\\d{2}")) {
+            return locationBinCode + "-" + String.format("%02d", index + 1);
         }
-
-        if (locationBinCode.matches("[A-F]-\\d{2}-\\d{2}")) {
-            String[] parts = locationBinCode.split("-");
-            String zone = parts[0];
-            Integer aisle = Integer.parseInt(parts[1]);
-            Integer row = Integer.parseInt(parts[2]);
-            return binPort.findAvailableBinIdInRow(zone, aisle, row);
-        }
-
-        if (locationBinCode.matches("[A-F]-\\d{2}")) {
-            String[] parts = locationBinCode.split("-");
-            String zone = parts[0];
-            Integer aisle = Integer.parseInt(parts[1]);
-            return binPort.findAvailableBinIdInAisle(zone, aisle);
-        }
-        return null;
+        return locationBinCode;
     }
 
     @Override

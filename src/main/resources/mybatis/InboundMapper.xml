@@ -3,6 +3,7 @@
 <mapper namespace="com.example.wms.infrastructure.mapper.InboundMapper">
     <resultMap id="inboundResultMap" type="com.example.wms.inbound.application.domain.Inbound">
         <id property="inboundId" column="inbound_id"/>
+        <result property="inboundStatus" column="inbound_status"/>
         <result property="scheduleNumber" column="schedule_number"/>
         <result property="scheduleDate" column="schedule_date"/>
         <result property="checkNumber" column="check_number"/>
@@ -15,9 +16,9 @@
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="inboundId">
         INSERT INTO inbound
-        ( schedule_number, schedule_date, check_number, check_date, put_away_number, put_away_date, order_id, supplier_id)
+        ( inbound_status, schedule_number, schedule_date, check_number, check_date, put_away_number, put_away_date, order_id, supplier_id)
         VALUES
-        (#{scheduleNumber}, #{scheduleDate}, #{checkNumber}, #{checkDate}, #{putAwayNumber}, #{putAwayDate}, #{orderId}, #{supplierId})
+        (#{inboundStatus}, #{scheduleNumber}, #{scheduleDate}, #{checkNumber}, #{checkDate}, #{putAwayNumber}, #{putAwayDate}, #{orderId}, #{supplierId})
     </insert>
 
     <delete id="delete" parameterType="java.lang.Long">
@@ -28,7 +29,8 @@
     <update id="updateIC">
         UPDATE inbound
         SET check_number = #{checkNumber},
-            check_date = #{checkDate}
+            check_date = #{checkDate},
+            inbound_status = #{inboundStatus}
         WHERE inbound_id = #{inboundId}
     </update>
 
@@ -36,7 +38,8 @@
     <update id="updatePA">
         UPDATE inbound
         SET put_away_number = #{putAwayNumber},
-            put_away_date = #{putAwayDate}
+            put_away_date = #{putAwayDate},
+            inbound_status = #{inboundStatus}
         WHERE inbound_id = #{inboundId}
     </update>
 
@@ -50,7 +53,7 @@
         UPDATE inbound
         SET check_number = #{checkNumber},
             check_date = DATE(NOW()),
-            inbound_status = "입하검사완료"
+            inbound_status = "입하검사"
         WHERE schedule_number = #{scheduleNumber}
     </update>
 
@@ -87,6 +90,7 @@
     <select id="findById" parameterType="long" resultType="Inbound">
         SELECT * FROM inbound WHERE inbound_id = #{inboundId}
     </select>
+
     <resultMap id="LotInfoResultMap" type="com.example.wms.product.adapter.in.dto.LotInfoDto">
         <id property="productId" column="product_id" />
         <result property="lotCount" column="lotCount" />

@@ -108,7 +108,7 @@ public class InboundCheckCreateTest {
         inboundService.createInboundCheck(1L, inboundCheckReqDto);
 
         // then
-        verify(inboundPort, times(1)).updateIC(eq(1L), any(LocalDate.class), any(String.class));
+        verify(inboundPort, times(1)).updateIC(eq(1L), any(LocalDate.class), any(String.class), any(String.class));
 
 
     }

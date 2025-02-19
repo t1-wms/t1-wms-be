@@ -1,6 +1,8 @@
 package com.example.wms.product.application.service;
 
 import com.example.wms.infrastructure.pagination.util.PageableUtils;
+import com.example.wms.outbound.adapter.in.dto.ABCAnalysisDataDto;
+import com.example.wms.outbound.application.port.out.OutboundPlanProductPort;
 import com.example.wms.product.adapter.in.dto.ProductOverviewDto;
 import com.example.wms.product.adapter.in.dto.ProductResponseDto;
 import com.example.wms.product.application.domain.Product;
@@ -10,6 +12,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,49 +21,52 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@EnableScheduling
 @RequiredArgsConstructor
 public class ProductService implements ProductUseCase {
 
     private final ProductPort productPort;
 
+    private final OutboundPlanProductPort outboundPlanProductPort;
+
+
     @Override
     public void performABCAnalysis() {
 
-        List<Product> products = productPort.getAllProducts();
+        List<ABCAnalysisDataDto> products = outboundPlanProductPort.getRequiredQuantitiesPerProduct();
 
         if (products.isEmpty()) {
             return;
         }
 
-        List<Product> sortedProducts = products.stream()
-                .sorted((p1,p2)->Double.compare(
-                        p2.getSalePrice() * p2.getStockLotCount(),
-                        p1.getSalePrice() * p1.getStockLotCount()))
+        List<ABCAnalysisDataDto> sortedData = products.stream()
+                .sorted((d1, d2) -> Integer.compare(d2.getTotalRequiredQuantity(), d1.getTotalRequiredQuantity()))
                 .collect(Collectors.toList());
 
-        double totalRevenue = sortedProducts.stream()
-                .mapToDouble(p->p.getSalePrice() * p.getStockLotCount())
+
+        int totalRequiredQuantity = sortedData.stream()
+                .mapToInt(ABCAnalysisDataDto::getTotalRequiredQuantity)
                 .sum();
 
-        double cumulativeRevenue = 0;
+        int cumulativeQuantity = 0;
 
-        for (Product product : sortedProducts) {
-            double revenue = product.getSalePrice() * product.getStockLotCount();
-            cumulativeRevenue += revenue;
+        for (ABCAnalysisDataDto data : sortedData) {
+            cumulativeQuantity += data.getTotalRequiredQuantity();
+            double percentage = ((double) cumulativeQuantity / totalRequiredQuantity) * 100;
 
-            double percentage = (cumulativeRevenue / totalRevenue) * 100;
+            String abcGrade;
             if (percentage <= 70) {
-                product.setAbcGrade("A");
-            } else if(percentage<=90) {
-                product.setAbcGrade("B");
+                abcGrade = "A";
+            } else if (percentage <= 90) {
+                abcGrade = "B";
             } else {
-                product.setAbcGrade("C");
+                abcGrade = "C";
             }
 
-            productPort.updateABCGrades(product.getProductId(), product.getAbcGrade());
+            productPort.updateABCGrades(data.getProductId(), abcGrade); // 품목별로 ABC 등급 매기는 것 까지 완료
+
         }
     }
-
 
     @Override
     public void assignLocationBinCode() {

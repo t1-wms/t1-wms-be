@@ -59,6 +59,11 @@ public class ProductAdapter implements ProductPort {
         return productMapper.getLocationBinCode(productId);
     }
 
+    @Override
+    public void updateRequiredQuantity(Long productId, Integer lotCount) {
+        productMapper.updateRequiredQuantity(productId, lotCount);
+    }
+
     private <T> T executeWithFallback(Supplier<T> action, T fallback) {
         try {
             return action.get();

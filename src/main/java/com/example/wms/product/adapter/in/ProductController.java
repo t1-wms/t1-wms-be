@@ -11,6 +11,7 @@ import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,18 +23,6 @@ import java.util.List;
 public class ProductController {
 
     private final ProductUseCase productUseCase;
-
-    @PostMapping("/abc-analysis")
-    public ResponseEntity<Void> performABCAnalysis() {
-        productUseCase.performABCAnalysis();
-        return ResponseEntity.status(201).build();
-    }
-
-    @PostMapping("/assign-bin")
-    public ResponseEntity<String> assignLocationBinCode() {
-        productUseCase.assignLocationBinCode();
-        return ResponseEntity.status(201).build();
-    }
 
     @GetMapping
     @Operation(
@@ -55,4 +44,6 @@ public class ProductController {
         List<ProductOverviewDto> overviewList = productUseCase.getProductOverview();
         return ResponseEntity.ok(overviewList);
     }
+
+
 }

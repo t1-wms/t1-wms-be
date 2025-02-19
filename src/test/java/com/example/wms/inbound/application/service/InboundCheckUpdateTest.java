@@ -54,7 +54,7 @@ public class InboundCheckUpdateTest {
 
         // given
         Long inboundId = 1L;
-        LocalDate updateCheckDate = LocalDate.of(2025,2,18);
+        LocalDate updateCheckDate = LocalDate.now();
 
         List<InboundCheckedProductReqDto> updatedProductList = List.of(
                 new InboundCheckedProductReqDto(10L, 5L),
@@ -87,7 +87,7 @@ public class InboundCheckUpdateTest {
         inboundService.updateInboundCheck(inboundId, updateReqDto);
 
         assertEquals(updateCheckDate, inbound.getCheckDate());
-        verify(inboundPort, times(1)).updateIC(inboundId,updateCheckDate ,inbound.getCheckNumber());
+        verify(inboundPort, times(1)).updateIC(inboundId,updateCheckDate ,inbound.getCheckNumber(), "입하검사");
 
     }
 

@@ -14,6 +14,6 @@ public class LotResDto {
     private String productCode;
     private String productName;
     private Long productCount;
-    private String binCode;
+    private String locationBinCode;
 }
 

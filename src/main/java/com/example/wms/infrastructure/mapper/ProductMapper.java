@@ -24,4 +24,5 @@ public interface ProductMapper {
 
     Product findById(@Param("productId") Long productId);
     String getLocationBinCode(@Param("productId") Long productId);
+    void updateRequiredQuantity(@Param("productId") Long productId, @Param("lotCount") Integer lotCount);
 }

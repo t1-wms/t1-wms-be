@@ -34,7 +34,22 @@ public class BinAdapter implements BinPort {
     }
 
     @Override
+    public Long findAvailableBinIdInZone(String zone) {
+        return binMapper.findBinIdInZone(zone);
+    }
+
+    @Override
     public void incrementBinAmount(Long binId, Integer lotCount) {
         binMapper.incrementBinAmount(binId, lotCount);
+    }
+
+    @Override
+    public Long findExactBinIdByBinCode(String binCode) {
+        return binMapper.findExactBinIdByBinCode(binCode);
+    }
+
+    @Override
+    public List<Long> findBinIdsByBinPrefix(String binCode) {
+        return binMapper.findBinIdsByBinPrefix(binCode);
     }
 }

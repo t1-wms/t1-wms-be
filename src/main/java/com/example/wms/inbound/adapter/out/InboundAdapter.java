@@ -33,8 +33,8 @@ public class InboundAdapter implements InboundPort {
     }
 
     @Override
-    public void updateIC(Long inboundId, LocalDate checkDate, String checkNumber) {
-        inboundMapper.updateIC(inboundId, checkDate, checkNumber);
+    public void updateIC(Long inboundId, LocalDate checkDate, String checkNumber, String inboundStatus) {
+        inboundMapper.updateIC(inboundId, checkDate, checkNumber, inboundStatus);
     }
 
     @Override
@@ -63,7 +63,7 @@ public class InboundAdapter implements InboundPort {
     }
 
     @Override
-    public void updatePA(Long inboundId, LocalDate putAwayDate, String putAwayNumber) {
-        inboundMapper.updatePA(inboundId, putAwayDate, putAwayNumber);
+    public void updatePA(Long inboundId, LocalDate putAwayDate, String putAwayNumber, String inboundStatus) {
+        inboundMapper.updatePA(inboundId, putAwayDate, putAwayNumber, inboundStatus);
     }
 }

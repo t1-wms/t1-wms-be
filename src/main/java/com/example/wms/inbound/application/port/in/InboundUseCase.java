@@ -18,7 +18,7 @@ public interface InboundUseCase {
     void createInboundSchedule(Order order);
     void deleteInboundPlan(Long inboundId);
     void createInboundCheck(Long inboundId, InboundCheckReqDto inboundCheckReqDto);
-    Page<InboundResDto> getFilteredInboundCheck(String inboundCheckNumber, LocalDate startDate, LocalDate endDate, Pageable pageable);
+    Page<InboundAllProductDto> getFilteredInboundCheck(String inboundCheckNumber, LocalDate startDate, LocalDate endDate, Pageable pageable);
     void updateInboundCheck(Long inboundId, InboundCheckUpdateReqDto updateReqDto);
     void deleteInboundCheck(Long inboundId);
     InboundWorkerCheckResDto createInboundCheckByWorker(List<InboundCheckWorkerReqDto> workerCheckRequests);
@@ -27,4 +27,5 @@ public interface InboundUseCase {
     Page<ProductInboundResDto> getAllInboundByProductWithPagination(LocalDate startDate, LocalDate endDate, Pageable pageable);
     Page<SupplierInboundResDto> getAllInboundBySupplierWithPagination(LocalDate startDate, LocalDate endDate, Pageable pageable);
     Page<InboundProgressResDto> getAllInboundProgressWithPagination(LocalDate startDate, LocalDate endDate, Pageable pageable);
+
 }
