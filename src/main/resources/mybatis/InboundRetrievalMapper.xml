@@ -314,6 +314,7 @@
     <select id="countAllInboundPlanFiltering" resultType="int">
         SELECT COUNT(*)
         FROM inbound
+        WHERE schedule_number is not null AND check_number is null
         <where>
             <if test="inboundScheduleNumber != null">
                 schedule_number = #{inboundScheduleNumber}
@@ -338,6 +339,7 @@
     <select id="countAllInboundCheckFiltering" resultType="int">
         SELECT COUNT(*)
         FROM inbound
+        WHERE check_number is not null AND put_away_number is null
         <where>
             <if test="inboundCheckNumber != null">
                 inbound_check_number = #{inboundCheckNumber}
