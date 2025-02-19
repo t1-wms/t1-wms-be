@@ -25,6 +25,7 @@ public class BinService implements BinUseCase {
         return convertFlatToHierarchical(flatBinDtos);
     }
 
+
     private List<BinResponseDto> convertFlatToHierarchical(List<FlatBinDto> flatBinDtos) {
         Map<Long, BinResponseDto> binMap = new HashMap<>();
 
@@ -73,5 +74,19 @@ public class BinService implements BinUseCase {
         }
 
         return new ArrayList<>(binMap.values());
+    }
+
+    @Override
+    public List<Long> assignBinIdsToLots(String locationBinCode, int lotCount) {
+        List<Long> binIds;
+
+        if (locationBinCode.split("-").length == 4) {
+            Long binId = binPort.findExactBinIdByBinCode(locationBinCode);
+            binIds = (binId != null) ? List.of(binId) : List.of();
+        } else {
+            binIds = binPort.findBinIdsByBinPrefix(locationBinCode);
+        }
+
+        return binIds.size() >= lotCount ? binIds.subList(0, lotCount) : binIds;
     }
 }

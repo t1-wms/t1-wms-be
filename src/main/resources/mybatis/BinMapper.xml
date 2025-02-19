@@ -50,6 +50,28 @@
         WHERE bin_code = #{binCode}
     </select>
 
+    <select id="findBinIdInZone" resultType="java.lang.Long">
+        SELECT bin_id
+        FROM bin
+        WHERE zone = #{zone}
+        ORDER BY row ASC, floor ASC
+        LIMIT 1
+    </select>
+
+    <select id="findBinIdsByBinPrefix" resultType="java.lang.Long">
+        SELECT bin_id
+        FROM bin
+        WHERE bin_code LIKE CONCAT(#{binPrefix}, '-%')
+        ORDER BY bin_code ASC
+    </select>
+
+    <select id="findExactBinIdByBinCode" resultType="java.lang.Long">
+        SELECT bin_id
+        FROM bin
+        WHERE bin_code = #{binCode}
+    </select>
+
+
     <update id="incrementBinAmount">
         UPDATE bin
         SET amount = amount + #{lotCount}

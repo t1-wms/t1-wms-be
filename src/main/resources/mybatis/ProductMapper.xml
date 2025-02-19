@@ -96,4 +96,10 @@
         SELECT * FROM product
         WHERE product_id = #{productId}
     </select>
+
+    <update id="updateRequiredQuantity">
+        UPDATE product
+        SET stock_lot_count = stock_lot_count + #{lotCount}
+        WHERE product_id = #{productId}
+    </update>
 </mapper>

@@ -9,6 +9,8 @@ public interface BinPort {
     Long findAvailableBinIdInAisle(String zone, Integer aisle);
     Long findBinIdByBinCode(String locationBinCode);
     Long findAvailableBinIdInRow(String zone, Integer aisle, Integer row);
+    Long findAvailableBinIdInZone(String zone);
     void incrementBinAmount(Long binId, Integer lotCount);
-
+    Long findExactBinIdByBinCode(String binCode);
+    List<Long> findBinIdsByBinPrefix(String binCode);
 }

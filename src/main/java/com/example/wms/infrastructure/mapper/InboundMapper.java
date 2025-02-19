@@ -14,11 +14,12 @@ public interface InboundMapper {
     List<InboundResDto> findInboundProductListByOrderId(Long orderId);
     void delete(Long inboundId);
     Inbound findById(Long inboundId);
-    void updateIC(Long inboundId, LocalDate checkDate, String checkNumber);
-    void updatePA(Long inboundId, LocalDate putAwayDate, String putAwayNumber);
+    void updateIC(Long inboundId, LocalDate checkDate, String checkNumber, String inboundStatus);
+    void updatePA(Long inboundId, LocalDate putAwayDate, String putAwayNumber, String inboundStatus);
     Long findOrderIdByScheduleNumber(String scheduleNumber);
     void updateInboundWorkerCheck(String scheduleNumber, String checkNumber);
     void updateOrderProduct(Long orderId, Long productId, boolean isDefective);
     List<LotInfoDto> findLotsByScheduleNumber(String scheduleNumber);
     List<LotInfoDto> findLotsByCheckNumber(String checkNumber);
+
 }

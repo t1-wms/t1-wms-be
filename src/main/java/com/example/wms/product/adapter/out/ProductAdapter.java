@@ -60,6 +60,11 @@ public class ProductAdapter implements ProductPort {
     }
 
     @Override
+    public void updateRequiredQuantity(Long productId, Integer lotCount) {
+        productMapper.updateRequiredQuantity(productId, lotCount);
+    }
+
+    @Override
     public Long getSupplierId(Long productId) {
         return productMapper.getSupplierIdByProductId(productId);
     }

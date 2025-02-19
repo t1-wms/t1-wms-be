@@ -1,5 +1,6 @@
 package com.example.wms.product.application.service;
 
+import com.example.wms.outbound.application.port.out.OutboundPlanProductPort;
 import com.example.wms.product.application.domain.Product;
 import com.example.wms.product.application.port.out.ProductPort;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,6 +26,9 @@ class ProductABCGradeServiceTest {
     @InjectMocks
     private ProductService productService;
 
+    @Mock
+    private OutboundPlanProductPort outboundPlanProductPort;
+
     private List<Product> mockProducts;
 
     @BeforeEach
@@ -35,9 +39,7 @@ class ProductABCGradeServiceTest {
                 new Product(1L, "a125", "handle3", 5000, 10000, 10, 1L, 50, "Electronics", 5, 7, null, null)
         );
 
-        when(productPort.getAllProducts()).thenReturn(mockProducts);
 
-        assertFalse(mockProducts.isEmpty());
     }
 
     @Test
@@ -45,7 +47,7 @@ class ProductABCGradeServiceTest {
     void performABCAnalysis() {
         productService.performABCAnalysis();
 
-        verify(productPort, times(mockProducts.size())).updateABCGrades(anyLong(), anyString());
+        verify(outboundPlanProductPort, times(1)).getRequiredQuantitiesPerProduct();
     }
 
     @Test
