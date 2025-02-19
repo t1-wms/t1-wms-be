@@ -43,9 +43,9 @@ spring:
 
   data:
     redis:
-      host: localhost
+      host: 54.180.166.147
       port: 6379
-      password: ""
+      password: ${secret.redis.password}
     web:
       pageable:
         default-page-size: 10

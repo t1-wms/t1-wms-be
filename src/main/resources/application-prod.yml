@@ -36,7 +36,7 @@ spring:
 
   data:
     redis:
-      host: ${secret.redis.host}
+      host: 54.180.166.147
       port: 6379
       password: ${secret.redis.password}
     web:
