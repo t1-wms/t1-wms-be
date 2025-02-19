@@ -41,4 +41,9 @@ public class GetOutboundPlanAdapter implements GetOutboundPlanPort {
     public Optional<Outbound> findOutboundByOutboundPlanId(Long outboundPlanId) {
         return outboundPlanMapper.findOutboundByOutboundPlanId(outboundPlanId);
     }
+
+    @Override
+    public Optional<OutboundPlan> findOutboundPlanByOutboundPlanId(Long outboundPlanId) {
+        return outboundPlanMapper.findOutboundPlanByOutboundPlanId(outboundPlanId);
+    }
 }

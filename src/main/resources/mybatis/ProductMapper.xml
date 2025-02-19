@@ -45,6 +45,12 @@
         FROM product;
     </select>
 
+    <select id="getSupplierIdByProductId">
+        SELECT supplier_id
+        FROM product
+        WHERE product_id = #{productId};
+    </select>
+
 
     <select id="findProductWithPagination" resultType="com.example.wms.product.adapter.in.dto.ProductResponseDto">
         SELECT

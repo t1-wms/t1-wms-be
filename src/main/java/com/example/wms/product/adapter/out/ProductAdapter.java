@@ -59,6 +59,11 @@ public class ProductAdapter implements ProductPort {
         return productMapper.getLocationBinCode(productId);
     }
 
+    @Override
+    public Long getSupplierId(Long productId) {
+        return productMapper.getSupplierIdByProductId(productId);
+    }
+
     private <T> T executeWithFallback(Supplier<T> action, T fallback) {
         try {
             return action.get();
