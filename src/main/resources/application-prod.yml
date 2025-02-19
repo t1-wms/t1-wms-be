@@ -35,7 +35,7 @@ spring:
 
   data:
     redis:
-      host: redis.jx8td2.clustercfg.apn2.cache.amazonaws.com:6379
+      host: redis.jx8td2.clustercfg.apn2.cache.amazonaws.com
       port: 6379
       password:
     web:
