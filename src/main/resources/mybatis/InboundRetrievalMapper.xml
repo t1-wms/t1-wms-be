@@ -54,8 +54,6 @@
         LIMIT #{pageable.pageSize} OFFSET #{pageable.offset}
     </select>
 
-
-
     <select id="findInboundFilteringWithPagination" resultMap="InboundAllProductResultMap">
         SELECT
             i.inbound_id,
