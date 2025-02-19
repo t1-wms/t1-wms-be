@@ -79,4 +79,6 @@ public interface OrderMapper {
 
     List<ProductListDto> findProductListByOrderId(Long orderId);
 
+
+    void upDateOrderApprove(@Param("orderId") Long orderId);
 }

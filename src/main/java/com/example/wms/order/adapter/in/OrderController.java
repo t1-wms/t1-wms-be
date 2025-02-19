@@ -78,4 +78,11 @@ public class OrderController {
     ) {
         return ResponseEntity.ok(getOrderUseCase.getFilteredOrder(orderNumber, startDate, endDate, pageable));
     }
+
+    @PostMapping("/approve/{orderId}")
+    @Operation(summary = "발주 승인하기" ,description = "isApproved -> true & orderStatus -> 완료")
+    public ResponseEntity<Void> approveOrder(@PathVariable("orderId") Long orderId) {
+        updateOrderUseCase.updateOrderApprove(orderId);
+        return ResponseEntity.ok().build();
+    }
 }

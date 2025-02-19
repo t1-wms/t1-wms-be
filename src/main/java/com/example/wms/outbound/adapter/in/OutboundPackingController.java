@@ -17,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -42,9 +43,10 @@ public class OutboundPackingController {
     @Operation(summary = "출고 패킹 수정 & 삭제")
     public ResponseEntity<Void> deleteOutboundPacking(
             @PathVariable Long outboundId,
-            @RequestBody(required = false) Optional<LocalDate> outboundPackingDate) {
-        if (outboundPackingDate.isPresent()) {
-            updateOutboundPackingUseCase.updateOutboundPacking(outboundId, outboundPackingDate.get());
+            @RequestBody(required = false) Map<String,LocalDate> outboundPackingDate) {
+        if (!outboundPackingDate.isEmpty()) {
+            LocalDate date = outboundPackingDate.get("date");
+            updateOutboundPackingUseCase.updateOutboundPacking(outboundId, date);
         } else {
             deleteOutboundPackingUseCase.deleteOutboundPacking(outboundId);
         }

@@ -17,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -42,9 +43,10 @@ public class OutboundLoadingController {
     @Operation(summary = "출고 로딩 수정 & 삭제")
     public ResponseEntity<Void> deleteOutboundLoading(
             @PathVariable Long outboundId,
-            @RequestBody(required = false) Optional<LocalDate> outboundLoadingDate){
-        if (outboundLoadingDate.isPresent()) {
-            updateOutboundLoadingUseCase.updateOutboundLoading(outboundId, outboundLoadingDate.get());
+            @RequestBody(required = false) Map<String,LocalDate> outboundLoadingDate){
+        if (!outboundLoadingDate.isEmpty()) {
+            LocalDate date = outboundLoadingDate.get("date");
+            updateOutboundLoadingUseCase.updateOutboundLoading(outboundId, date);
         } else {
             deleteOutboundLoadingUseCase.deleteOutboundLoading(outboundId);
         }

@@ -15,6 +15,7 @@
             <result property="productId" column="product_id"/>
             <result property="productName" column="product_name"/>
             <result property="productCount" column="product_count"/>
+            <result property="productCode" column="product_code"/>
         </collection>
     </resultMap>
     <!-- 주문 전체 조회 -->
@@ -96,6 +97,7 @@
         o.order_date AS delivery_deadline,
         op.product_id,
         op.product_name,
+        p.product_code,  -- product 테이블에서 가져옴
         op.product_count
         FROM (
         SELECT o.*
@@ -104,6 +106,7 @@
         ) o
         JOIN supplier s ON o.supplier_id = s.supplier_id
         LEFT JOIN order_product op ON o.order_id = op.order_id
+        LEFT JOIN product p ON op.product_id = p.product_id -- product 테이블 조인 추가
         WHERE 1=1
 
         <if test="orderNumber != null and orderNumber != ''">
@@ -126,6 +129,7 @@
 
         LIMIT #{pageable.pageSize} OFFSET #{pageable.offset}
     </select>
+
 
 
     <select id="countAllOrder">
@@ -161,5 +165,11 @@
         FROM order_product o
         WHERE `order_id` = #{orderId}
     </select>
+
+    <update id="upDateOrderApprove">
+        UPDATE `order`
+        SET is_approved = true ,  order_status = "완료"
+        WHERE `order_id` = #{orderId}
+    </update>
 
 </mapper>
