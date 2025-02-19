@@ -189,9 +189,9 @@ pipeline {
                                         sleep 10
 
                                         echo "Updating Nginx configuration..."
-                                        echo "${deployEnv}" > /etc/nginx/deployment_env
-                                        sudo chmod 644 /etc/nginx/deployment_env
-                                        sudo chown nginx:nginx /etc/nginx/deployment_env
+                                        sudo bash -c 'echo "${deployEnv}" > /etc/nginx/deployment_env'
+                                        sudo chmod 666 /etc/nginx/deployment_env
+                                        sudo chown root:root /etc/nginx/deployment_env
 
                                         sudo sed -i "s/proxy_pass http:\\/\\/localhost:[0-9]*/proxy_pass http:\\/\\/localhost:${port}/" /etc/nginx/conf.d/backend.conf
 
