@@ -12,4 +12,5 @@ public interface InventoryUseCase {
     Page<ProductInfoDto> getAllProductInventories(String productCode, Pageable pageable);
     Page<ProductThresholdDto> getAllProductThresholds(String productCode, Pageable pageable);
     Product updateThreshold(ThresholdUpdateRequestDto thresholdUpdateRequestDto);
+    Integer findAvailableQuantity(Long productId);
 }

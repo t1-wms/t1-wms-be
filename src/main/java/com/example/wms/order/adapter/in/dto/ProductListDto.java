@@ -15,4 +15,6 @@ public class ProductListDto {
     private String productName;
 
     private Integer productCount;
+
+    private String productCode;
 }

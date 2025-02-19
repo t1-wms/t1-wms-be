@@ -15,4 +15,5 @@ public interface GetOutboundPlanPort {
     Integer countFilteredOutboundPlan(String outboundScheduleNumber, LocalDate startDate, LocalDate endDate);
     List<ProductInfoDto> findProductInfoByOutboundPlanId(Long outboundPlanId);
     Optional<Outbound> findOutboundByOutboundPlanId(Long outboundPlanId);
+    Optional<OutboundPlan> findOutboundPlanByOutboundPlanId(Long outboundPlanId);
 }

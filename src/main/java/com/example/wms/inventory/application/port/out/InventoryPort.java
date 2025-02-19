@@ -18,4 +18,8 @@ public interface InventoryPort {
 
     int updateThreshold(ThresholdUpdateRequestDto thresholdUpdateRequestDto);
     Product findByProductId(Long productId);
+
+    Integer findAvailableQuantityByProductId(Long productId);
+
+    void updateInventoryAvailableQuantity(Long productId, Integer availableQuantity);
 }

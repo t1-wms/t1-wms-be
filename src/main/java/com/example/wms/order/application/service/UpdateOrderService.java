@@ -18,4 +18,9 @@ public class UpdateOrderService implements UpdateOrderUseCase {
     public void updateOrder(Long orderId, List<ProductListDto> productList) {
         updateOrderPort.updateOrder(orderId, productList);
     }
+
+    @Override
+    public void updateOrderApprove(Long orderId) {
+        updateOrderPort.updateOrderApprove(orderId);
+    }
 }

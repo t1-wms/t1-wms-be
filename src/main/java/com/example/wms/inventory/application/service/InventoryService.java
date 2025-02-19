@@ -58,4 +58,9 @@ public class InventoryService implements InventoryUseCase {
         return existingProduct;
     }
 
+    @Override
+    public Integer findAvailableQuantity(Long productId) {
+        return 0;
+    }
+
 }

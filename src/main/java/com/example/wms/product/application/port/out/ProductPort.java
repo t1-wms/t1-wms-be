@@ -18,4 +18,5 @@ public interface ProductPort {
     Product findById(Long productId);
     String getLocationBinCode(Long productId);
     void updateRequiredQuantity(Long productId, Integer lotCount);
+    Long getSupplierId(Long productId);
 }

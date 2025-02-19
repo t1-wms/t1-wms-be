@@ -17,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -43,10 +44,11 @@ public class OutboundAssignController {
     @Operation(summary = "출고 지시 수정 & 삭제", description = "RequestBody값 있으면 수정 (outboundAssignDate), 없으면 삭제 (outboundAssignNumber & Date null값 처리)")
     public ResponseEntity<Void> deleteOutboundAssign(
             @PathVariable Long outboundId,
-            @RequestBody(required = false) Optional<LocalDate> outboundAssignDate) {
+            @RequestBody(required = false) Map<String,LocalDate> outboundAssignDate) {
 
-        if (outboundAssignDate.isPresent()) {
-            updateOutboundAssignUseCase.updateOutboundAssign(outboundId, outboundAssignDate.get());
+        if (!outboundAssignDate.isEmpty()) {
+            LocalDate date = outboundAssignDate.get("date");
+            updateOutboundAssignUseCase.updateOutboundAssign(outboundId, date);
         } else {
             deleteOutboundAssignUseCase.deleteOutboundAssign(outboundId);
         }

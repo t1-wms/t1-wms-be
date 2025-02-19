@@ -17,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -43,9 +44,10 @@ public class OutboundPickingController {
     @Operation(summary = "출고 피킹 수정 & 삭제")
     public ResponseEntity<Void> deleteOutboundPicking(
             @PathVariable Long outboundId,
-            @RequestBody(required = false) Optional<LocalDate> outboundPickingDate) {
-        if (outboundPickingDate.isPresent()) {
-            updateOutboundPickingUseCase.updateOutboundPicking(outboundId, outboundPickingDate.get());
+            @RequestBody(required = false) Map<String,LocalDate> outboundPickingDate) {
+        if (!outboundPickingDate.isEmpty()) {
+            LocalDate date = outboundPickingDate.get("date");
+            updateOutboundPickingUseCase.updateOutboundPicking(outboundId, date);
         } else {
             deleteOutboundPickingUseCase.deleteOutboundPicking(outboundId);
         }

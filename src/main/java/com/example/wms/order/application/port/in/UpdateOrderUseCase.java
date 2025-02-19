@@ -6,4 +6,5 @@ import java.util.List;
 
 public interface UpdateOrderUseCase {
     void updateOrder(Long orderId, List<ProductListDto> productList);
+    void updateOrderApprove(Long orderId);
 }

@@ -47,4 +47,14 @@ public class InventoryAdapter implements InventoryPort {
     public Product findByProductId(Long productId) {
         return inventoryMapper.findByProductId(productId);
     }
+
+    @Override
+    public Integer findAvailableQuantityByProductId(Long productId) {
+        return inventoryMapper.findAvailableQuantity(productId);
+    }
+
+    @Override
+    public void updateInventoryAvailableQuantity(Long productId, Integer availableQuantity) {
+        inventoryMapper.updateInventoryQuantity(productId, availableQuantity);
+    }
 }
