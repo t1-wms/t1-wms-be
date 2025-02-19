@@ -11,19 +11,6 @@ services:
     networks:
       - servernetwork
 
-  redis-container:
-    container_name: redis-container
-    image: redis
-    restart: always
-    command: redis-server /usr/local/etc/redis/redis.conf --requirepass autoever1020
-    ports:
-      - "6379:6379"
-    volumes:
-      - ~/postgres-workspace/redis:/data
-      - ~/postgres-workspace/redis/redis.conf:/usr/local/etc/redis/redis.conf
-    networks:
-      - servernetwork
-
 networks:
   servernetwork:
     external: true
