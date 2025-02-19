@@ -196,10 +196,8 @@ pipeline {
                                         sudo nginx -t && sudo systemctl reload nginx
 
                                         if [ "${currentEnv}" != "none" ]; then
-                                            docker-compose -p spring-wms-${currentEnv} -f docker-compose.${currentEnv}.yml up -d
-                                            echo "${currentEnv}" | sudo tee /etc/nginx/deployment_env
-                                            sudo sed -i "s/proxy_pass http:\\/\\/localhost:[0-9]*/proxy_pass http:\\/\\/localhost:${currentEnv == 'blue' ? '8011' : '8012'}/" /etc/nginx/conf.d/backend.conf
-                                            sudo systemctl reload nginx
+                                            echo "Stopping old container: ${currentEnv}..."
+                                            docker-compose -p spring-wms-${currentEnv} -f docker-compose.${currentEnv}.yml down
                                         fi
 
                                         exit 1
