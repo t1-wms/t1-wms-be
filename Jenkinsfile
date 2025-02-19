@@ -49,6 +49,11 @@ pipeline {
                     sh 'gradle --version'
                     echo "Listing project files"
                     sh 'ls -la'
+
+                                // 환경 변수 확인
+                                echo "===== Checking Jenkins Environment Variables ====="
+                                echo "Redis Host: ${env.redis-host}"
+                                echo "Redis Password: ${env.redis-password}"
                 }
             }
         }
@@ -65,6 +70,11 @@ pipeline {
                         sh """
                             echo "Resource directory contents before:"
                             ls -la ./src/main/resources/
+
+                    echo "===== Checking application-prod.yml contents ====="
+                    cat ./src/main/resources/application-prod.yml | grep 'host' || echo "No host found"
+                    cat ./src/main/resources/application-prod.yml | grep 'redis' || echo "No redis settings found"
+
 
                             chmod -R 777 ./src/main/resources
                             cp \${SECRET_FILE} ./src/main/resources/application-secret.yml
