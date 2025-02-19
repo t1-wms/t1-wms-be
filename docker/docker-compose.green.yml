@@ -10,22 +10,8 @@ services:
     environment:
       - TZ=Asia/Seoul
       - SPRING_PROFILES_ACTIVE=prod
-      - SPRING_DATA_REDIS_HOST=redis-container
-      - SPRING_DATA_REDIS_PORT=6379
     networks:
       - servernetwork
-    depends_on:
-      - redis-container
-
-  redis-container:
-    image: redis:6
-    container_name: redis-container
-    ports:
-      - "6379:6379"
-    command: redis-server --requirepass "${REDIS_PASSWORD}"
-    networks:
-      - servernetwork
-    restart: unless-stopped
 
 networks:
   servernetwork:
