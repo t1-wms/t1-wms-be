@@ -200,7 +200,6 @@ pipeline {
                                             docker-compose -p spring-wms-${currentEnv} -f docker-compose.${currentEnv}.yml down
                                         fi
 
-                                        exit 1
                                     """
                                 )
                             ],
