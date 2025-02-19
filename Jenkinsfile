@@ -129,6 +129,7 @@ pipeline {
                 }
             }
         }
+
         stage('Deploy to Backend Server') {
             steps {
                 script {
@@ -167,8 +168,11 @@ pipeline {
                                         echo "Starting deployment process..."
                                         cd /home/ec2-user/backend
 
-                                        echo "Loading Docker image directly..."
-                                        docker save ${DOCKER_TAG} | ssh ec2-user@api.stockholmes.store 'docker load'
+                                        echo "Saving Docker image..."
+                                        docker save -o /home/ec2-user/backend/image.tar ${DOCKER_TAG}
+
+                                        echo "Loading Docker image..."
+                                        docker load -i /home/ec2-user/backend/image.tar
 
                                         echo "Cleaning up exited container for port ${port}..."
                                         CONTAINER_ID=\$(docker ps -a | grep ${port} | grep 'Exited' | awk '{print \$1}')
