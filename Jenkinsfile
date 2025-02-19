@@ -60,14 +60,14 @@ pipeline {
                     echo "Current directory structure:"
                     sh 'pwd && ls -la'
 
-                    withCredentials([file(credentialsId: 'wms-secret', variable: 'APP_SECRET_YML')]) {
+                    withCredentials([file(credentialsId: 'wms-secret', variable: 'SECRET_FILE')]) {
                         echo "Copying secret file..."
                         sh """
                             echo "Resource directory contents before:"
                             ls -la ./src/main/resources/
 
                             chmod -R 777 ./src/main/resources
-                            cp \${APP_SECRET_YML} ./src/main/resources/application-secret.yml
+                            cp \${SECRET_FILE} ./src/main/resources/application-secret.yml
 
                             echo "Resource directory contents after:"
                             ls -la ./src/main/resources/
@@ -133,7 +133,6 @@ pipeline {
         stage('Deploy to Backend Server') {
             steps {
                 script {
-                    // 현재 실행 중인 환경 확인
                     def currentEnv = sh(
                         script: """
                             ssh -o StrictHostKeyChecking=no ec2-user@api.stockholmes.store '
@@ -159,25 +158,19 @@ pipeline {
                             transfers: [
                                 sshTransfer(
                                     execCommand: """
-                                        # 로그 디렉토리 권한 설정
-                                        sudo chown -R jenkins:jenkins /home/ec2-user/backend/logs
-                                        sudo chmod -R 755 /home/ec2-user/backend/logs
+                                        cd /home/ec2-user/backend
+
+                                        # Docker 이미지 전송
+                                        docker save ${DOCKER_TAG} | ssh ec2-user@api.stockholmes.store 'docker load'
+
+                                        # BUILD_NUMBER 환경변수 설정
+                                        export BUILD_NUMBER=${BUILD_NUMBER}
 
                                         # 1. 새 컨테이너 중지 및 삭제 (존재할 경우)
-                                        docker stop ${containerName} || true
-                                        docker rm ${containerName} || true
+                                        docker-compose -p spring-wms-${deployEnv} -f docker-compose.${deployEnv}.yml down || true
 
                                         # 2. 새 컨테이너 실행
-                                        docker run -d \\
-                                            --name ${containerName} \\
-                                            --network servernetwork \\
-                                            -p ${port}:8080 \\
-                                            -v /home/ec2-user/backend/logs:/logs \\
-                                            -e SPRING_PROFILES_ACTIVE=prod \\
-                                            -e SPRING_DATA_REDIS_HOST=redis-container \\
-                                            -e SPRING_DATA_REDIS_PORT=6379 \\
-                                            -e REDIS_PASSWORD=\${REDIS_PASSWORD} \\
-                                            backend:${BUILD_NUMBER}
+                                        docker-compose -p spring-wms-${deployEnv} -f docker-compose.${deployEnv}.yml up -d
 
                                         # 3. Nginx 설정 업데이트
                                         echo ${deployEnv} > /etc/nginx/deployment_env
@@ -188,8 +181,7 @@ pipeline {
 
                                         # 5. 이전 환경 컨테이너 정리
                                         if [ "${currentEnv}" != "none" ]; then
-                                            docker stop spring-wms-${currentEnv} || true
-                                            docker rm spring-wms-${currentEnv} || true
+                                            docker-compose -p spring-wms-${currentEnv} -f docker-compose.${currentEnv}.yml down || true
                                         fi
 
                                         # 6. 헬스 체크
